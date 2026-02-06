@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "985102730017",
+    "firebase_url": "https://hiveinspector-613f8-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "hiveinspector-613f8",
+    "storage_bucket": "hiveinspector-613f8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:985102730017:android:1dd6fcca73431849247460",
+        "android_client_info": {
+          "package_name": "com.beevoiceapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "985102730017-laqd9tcfnmfrahmslh4l9v9rcth9ujq9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.beevoiceapp",
+            "certificate_hash": "a439eee0b8b0305a8e6e4c5336add2410ce4ed49"
+          }
+        },
+        {
+          "client_id": "985102730017-hp7jif3129ct7cem77uonp17tp2p1keb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKTm8bxDkREjwbXOoD-nnv92ZiPFt-CVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "985102730017-hp7jif3129ct7cem77uonp17tp2p1keb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

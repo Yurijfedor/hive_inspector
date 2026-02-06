@@ -1,0 +1,44 @@
+context:
+  expressions:
+    hiveData:
+      - box $NUMBER:box
+      - bread $NUMBER:bread
+      - color $COLOR:color
+      - state $STATE:state
+      - strength $NUMBER:strengt
+      - queen $QUEEN:QueenStatus
+      - stop $BOOL:endRecording
+      - honey $NUMBER:honey
+      - id $NUMBER:id
+  slots:
+    NUMBER:
+      - ten
+      - nine
+      - eight
+      - seven
+      - six
+      - five
+      - four
+      - three
+      - two
+      - one
+      - zero
+    BOOL:
+      - "true"
+    STATE:
+      - queen in cage
+      - virgin
+      - swarm
+      - split
+      - sick
+      - drone
+    QUEEN:
+      - minus
+      - plus
+    COLOR:
+      - blue
+      - green
+      - red
+      - yellow
+      - white
+  macros: {}

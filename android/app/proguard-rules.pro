@@ -8,3 +8,6 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-keep class com.facebook.react.uimanager.** { *; }
+-keep class com.reactnativecommunity.picker.** { *; }
+-keep class com.horcrux.svg.** { *; } # Якщо використовується react-native-svg
