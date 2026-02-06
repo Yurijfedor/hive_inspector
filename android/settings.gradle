@@ -3,4 +3,12 @@ plugins { id("com.facebook.react.settings") }
 extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 rootProject.name = 'beevoiceapp'
 include ':app'
+include ':react-native-camera'
+project(':react-native-camera').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera/android')
+include ':react-native-permissions'
+project(':react-native-permissions').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-permissions/android')
+include ':react-native-tts'
+project(':react-native-tts').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-tts/android')
+include ':react-native-firebase_database'
+project(':react-native-firebase_database').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/database/android')
 includeBuild('../node_modules/@react-native/gradle-plugin')
