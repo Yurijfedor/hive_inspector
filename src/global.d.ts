@@ -4,6 +4,7 @@ declare module 'node-record-lpcm16' {
     threshold?: number;
     silence?: string | number;
     recordProgram?: string;
+    device: string;
     verbose?: boolean;
   }
 
