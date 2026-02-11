@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 
 import OpenAI from 'openai';
 import {INSPECTION_SYSTEM_PROMPT} from './prompts/inspection.system';
-import {INSPECTION_LLM_SCHEMA} from '../schema/inspection';
 import {buildInspectionUserPrompt} from './prompts/inspection.user';
+import {INSPECTION_LLM_SCHEMA} from '../schema/inspection';
+import {InspectionSchema} from '../schema/inspection';
 
 // SYSTEM prompt
 // const systemPrompt = `
@@ -57,5 +58,17 @@ export async function parseInspection(text: string) {
     ],
   });
 
-  return JSON.parse(response.choices[0].message.content!);
+  const parsed = InspectionSchema.safeParse(
+    JSON.parse(response.choices[0].message.content!),
+  );
+
+  if (!parsed.success) {
+    console.error(
+      'LLM output invalid:',
+      JSON.parse(response.choices[0].message.content!),
+    );
+    throw new Error('Invalid inspection command');
+  }
+
+  return parsed.data;
 }
