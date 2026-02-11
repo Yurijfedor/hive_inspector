@@ -6,15 +6,19 @@ const samples = [
   'Вулик номер 7, стоп',
   'Вулик номер 2, сила десять',
   'Вулик номер 4',
+  'Привіт як справи',
+  'Вулик номер пʼять і ще щось придумай',
+  '',
+  'Меду багато',
 ];
 
-async function run() {
+async function dryRun() {
   for (const text of samples) {
     console.log('VOICE:', text);
 
     try {
       const result = await parseInspection(text);
-      console.log('JSON:', result);
+      console.log('✅ VALID COMMAND:', result);
     } catch (e) {
       console.error('❌ ERROR:', e);
     }
@@ -23,4 +27,4 @@ async function run() {
   }
 }
 
-run();
+dryRun();
