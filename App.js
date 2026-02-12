@@ -76,16 +76,7 @@ const BREAD_MAP = {
   4: 'карпатська',
 };
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyCKTm8bxDkREjwbXOoD-nnv92ZiPFt-CVM',
-  authDomain: 'hiveinspector-613f8.firebaseapp.com',
-  databaseURL:
-    'https://hiveinspector-613f8-default-rtdb.europe-west1.firebasedatabase.app',
-  projectId: 'hiveinspector-613f8',
-  storageBucket: 'hiveinspector-613f8.appspot.com',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: '1:985102730017:android:1dd6fcca73431849247460',
-};
+const firebaseConfig = {};
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
