@@ -1,7 +1,10 @@
 import {validateInspectionCommand} from './validateInspection';
 import {InspectionCommand} from '../voice/schema/inspection';
+import {InspectionEvent} from './inspectionEvents';
 
-export async function handleInspection(command: InspectionCommand) {
+export async function handleInspection(
+  command: InspectionCommand,
+): Promise<InspectionEvent> {
   validateInspectionCommand(command, hiveNumber => {
     return hiveNumber >= 1 && hiveNumber <= 100;
   });
@@ -17,9 +20,9 @@ export async function handleInspection(command: InspectionCommand) {
     type: 'UPDATE_INSPECTION',
     hiveNumber: command.hiveNumber,
     payload: {
-      strength: command.strength,
-      honeyKg: command.honeyKg,
-      queen: command.queen,
+      strength: command.strength ?? null,
+      honeyKg: command.honeyKg ?? null,
+      queen: command.queen ?? null,
     },
   };
 }

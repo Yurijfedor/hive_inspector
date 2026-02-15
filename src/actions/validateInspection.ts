@@ -1,11 +1,12 @@
 import {InspectionCommand} from '../voice/schema/inspection';
+import {BusinessValidationError} from './errors';
 
 export function validateInspectionCommand(
   command: InspectionCommand,
   hiveExists: (hiveNumber: number) => boolean,
 ) {
   if (!hiveExists(command.hiveNumber)) {
-    throw new Error('Hive does not exist');
+    throw new BusinessValidationError('Hive does not exist');
   }
 
   if (command.strength !== null) {

@@ -1,10 +1,11 @@
 import {parseInspection} from '../src/voice/llm/parseInspection';
 import {transcribe} from '../src/voice/stt/transcribe';
 import {handleInspection} from '../src/actions/handleInspection';
+import {handleInspectionEffect} from '../src/effects/inspectionEffectHandler';
 
 async function dryRun() {
   const text = await transcribe(
-    'scripts/test-mono-false.wav',
+    'scripts/test-mono.wav',
     (text, isFinal) => {
       console.log(isFinal ? 'FINAL:' : 'LIVE:', text);
     },
@@ -12,9 +13,11 @@ async function dryRun() {
   );
 
   const result = await parseInspection(text);
-  const action = await handleInspection(result);
+  const event = await handleInspection(result);
+  await handleInspectionEffect(event);
 
-  console.log('✅ VALID COMMAND:', result, '=> ACTION:', action);
+  console.log('✅ EVENT:', event);
+  console.log('🔥 EFFECT APPLIED (check Firebase)');
   console.log('---------------');
 }
 
