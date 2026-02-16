@@ -38,6 +38,9 @@ import HiveDetails from './HiveDetails';
 // import HiveFilter from './HiveFilter';
 import ManualDataModal from './ManualDataModal';
 import AuthScreen from './AuthScreen';
+import {handleInspection} from './src/actions/handleInspection';
+import {handleInspectionEffect} from './src/effects/inspectionEffectHandler';
+import {buildInspectionFeedback} from './src/feedback/buildInspectionFeedback';
 
 // Константи та мапи
 const NUMBER_MAP = {
@@ -78,9 +81,9 @@ const BREAD_MAP = {
 
 const firebaseConfig = {};
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+// if (!firebase.apps.length) {
+//   firebase.initializeApp(firebaseConfig);
+// }
 
 // QRScannerModal компонент
 const QRScannerModal = ({visible, onClose, onRead}) => {
@@ -116,6 +119,23 @@ const MainScreen = ({navigation}) => {
     }
   };
 
+  const runTest = async () => {
+    const fakeCommand = {
+      hiveNumber: 14,
+      strength: 8,
+      honeyKg: 2.5,
+      queen: 'absent',
+      stop: false,
+    };
+
+    const event = await handleInspection(fakeCommand);
+    const result = await handleInspectionEffect(event);
+
+    const feedback = buildInspectionFeedback(result);
+
+    console.log('🗣 FEEDBACK:', feedback);
+  };
+
   return (
     <View
       style={{
@@ -139,6 +159,12 @@ const MainScreen = ({navigation}) => {
           color="blue"
         />
       </View>
+
+      <View style={{padding: 20}}>
+        <Text>Inspection Test</Text>
+        <Button title="Run Inspection Test" onPress={runTest} />
+      </View>
+
       <View style={{width: '100%'}}>
         <Button title="Вийти" onPress={handleSignOut} color="red" />
       </View>
