@@ -2,6 +2,7 @@ import {parseInspection} from '../src/voice/llm/parseInspection';
 import {transcribe} from '../src/voice/stt/transcribe';
 import {handleInspection} from '../src/actions/handleInspection';
 import {handleInspectionEffect} from '../src/effects/inspectionEffectHandler';
+// import { handleVoiceInput } from '../src/voice/VoiceController';
 
 async function dryRun() {
   const text = await transcribe(

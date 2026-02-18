@@ -41,6 +41,7 @@ import AuthScreen from './AuthScreen';
 import {handleInspection} from './src/actions/handleInspection';
 import {handleInspectionEffect} from './src/effects/inspectionEffectHandler';
 import {buildInspectionFeedback} from './src/feedback/buildInspectionFeedback';
+import {handleVoiceInputMock} from './src/voice/VoiceController';
 
 // Константи та мапи
 const NUMBER_MAP = {
@@ -120,20 +121,21 @@ const MainScreen = ({navigation}) => {
   };
 
   const runTest = async () => {
-    const fakeCommand = {
-      hiveNumber: 14,
-      strength: 8,
-      honeyKg: 2.5,
-      queen: 'absent',
-      stop: false,
-    };
+    // const fakeCommand = {
+    //   hiveNumber: 14,
+    //   strength: 8,
+    //   honeyKg: 2.5,
+    //   queen: 'absent',
+    //   stop: false,
+    // };
 
-    const event = await handleInspection(fakeCommand);
-    const result = await handleInspectionEffect(event);
+    // const event = await handleInspection(fakeCommand);
+    // const result = await handleInspectionEffect(event);
 
-    const feedback = buildInspectionFeedback(result);
+    // const feedback = buildInspectionFeedback(result);
+    await handleVoiceInputMock();
 
-    console.log('🗣 FEEDBACK:', feedback);
+    console.log('🗣 FEEDBACK:');
   };
 
   return (
