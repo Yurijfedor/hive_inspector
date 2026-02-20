@@ -10,17 +10,16 @@ export type InspectionSession = {
   };
 };
 
+export const nextStepMap: Record<InspectionStep, InspectionStep> = {
+  STRENGTH: 'QUEEN',
+  QUEEN: 'HONEY',
+  HONEY: 'CONFIRM',
+  CONFIRM: 'DONE',
+  DONE: 'DONE',
+};
+
 export function nextStep(step: InspectionStep): InspectionStep {
-  switch (step) {
-    case 'STRENGTH':
-      return 'QUEEN';
-    case 'QUEEN':
-      return 'HONEY';
-    case 'HONEY':
-      return 'CONFIRM';
-    default:
-      return 'CONFIRM';
-  }
+  return nextStepMap[step];
 }
 
 export function applyAnswer(
