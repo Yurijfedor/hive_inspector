@@ -1,4 +1,4 @@
-import {InspectionSession} from './inspectionSession';
+import {InspectionSession, createInspectionSession} from './inspectionSession';
 import {applyAnswer} from './inspectionSession';
 import {getCurrentQuestion} from './questionResolver';
 
@@ -32,5 +32,19 @@ export function handleUserAnswer(
     type: 'ASK',
     question: getCurrentQuestion(updatedSession),
     session: updatedSession,
+  };
+}
+
+export function startInspectionConversation(
+  hiveNumber: number,
+): ConversationResult {
+  const session = createInspectionSession(hiveNumber);
+
+  const question = getCurrentQuestion(session);
+
+  return {
+    type: 'ASK',
+    question,
+    session,
   };
 }
