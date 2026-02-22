@@ -1,31 +1,5 @@
-import {
-  handleUserAnswer,
-  startInspectionConversation,
-  ConversationResult,
-} from './conversationOrchestrator';
-
-// const history: any[] = [];
-
-// let session = createInspectionSession(5);
-// history.push(session);
-// let result = handleUserAnswer(session, 8);
-// console.log(result);
-
-// session = result.session;
-
-// result = handleUserAnswer(session, 'так');
-// console.log(result);
-// history.push(session);
-// session = result.session;
-
-// result = handleUserAnswer(session, 3);
-// console.log(result);
-// history.push(session);
-// session = result.session;
-
-// history.push(session);
-
-// console.log('HISTORY:', history);
+import {ConversationResult} from './conversationOrchestrator';
+import {ConversationDriver} from './conversationDriver';
 
 function renderSystem(result: ConversationResult) {
   switch (result.type) {
@@ -40,21 +14,16 @@ function renderSystem(result: ConversationResult) {
   }
 }
 
-let result = startInspectionConversation(5);
+const driver = new ConversationDriver();
 
+let result = driver.start(5);
 console.log('SYSTEM:', renderSystem(result));
 
-let session = result.session;
-
-result = handleUserAnswer(session, 8);
+result = driver.handleUserInput(8);
 console.log('SYSTEM:', renderSystem(result));
 
-session = result.session;
-
-result = handleUserAnswer(session, 'так');
+result = driver.handleUserInput('так');
 console.log('SYSTEM:', renderSystem(result));
 
-session = result.session;
-
-result = handleUserAnswer(session, 3);
+result = driver.handleUserInput(3);
 console.log('SYSTEM:', renderSystem(result));
