@@ -1,29 +1,9 @@
-import {ConversationResult} from './conversationOrchestrator';
 import {ConversationDriver} from './conversationDriver';
+import {MockVoiceAdapter} from '../voice/mockVoiceAdapter';
 
-function renderSystem(result: ConversationResult) {
-  switch (result.type) {
-    case 'ASK':
-      return result.question;
+const voice = new MockVoiceAdapter();
+const driver = new ConversationDriver(voice);
 
-    case 'CONFIRM':
-      return result.message;
+const startResult = driver.start(5);
 
-    case 'FINISH':
-      return 'Огляд завершено.';
-  }
-}
-
-const driver = new ConversationDriver();
-
-let result = driver.start(5);
-console.log('SYSTEM:', renderSystem(result));
-
-result = driver.handleUserInput(8);
-console.log('SYSTEM:', renderSystem(result));
-
-result = driver.handleUserInput('так');
-console.log('SYSTEM:', renderSystem(result));
-
-result = driver.handleUserInput(3);
-console.log('SYSTEM:', renderSystem(result));
+driver.run(startResult);
