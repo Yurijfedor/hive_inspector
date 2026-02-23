@@ -1,4 +1,5 @@
 import {InspectionStep} from './inspectionFlow';
+import {parseAnswer} from './answerValidator';
 
 export type InspectionSession = {
   hiveNumber: number;
@@ -24,22 +25,41 @@ export function nextStep(step: InspectionStep): InspectionStep {
 
 export function applyAnswer(
   session: InspectionSession,
-  value: any,
-): InspectionSession {
+  value: unknown,
+): InspectionSession | null {
+  const parsed = parseAnswer(session.step, value);
+
+  // ❗ invalid answer → no transition
+  if (parsed === null) {
+    return null;
+  }
+
   const newData = {...session.data};
 
   switch (session.step) {
     case 'STRENGTH':
-      newData.strength = Number(value);
+      newData.strength = parsed as number;
       break;
 
     case 'QUEEN':
-      newData.queen = value === 'так' ? 'present' : 'absent';
+      newData.queen = parsed as 'present' | 'absent';
       break;
 
     case 'HONEY':
-      newData.honeyKg = Number(value);
+      newData.honeyKg = parsed as number;
       break;
+
+    case 'CONFIRM':
+      if (parsed === true) {
+        return {
+          ...session,
+          step: nextStep(session.step),
+        };
+      }
+      return {
+        ...session,
+        step: 'STRENGTH',
+      };
   }
 
   return {

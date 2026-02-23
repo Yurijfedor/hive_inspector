@@ -2,16 +2,37 @@ import {InspectionSession, createInspectionSession} from './inspectionSession';
 import {applyAnswer} from './inspectionSession';
 import {getCurrentQuestion} from './questionResolver';
 
-export type ConversationResult =
+type ConversationFlowResult =
   | {type: 'ASK'; question: string; session: InspectionSession}
   | {type: 'CONFIRM'; message: string; session: InspectionSession}
-  | {type: 'FINISH'; session: InspectionSession};
+  | {type: 'FINISH'; session: InspectionSession}
+  | {type: 'INVALID'; message: string; session: InspectionSession};
+
+type RuntimeResult =
+  | {type: 'PAUSED'; session: InspectionSession}
+  | {type: 'IGNORED'};
+
+export type ConversationResult = ConversationFlowResult | RuntimeResult;
+
+export function hasSession(
+  result: ConversationResult,
+): result is Extract<ConversationResult, {session: InspectionSession}> {
+  return 'session' in result;
+}
 
 export function handleUserAnswer(
   session: InspectionSession,
   value: unknown,
 ): ConversationResult {
   const updatedSession = applyAnswer(session, value);
+
+  if (!updatedSession) {
+    return {
+      type: 'INVALID',
+      message: 'Я не зрозумів відповідь. Повторіть, будь ласка.',
+      session,
+    };
+  }
 
   if (updatedSession.step === 'CONFIRM') {
     return {
@@ -45,6 +66,16 @@ export function startInspectionConversation(
   return {
     type: 'ASK',
     question,
+    session,
+  };
+}
+
+export function askCurrentQuestion(
+  session: InspectionSession,
+): ConversationResult {
+  return {
+    type: 'ASK',
+    question: getCurrentQuestion(session),
     session,
   };
 }
