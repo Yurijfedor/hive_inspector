@@ -7,15 +7,26 @@ export function registerVoiceListener(
   bus: EventBus<ConversationEvent>,
   voice: VoiceAdapter,
   driver: ConversationDriver,
-) {
-  bus.subscribe(async event => {
-    if (event.type === 'SYSTEM_SPEAK') {
-      await voice.speak(event.text);
+): () => void {
+  const unsubscribeSpeak = bus.on('SYSTEM_SPEAK', e => voice.speak(e.text));
+
+  const unsubscribeListen = bus.on('START_LISTENING', async () => {
+    const generation = driver.getGeneration();
+
+    const text = await voice.listen();
+
+    // ⭐ ignore zombie async result
+    if (generation !== driver.getGeneration()) {
+      console.log('👻 Ignored stale voice result');
+      return;
     }
 
-    if (event.type === 'START_LISTENING') {
-      const text = await voice.listen();
-      driver.handleExternalInput(text);
-    }
+    await driver.handleExternalInput(text);
   });
+
+  // ⭐ cleanup function
+  return () => {
+    unsubscribeSpeak();
+    unsubscribeListen();
+  };
 }
