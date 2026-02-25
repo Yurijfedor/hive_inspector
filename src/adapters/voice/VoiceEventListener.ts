@@ -8,25 +8,49 @@ export function registerVoiceListener(
   voice: VoiceAdapter,
   driver: ConversationDriver,
 ): () => void {
+  let active = true;
+
+  // ---------------- SPEAK ----------------
+
   const unsubscribeSpeak = bus.on('SYSTEM_SPEAK', e => voice.speak(e.text));
 
-  const unsubscribeListen = bus.on('START_LISTENING', async () => {
-    const generation = driver.getGeneration();
+  // ---------------- STOP ON FINISH ----------------
 
-    const text = await voice.listen();
-
-    // ⭐ ignore zombie async result
-    if (generation !== driver.getGeneration()) {
-      console.log('👻 Ignored stale voice result');
-      return;
-    }
-
-    await driver.handleExternalInput(text);
+  const unsubscribeFinish = bus.on('CONVERSATION_FINISHED', () => {
+    active = false;
   });
 
-  // ⭐ cleanup function
+  // ---------------- LISTEN LOOP ----------------
+
+  const unsubscribeListen = bus.on('START_LISTENING', async () => {
+    if (!active) return;
+
+    const generation = driver.getGeneration();
+
+    try {
+      const text = await voice.listen();
+
+      // ignore zombie async result
+      if (!active) return;
+
+      if (generation !== driver.getGeneration()) {
+        console.log('👻 Ignored stale voice result');
+        return;
+      }
+
+      await driver.handleExternalInput(text);
+    } catch (e) {
+      // stream closed → silently stop
+      return;
+    }
+  });
+
+  // ---------------- CLEANUP ----------------
+
   return () => {
+    active = false;
     unsubscribeSpeak();
     unsubscribeListen();
+    unsubscribeFinish();
   };
 }

@@ -1,6 +1,14 @@
-import {InspectionSession, createInspectionSession} from './inspectionSession';
-import {applyAnswer} from './inspectionSession';
+import {
+  InspectionSession,
+  createInspectionSession,
+  applyAnswer,
+} from './inspectionSession';
+
 import {getCurrentQuestion} from './questionResolver';
+import {inspectionFlow} from './flow/inspectionDefinition';
+import {getStep} from './flow/flowRuntime';
+
+// --------------------------------------------------
 
 type ConversationFlowResult =
   | {type: 'ASK'; question: string; session: InspectionSession}
@@ -14,11 +22,17 @@ type RuntimeResult =
 
 export type ConversationResult = ConversationFlowResult | RuntimeResult;
 
+// --------------------------------------------------
+
 export function hasSession(
   result: ConversationResult,
 ): result is Extract<ConversationResult, {session: InspectionSession}> {
   return 'session' in result;
 }
+
+// --------------------------------------------------
+// USER ANSWER
+// --------------------------------------------------
 
 export function handleUserAnswer(
   session: InspectionSession,
@@ -34,27 +48,37 @@ export function handleUserAnswer(
     };
   }
 
-  if (updatedSession.step === 'CONFIRM') {
-    return {
-      type: 'CONFIRM',
-      message: getCurrentQuestion(updatedSession),
-      session: updatedSession,
-    };
-  }
+  // ⭐ беремо крок із FLOW, а не із session
+  const step = getStep(inspectionFlow, updatedSession.stepIndex);
 
-  if (updatedSession.step === 'DONE') {
+  // ---------- FLOW FINISHED ----------
+  if (!step) {
     return {
       type: 'FINISH',
       session: updatedSession,
     };
   }
 
+  // ---------- CONFIRM ----------
+  if (step.id === 'CONFIRM') {
+    return {
+      type: 'CONFIRM',
+      message: step.question,
+      session: updatedSession,
+    };
+  }
+
+  // ---------- NORMAL ASK ----------
   return {
     type: 'ASK',
-    question: getCurrentQuestion(updatedSession),
+    question: step.question,
     session: updatedSession,
   };
 }
+
+// --------------------------------------------------
+// START
+// --------------------------------------------------
 
 export function startInspectionConversation(
   hiveNumber: number,
@@ -70,12 +94,26 @@ export function startInspectionConversation(
   };
 }
 
+// --------------------------------------------------
+// RESTORE QUESTION
+// --------------------------------------------------
+
 export function askCurrentQuestion(
   session: InspectionSession,
 ): ConversationResult {
+  const step = getStep(inspectionFlow, session.stepIndex);
+
+  // якщо flow завершено після restore
+  if (!step) {
+    return {
+      type: 'FINISH',
+      session,
+    };
+  }
+
   return {
     type: 'ASK',
-    question: getCurrentQuestion(session),
+    question: step.question,
     session,
   };
 }

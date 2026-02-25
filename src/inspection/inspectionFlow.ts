@@ -1,11 +1,11 @@
 // export type InspectionStep = 'STRENGTH' | 'QUEEN' | 'HONEY' | 'CONFIRM';
 
-export const inspectionQuestions = {
-  STRENGTH: "Яка сила бджолосім'ї? Назвіть кількість рамок.",
-  QUEEN: 'Чи є матка?',
-  HONEY: 'Скільки приблизно кілограмів меду?',
-  CONFIRM: 'Завершити огляд?',
-  DONE: 'Огляд завершено.',
+export const inspectionStepIds = {
+  STRENGTH: true,
+  QUEEN: true,
+  HONEY: true,
+  CONFIRM: true,
+  DONE: true,
 } as const;
 
-export type InspectionStep = keyof typeof inspectionQuestions;
+export type InspectionStepId = keyof typeof inspectionStepIds;

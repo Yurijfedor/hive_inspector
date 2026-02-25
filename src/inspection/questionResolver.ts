@@ -1,6 +1,7 @@
 import {InspectionSession} from './inspectionSession';
-import {inspectionQuestions} from './inspectionFlow';
+import {inspectionFlow} from './flow/inspectionDefinition';
 
 export function getCurrentQuestion(session: InspectionSession): string {
-  return inspectionQuestions[session.step];
+  const step = inspectionFlow.steps[session.stepIndex];
+  return step.question;
 }

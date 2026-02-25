@@ -1,9 +1,10 @@
-import {InspectionStep} from './inspectionFlow';
+import {inspectionFlow} from './flow/inspectionDefinition';
+import {getStep} from './flow/flowRuntime';
 import {parseAnswer} from './answerValidator';
 
 export type InspectionSession = {
   hiveNumber: number;
-  step: InspectionStep;
+  stepIndex: number;
   data: {
     strength?: number;
     queen?: 'present' | 'absent';
@@ -11,68 +12,50 @@ export type InspectionSession = {
   };
 };
 
-export const nextStepMap: Record<InspectionStep, InspectionStep> = {
-  STRENGTH: 'QUEEN',
-  QUEEN: 'HONEY',
-  HONEY: 'CONFIRM',
-  CONFIRM: 'DONE',
-  DONE: 'DONE',
-};
-
-export function nextStep(step: InspectionStep): InspectionStep {
-  return nextStepMap[step];
+/**
+ * Create new inspection session
+ */
+export function createInspectionSession(hiveNumber: number): InspectionSession {
+  return {
+    hiveNumber,
+    stepIndex: 0,
+    data: {},
+  };
 }
 
+/**
+ * Universal declarative applyAnswer (DAY 16)
+ */
 export function applyAnswer(
   session: InspectionSession,
   value: unknown,
 ): InspectionSession | null {
-  const parsed = parseAnswer(session.step, value);
+  const step = getStep(inspectionFlow, session.stepIndex);
 
-  // ❗ invalid answer → no transition
+  // safety guard
+  if (!step) {
+    return null;
+  }
+
+  // validation stays external
+  const parsed = parseAnswer(step.id, value);
+
+  // invalid answer → stay on same step
   if (parsed === null) {
     return null;
   }
 
-  const newData = {...session.data};
+  // apply transformation defined in FLOW
+  const updatedSession = step.apply(session, parsed);
 
-  switch (session.step) {
-    case 'STRENGTH':
-      newData.strength = parsed as number;
-      break;
-
-    case 'QUEEN':
-      newData.queen = parsed as 'present' | 'absent';
-      break;
-
-    case 'HONEY':
-      newData.honeyKg = parsed as number;
-      break;
-
-    case 'CONFIRM':
-      if (parsed === true) {
-        return {
-          ...session,
-          step: nextStep(session.step),
-        };
-      }
-      return {
-        ...session,
-        step: 'STRENGTH',
-      };
-  }
+  // move pointer forward
+  const nextIndex =
+    updatedSession.stepIndex !== session.stepIndex
+      ? updatedSession.stepIndex
+      : session.stepIndex + 1;
 
   return {
-    ...session,
-    data: newData,
-    step: nextStep(session.step),
-  };
-}
-
-export function createInspectionSession(hiveNumber: number): InspectionSession {
-  return {
-    hiveNumber,
-    step: 'STRENGTH',
-    data: {},
+    ...updatedSession,
+    stepIndex: nextIndex,
   };
 }

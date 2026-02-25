@@ -35,19 +35,29 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // SNAPSHOT HELPERS
+  // SNAPSHOT
   // --------------------------------------------------
 
   private async saveState() {
     await this.persistence.save(this.state);
   }
 
+  private async finishConversation() {
+    this.state = {mode: 'IDLE'};
+    await this.persistence.clear();
+
+    this.bus.emit({
+      type: 'CONVERSATION_FINISHED',
+    });
+  }
+
   // --------------------------------------------------
-  // RESTORE (⭐ DAY 15 CORE)
+  // RESTORE
   // --------------------------------------------------
 
   async restore(): Promise<void> {
     this.generation++;
+
     const snapshot = await this.persistence.load();
 
     if (!snapshot || snapshot.mode === 'IDLE') {
@@ -70,11 +80,12 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // START CONVERSATION
+  // START
   // --------------------------------------------------
 
   async start(hiveNumber: number): Promise<void> {
     this.generation++;
+
     const result = startInspectionConversation(hiveNumber);
 
     if (!hasSession(result)) {
@@ -92,7 +103,7 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // EXTERNAL INPUT (voice / UI / tests / api)
+  // INPUT
   // --------------------------------------------------
 
   async handleExternalInput(value: unknown): Promise<void> {
@@ -142,17 +153,11 @@ export class ConversationDriver {
       await this.saveState();
     }
 
-    if (result.type === 'FINISH') {
-      this.state = {mode: 'IDLE'};
-
-      await this.persistence.clear();
-    }
-
     this.processResult(result);
   }
 
   // --------------------------------------------------
-  // RESULT → EVENTS (CORE LOOP)
+  // RESULT → EVENTS
   // --------------------------------------------------
 
   private processResult(result: ConversationResult): void {
@@ -203,9 +208,7 @@ export class ConversationDriver {
           text: 'Огляд завершено.',
         });
 
-        this.bus.emit({
-          type: 'CONVERSATION_FINISHED',
-        });
+        this.finishConversation();
         break;
     }
   }
