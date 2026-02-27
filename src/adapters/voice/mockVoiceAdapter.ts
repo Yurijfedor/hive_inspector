@@ -10,7 +10,14 @@ export class MockVoiceAdapter implements VoiceAdapter {
   private answers: string[];
 
   constructor(answers?: string[]) {
-    this.answers = answers ?? ['8', '', 'продовжити', 'так', '3', 'так'];
+    this.answers = answers ?? [
+      '50', // invalid strength
+      'бджоли літають',
+      '8', // valid
+      'так',
+      '12',
+      'так',
+    ];
   }
 
   async speak(text: string): Promise<void> {

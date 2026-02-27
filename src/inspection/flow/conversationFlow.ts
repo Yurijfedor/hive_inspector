@@ -9,15 +9,32 @@ export type StepHandler<TSession> = (
 /**
  * Single step definition inside conversation flow
  */
-export type StepDefinition<TSession, TStepId extends string> = {
-  id: TStepId;
+export type StepDefinition<TSession> = {
+  id: string;
   question: string;
-  apply: StepHandler<TSession>;
+
+  normalize?: (value: unknown) => unknown;
+
+  validate?: (value: unknown) => boolean;
+
+  retryMessage?: string;
+
+  apply: (session: TSession, value: unknown) => TSession;
 };
+
+export type StepResult<TSession> =
+  | {
+      type: 'ACCEPT';
+      session: TSession;
+    }
+  | {
+      type: 'RETRY';
+      message: string;
+    };
 
 /**
  * Declarative conversation flow
  */
-export type ConversationFlow<TSession, TStepId extends string> = {
-  steps: StepDefinition<TSession, TStepId>[];
+export type ConversationFlow<TSession> = {
+  steps: StepDefinition<TSession>[];
 };

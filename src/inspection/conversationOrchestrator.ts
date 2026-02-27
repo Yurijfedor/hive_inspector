@@ -4,10 +4,11 @@ import {
   applyAnswer,
 } from './inspectionSession';
 
-import {getCurrentQuestion} from './questionResolver';
 import {inspectionFlow} from './flow/inspectionDefinition';
 import {getStep} from './flow/flowRuntime';
 
+// --------------------------------------------------
+// RESULT TYPES
 // --------------------------------------------------
 
 type ConversationFlowResult =
@@ -22,6 +23,8 @@ type RuntimeResult =
 
 export type ConversationResult = ConversationFlowResult | RuntimeResult;
 
+// --------------------------------------------------
+// TYPE GUARD
 // --------------------------------------------------
 
 export function hasSession(
@@ -38,17 +41,20 @@ export function handleUserAnswer(
   session: InspectionSession,
   value: unknown,
 ): ConversationResult {
-  const updatedSession = applyAnswer(session, value);
+  const result = applyAnswer(session, value);
 
-  if (!updatedSession) {
+  // ✅ STEP VALIDATION FAILED (handled by Flow)
+  if (result.type === 'INVALID') {
     return {
       type: 'INVALID',
-      message: 'Я не зрозумів відповідь. Повторіть, будь ласка.',
-      session,
+      message: result.message,
+      session: result.session,
     };
   }
 
-  // ⭐ беремо крок із FLOW, а не із session
+  // ✅ TypeScript now knows this is NEXT
+  const updatedSession = result.session;
+
   const step = getStep(inspectionFlow, updatedSession.stepIndex);
 
   // ---------- FLOW FINISHED ----------
@@ -59,7 +65,7 @@ export function handleUserAnswer(
     };
   }
 
-  // ---------- CONFIRM ----------
+  // ---------- CONFIRM STEP ----------
   if (step.id === 'CONFIRM') {
     return {
       type: 'CONFIRM',
@@ -68,7 +74,7 @@ export function handleUserAnswer(
     };
   }
 
-  // ---------- NORMAL ASK ----------
+  // ---------- NORMAL QUESTION ----------
   return {
     type: 'ASK',
     question: step.question,
@@ -85,11 +91,18 @@ export function startInspectionConversation(
 ): ConversationResult {
   const session = createInspectionSession(hiveNumber);
 
-  const question = getCurrentQuestion(session);
+  const firstStep = getStep(inspectionFlow, session.stepIndex);
+
+  if (!firstStep) {
+    return {
+      type: 'FINISH',
+      session,
+    };
+  }
 
   return {
     type: 'ASK',
-    question,
+    question: firstStep.question,
     session,
   };
 }
@@ -103,7 +116,6 @@ export function askCurrentQuestion(
 ): ConversationResult {
   const step = getStep(inspectionFlow, session.stepIndex);
 
-  // якщо flow завершено після restore
   if (!step) {
     return {
       type: 'FINISH',

@@ -1,6 +1,7 @@
 import {inspectionFlow} from './flow/inspectionDefinition';
-import {getStep} from './flow/flowRuntime';
-import {parseAnswer} from './answerValidator';
+import {executeStep} from './flow/flowRuntime';
+// import {getStep} from './flow/flowRuntime';
+// import {parseAnswer} from './answerValidator';
 
 export type InspectionSession = {
   hiveNumber: number;
@@ -11,6 +12,17 @@ export type InspectionSession = {
     honeyKg?: number;
   };
 };
+
+export type ApplyAnswerResult =
+  | {
+      type: 'INVALID';
+      message: string;
+      session: InspectionSession;
+    }
+  | {
+      type: 'NEXT';
+      session: InspectionSession;
+    };
 
 /**
  * Create new inspection session
@@ -29,33 +41,24 @@ export function createInspectionSession(hiveNumber: number): InspectionSession {
 export function applyAnswer(
   session: InspectionSession,
   value: unknown,
-): InspectionSession | null {
-  const step = getStep(inspectionFlow, session.stepIndex);
+): ApplyAnswerResult {
+  const step = inspectionFlow.steps[session.stepIndex];
 
-  // safety guard
-  if (!step) {
-    return null;
+  const result = executeStep(step, session, value);
+
+  if (result.type === 'RETRY') {
+    return {
+      type: 'INVALID',
+      message: result.message,
+      session,
+    };
   }
-
-  // validation stays external
-  const parsed = parseAnswer(step.id, value);
-
-  // invalid answer → stay on same step
-  if (parsed === null) {
-    return null;
-  }
-
-  // apply transformation defined in FLOW
-  const updatedSession = step.apply(session, parsed);
-
-  // move pointer forward
-  const nextIndex =
-    updatedSession.stepIndex !== session.stepIndex
-      ? updatedSession.stepIndex
-      : session.stepIndex + 1;
 
   return {
-    ...updatedSession,
-    stepIndex: nextIndex,
+    type: 'NEXT',
+    session: {
+      ...result.session,
+      stepIndex: session.stepIndex + 1,
+    },
   };
 }

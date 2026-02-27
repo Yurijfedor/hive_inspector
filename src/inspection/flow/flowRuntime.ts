@@ -1,22 +1,57 @@
-import {ConversationFlow} from './conversationFlow';
+import {ConversationFlow, StepDefinition, StepResult} from './conversationFlow';
 
-export function getStep<TSession, TStepId extends string>(
-  flow: ConversationFlow<TSession, TStepId>,
+/**
+ * Отримати поточний step
+ */
+export function getStep<TSession>(
+  flow: ConversationFlow<TSession>,
   index: number,
-) {
+): StepDefinition<TSession> {
   return flow.steps[index];
 }
 
-export function isLastStep<TSession, TStepId extends string>(
-  flow: ConversationFlow<TSession, TStepId>,
+/**
+ * Чи це останній step
+ */
+export function isLastStep<TSession>(
+  flow: ConversationFlow<TSession>,
   index: number,
-) {
+): boolean {
   return index >= flow.steps.length - 1;
 }
 
-export function isFlowFinished<TSession, TStepId extends string>(
-  flow: ConversationFlow<TSession, TStepId>,
+/**
+ * Чи flow завершено
+ */
+export function isFlowFinished<TSession>(
+  flow: ConversationFlow<TSession>,
   session: {stepIndex: number},
-) {
+): boolean {
   return session.stepIndex >= flow.steps.length;
+}
+
+/**
+ * Виконати step (нове в Day 17)
+ */
+export function executeStep<TSession>(
+  step: StepDefinition<TSession>,
+  session: TSession,
+  rawValue: unknown,
+): StepResult<TSession> {
+  const value = step.normalize ? step.normalize(rawValue) : rawValue;
+
+  if (step.validate && !step.validate(value)) {
+    return {
+      type: 'RETRY',
+      message:
+        step.retryMessage ?? 'Я не зрозумів відповідь. Повторіть, будь ласка.',
+    };
+  }
+
+  const updated = step.apply(session, value);
+
+  return {
+    type: 'ACCEPT',
+    session: updated,
+  };
 }

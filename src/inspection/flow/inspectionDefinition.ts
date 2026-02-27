@@ -1,20 +1,23 @@
 import {ConversationFlow} from './conversationFlow';
 import {InspectionSession} from '../inspectionSession';
-import {InspectionStepId} from '../inspectionFlow';
 
-export const inspectionFlow: ConversationFlow<
-  InspectionSession,
-  InspectionStepId
-> = {
+export const inspectionFlow: ConversationFlow<InspectionSession> = {
   steps: [
     {
       id: 'STRENGTH',
       question: "Яка сила бджолосім'ї? Назвіть кількість рамок.",
+
+      normalize: v => Number(v),
+
+      validate: v => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
+
+      retryMessage: 'Назвіть число рамок від 1 до 20.',
+
       apply: (session, value) => ({
         ...session,
         data: {
           ...session.data,
-          strength: Number(value),
+          strength: value as number,
         },
       }),
     },
@@ -22,6 +25,13 @@ export const inspectionFlow: ConversationFlow<
     {
       id: 'QUEEN',
       question: 'Чи є матка?',
+
+      normalize: v => String(v).toLowerCase(),
+
+      validate: v => v === 'так' || v === 'ні',
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
       apply: (session, value) => ({
         ...session,
         data: {
@@ -33,26 +43,46 @@ export const inspectionFlow: ConversationFlow<
 
     {
       id: 'HONEY',
+
       question: 'Скільки приблизно кілограмів меду?',
+
+      normalize: v => {
+        const match = String(v).match(/\d+/);
+        return match ? Number(match[0]) : NaN;
+      },
+
+      validate: v => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 100,
+
+      retryMessage: 'Назвіть приблизну кількість кілограмів меду числом.',
+
       apply: (session, value) => ({
         ...session,
         data: {
           ...session.data,
-          honeyKg: Number(value),
+          honeyKg: value as number,
         },
       }),
     },
 
     {
       id: 'CONFIRM',
+
       question: 'Підтвердити огляд?',
+
+      normalize: v => String(v).toLowerCase().replace(/[.!?]/g, '').trim(),
+
+      validate: v => ['так', 'ні', 'да', 'yes', 'ага'].includes(v as string),
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
       apply: (session, value) => {
-        // якщо "так" — рухаємось далі
-        if (value === true || value === 'так') {
+        const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
+
+        if (positive) {
           return session;
         }
 
-        // якщо "ні" — починаємо спочатку
+        // restart inspection
         return {
           ...session,
           stepIndex: 0,

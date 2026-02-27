@@ -14,19 +14,19 @@ import {MockRuntimePersistence} from '../conversation/mockRuntimePersistence';
 const persistence = new MockRuntimePersistence();
 
 // --------------------------------------------------
-// RUNTIME LIFECYCLE CONTROL ⭐
+// RUNTIME LIFECYCLE CONTROL
 // --------------------------------------------------
 
 let cleanup: (() => void) | null = null;
 
 // --------------------------------------------------
-// APP FACTORY (simulates real app boot)
+// APP FACTORY
 // --------------------------------------------------
 
 async function createApp(): Promise<ConversationDriver> {
   console.log('🚀 APP BOOT');
 
-  // 🔥 destroy previous runtime completely
+  // destroy previous runtime
   if (cleanup) {
     cleanup();
     cleanup = null;
@@ -37,10 +37,9 @@ async function createApp(): Promise<ConversationDriver> {
 
   const driver = new ConversationDriver(bus, persistence);
 
-  // register adapters and KEEP cleanup reference
   cleanup = registerVoiceListener(bus, voice, driver);
 
-  // restore previous runtime state
+  // ⭐ restore runtime state
   await driver.restore();
 
   return driver;
@@ -53,21 +52,22 @@ async function createApp(): Promise<ConversationDriver> {
 async function testRestartFlow() {
   let driver = await createApp();
 
-  // restart exactly after first ACTIVE snapshot
+  // simulate OS kill right after ACTIVE snapshot
   persistence.onSave = snapshot => {
+    console.log('💾 SAVE SNAPSHOT:', snapshot);
+
     if (snapshot.mode === 'ACTIVE') {
       console.log('\n💥 ===== SIMULATED RESTART ===== 💥\n');
 
-      // avoid infinite restart loop
       persistence.onSave = undefined;
 
-      // ⭐ simulate real OS restart
-      // (restart AFTER current execution finishes)
       queueMicrotask(async () => {
         driver = await createApp();
       });
     }
   };
+
+  console.log('\n▶ START INSPECTION\n');
 
   await driver.start(5);
 }
