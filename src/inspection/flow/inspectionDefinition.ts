@@ -5,6 +5,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
   steps: [
     {
       id: 'STRENGTH',
+
       question: "Яка сила бджолосім'ї? Назвіть кількість рамок.",
 
       normalize: v => Number(v),
@@ -20,10 +21,21 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           strength: value as number,
         },
       }),
+
+      afterAccept: session => [
+        {
+          type: 'STRENGTH_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            strength: session.data.strength!,
+          },
+        },
+      ],
     },
 
     {
       id: 'QUEEN',
+
       question: 'Чи є матка?',
 
       normalize: v => String(v).toLowerCase(),
@@ -39,6 +51,16 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           queen: value === 'так' ? 'present' : 'absent',
         },
       }),
+
+      afterAccept: session => [
+        {
+          type: 'QUEEN_STATUS_UPDATED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            hasQueen: session.data.queen === 'present',
+          },
+        },
+      ],
     },
 
     {
@@ -62,6 +84,16 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           honeyKg: value as number,
         },
       }),
+
+      afterAccept: session => [
+        {
+          type: 'HONEY_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            honeyKg: session.data.honeyKg!,
+          },
+        },
+      ],
     },
 
     {
@@ -88,6 +120,25 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           stepIndex: 0,
           data: {},
         };
+      },
+
+      afterAccept: session => {
+        // emit SAVE_INSPECTION only if confirmed
+        if (
+          session.data.strength !== undefined &&
+          session.data.honeyKg !== undefined
+        ) {
+          return [
+            {
+              type: 'SAVE_INSPECTION',
+              payload: {
+                hiveNumber: session.hiveNumber,
+              },
+            },
+          ];
+        }
+
+        return [];
       },
     },
   ],

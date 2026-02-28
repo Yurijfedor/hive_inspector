@@ -50,8 +50,12 @@ export function executeStep<TSession>(
 
   const updated = step.apply(session, value);
 
+  // ⭐ NEW — collect effects
+  const effects = step.afterAccept ? step.afterAccept(updated) : [];
+
   return {
     type: 'ACCEPT',
     session: updated,
+    effects,
   };
 }

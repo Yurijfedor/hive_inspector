@@ -6,16 +6,35 @@ import {
 
 import {inspectionFlow} from './flow/inspectionDefinition';
 import {getStep} from './flow/flowRuntime';
+import {FlowEffect} from '../conversation/flowEffects';
 
 // --------------------------------------------------
 // RESULT TYPES
 // --------------------------------------------------
 
 type ConversationFlowResult =
-  | {type: 'ASK'; question: string; session: InspectionSession}
-  | {type: 'CONFIRM'; message: string; session: InspectionSession}
-  | {type: 'FINISH'; session: InspectionSession}
-  | {type: 'INVALID'; message: string; session: InspectionSession};
+  | {
+      type: 'ASK';
+      question: string;
+      session: InspectionSession;
+      effects?: FlowEffect[];
+    }
+  | {
+      type: 'CONFIRM';
+      message: string;
+      session: InspectionSession;
+      effects?: FlowEffect[];
+    }
+  | {
+      type: 'FINISH';
+      session: InspectionSession;
+      effects?: FlowEffect[];
+    }
+  | {
+      type: 'INVALID';
+      message: string;
+      session: InspectionSession;
+    };
 
 type RuntimeResult =
   | {type: 'PAUSED'; session: InspectionSession}
@@ -54,6 +73,7 @@ export function handleUserAnswer(
 
   // ✅ TypeScript now knows this is NEXT
   const updatedSession = result.session;
+  const effects = result.effects;
 
   const step = getStep(inspectionFlow, updatedSession.stepIndex);
 
@@ -62,6 +82,7 @@ export function handleUserAnswer(
     return {
       type: 'FINISH',
       session: updatedSession,
+      effects,
     };
   }
 
@@ -71,6 +92,7 @@ export function handleUserAnswer(
       type: 'CONFIRM',
       message: step.question,
       session: updatedSession,
+      effects,
     };
   }
 
@@ -79,6 +101,7 @@ export function handleUserAnswer(
     type: 'ASK',
     question: step.question,
     session: updatedSession,
+    effects,
   };
 }
 

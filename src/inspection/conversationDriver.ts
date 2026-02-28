@@ -161,6 +161,16 @@ export class ConversationDriver {
   // --------------------------------------------------
 
   private processResult(result: ConversationResult): void {
+    // ⭐ NEW — emit workflow effects
+    if ('effects' in result && result.effects) {
+      for (const effect of result.effects) {
+        this.bus.emit({
+          type: 'FLOW_EFFECT',
+          effect,
+        });
+      }
+    }
+
     switch (result.type) {
       case 'ASK':
         this.bus.emit({

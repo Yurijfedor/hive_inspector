@@ -1,5 +1,6 @@
 import {inspectionFlow} from './flow/inspectionDefinition';
 import {executeStep} from './flow/flowRuntime';
+import {FlowEffect} from '../conversation/flowEffects';
 // import {getStep} from './flow/flowRuntime';
 // import {parseAnswer} from './answerValidator';
 
@@ -22,6 +23,7 @@ export type ApplyAnswerResult =
   | {
       type: 'NEXT';
       session: InspectionSession;
+      effects?: FlowEffect[];
     };
 
 /**
@@ -60,5 +62,6 @@ export function applyAnswer(
       ...result.session,
       stepIndex: session.stepIndex + 1,
     },
+    effects: result.effects,
   };
 }
