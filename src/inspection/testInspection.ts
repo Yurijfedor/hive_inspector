@@ -1,4 +1,4 @@
-import {ConversationDriver} from './conversationDriver';
+import {ConversationDriver} from '../conversation/conversationDriver';
 import {MockVoiceAdapter} from '../adapters/voice/mockVoiceAdapter';
 
 import {EventBus} from '../conversation/eventBus';
@@ -69,7 +69,7 @@ async function testRestartFlow() {
 
   console.log('\n▶ START INSPECTION\n');
 
-  await driver.start(5);
+  await driver.start('inspection', 12);
 }
 
 testRestartFlow();

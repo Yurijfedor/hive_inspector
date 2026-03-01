@@ -1,8 +1,6 @@
 import {inspectionFlow} from './flow/inspectionDefinition';
 import {executeStep} from './flow/flowRuntime';
-import {FlowEffect} from '../conversation/flowEffects';
-// import {getStep} from './flow/flowRuntime';
-// import {parseAnswer} from './answerValidator';
+import {FlowEffect} from '../conversation/types';
 
 export type InspectionSession = {
   hiveNumber: number;

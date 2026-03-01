@@ -1,4 +1,4 @@
-import {FlowEffect} from '../../conversation/flowEffects';
+import {FlowEffect} from '../../conversation/types';
 /**
  * Function that applies user answer to session
  */
@@ -46,5 +46,7 @@ export type StepResult<TSession> =
  * Declarative conversation flow
  */
 export type ConversationFlow<TSession> = {
+  id: string;
+  createSession: (...args: any[]) => TSession;
   steps: StepDefinition<TSession>[];
 };

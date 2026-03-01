@@ -2,53 +2,22 @@ import {
   InspectionSession,
   createInspectionSession,
   applyAnswer,
-} from './inspectionSession';
+} from '../inspection/inspectionSession';
 
-import {inspectionFlow} from './flow/inspectionDefinition';
-import {getStep} from './flow/flowRuntime';
-import {FlowEffect} from '../conversation/flowEffects';
-
-// --------------------------------------------------
-// RESULT TYPES
-// --------------------------------------------------
-
-type ConversationFlowResult =
-  | {
-      type: 'ASK';
-      question: string;
-      session: InspectionSession;
-      effects?: FlowEffect[];
-    }
-  | {
-      type: 'CONFIRM';
-      message: string;
-      session: InspectionSession;
-      effects?: FlowEffect[];
-    }
-  | {
-      type: 'FINISH';
-      session: InspectionSession;
-      effects?: FlowEffect[];
-    }
-  | {
-      type: 'INVALID';
-      message: string;
-      session: InspectionSession;
-    };
-
-type RuntimeResult =
-  | {type: 'PAUSED'; session: InspectionSession}
-  | {type: 'IGNORED'};
-
-export type ConversationResult = ConversationFlowResult | RuntimeResult;
+import {inspectionFlow} from '../inspection/flow/inspectionDefinition';
+import {getStep} from '../inspection/flow/flowRuntime';
+import {ConversationResult} from './types';
 
 // --------------------------------------------------
 // TYPE GUARD
 // --------------------------------------------------
 
 export function hasSession(
-  result: ConversationResult,
-): result is Extract<ConversationResult, {session: InspectionSession}> {
+  result: ConversationResult<InspectionSession>,
+): result is Extract<
+  ConversationResult<InspectionSession>,
+  {session: InspectionSession}
+> {
   return 'session' in result;
 }
 
@@ -59,7 +28,7 @@ export function hasSession(
 export function handleUserAnswer(
   session: InspectionSession,
   value: unknown,
-): ConversationResult {
+): ConversationResult<InspectionSession> {
   const result = applyAnswer(session, value);
 
   // ✅ STEP VALIDATION FAILED (handled by Flow)
@@ -111,7 +80,7 @@ export function handleUserAnswer(
 
 export function startInspectionConversation(
   hiveNumber: number,
-): ConversationResult {
+): ConversationResult<InspectionSession> {
   const session = createInspectionSession(hiveNumber);
 
   const firstStep = getStep(inspectionFlow, session.stepIndex);
@@ -136,7 +105,7 @@ export function startInspectionConversation(
 
 export function askCurrentQuestion(
   session: InspectionSession,
-): ConversationResult {
+): ConversationResult<InspectionSession> {
   const step = getStep(inspectionFlow, session.stepIndex);
 
   if (!step) {

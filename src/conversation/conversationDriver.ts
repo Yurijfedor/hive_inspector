@@ -1,23 +1,17 @@
-import {
-  startInspectionConversation,
-  handleUserAnswer,
-  ConversationResult,
-  askCurrentQuestion,
-  hasSession,
-} from './conversationOrchestrator';
+import {getFlow} from './flowRegistry';
+import {executeStep} from '../inspection/flow/flowRuntime';
+import {ConversationResult, RuntimeState} from './types';
 
-import {detectControlIntent} from './controlIntents';
+import {detectControlIntent} from '../inspection/controlIntents';
 
-import {EventBus} from '../conversation/eventBus';
-import {ConversationEvent} from '../conversation/events';
+import {EventBus} from './eventBus';
+import {ConversationEvent} from './events';
 
-import {RuntimePersistence} from '../conversation/runtimePersistence';
-import {RuntimeSnapshot} from '../conversation/runtimeSnapshot';
+import {RuntimePersistence} from './runtimePersistence';
 
 /**
  * Runtime state — single source of truth
  */
-type RuntimeState = RuntimeSnapshot;
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -44,6 +38,7 @@ export class ConversationDriver {
 
   private async finishConversation() {
     this.state = {mode: 'IDLE'};
+
     await this.persistence.clear();
 
     this.bus.emit({
@@ -59,16 +54,12 @@ export class ConversationDriver {
     this.generation++;
 
     const snapshot = await this.persistence.load();
-
-    if (!snapshot || snapshot.mode === 'IDLE') {
-      return;
-    }
+    if (!snapshot || snapshot.mode === 'IDLE') return;
 
     this.state = snapshot;
 
     if (snapshot.mode === 'ACTIVE') {
-      const result = askCurrentQuestion(snapshot.session);
-      this.processResult(result);
+      this.askCurrentStep();
     }
 
     if (snapshot.mode === 'PAUSED') {
@@ -80,26 +71,54 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // START
+  // START (GENERIC)
   // --------------------------------------------------
 
-  async start(hiveNumber: number): Promise<void> {
+  async start(flowId: string, ...args: any[]): Promise<void> {
     this.generation++;
 
-    const result = startInspectionConversation(hiveNumber);
+    const flow = getFlow(flowId);
 
-    if (!hasSession(result)) {
-      throw new Error('Invalid start result');
+    if (!flow) {
+      throw new Error(`Flow ${flowId} not found`);
     }
+
+    const session = flow.createSession(...args);
 
     this.state = {
       mode: 'ACTIVE',
-      session: result.session,
+      flowId,
+      session,
     };
 
     await this.saveState();
 
-    this.processResult(result);
+    this.askCurrentStep();
+  }
+
+  // --------------------------------------------------
+  // ASK STEP
+  // --------------------------------------------------
+
+  private askCurrentStep() {
+    if (this.state.mode !== 'ACTIVE') return;
+
+    const flow = getFlow(this.state.flowId);
+    if (!flow) return;
+
+    const step = flow.steps[this.state.session.stepIndex];
+
+    if (!step) {
+      this.finishConversation();
+      return;
+    }
+
+    this.bus.emit({
+      type: 'SYSTEM_SPEAK',
+      text: step.question,
+    });
+
+    this.bus.emit({type: 'START_LISTENING'});
   }
 
   // --------------------------------------------------
@@ -112,26 +131,33 @@ export class ConversationDriver {
 
     // ---------- PAUSE ----------
     if (intent === 'PAUSE' && this.state.mode === 'ACTIVE') {
-      const session = this.state.session;
-
-      this.state = {mode: 'PAUSED', session};
+      this.state = {
+        mode: 'PAUSED',
+        flowId: this.state.flowId,
+        session: this.state.session,
+      };
 
       await this.saveState();
 
-      this.processResult({type: 'PAUSED', session});
+      this.processResult({
+        type: 'PAUSED',
+        session: this.state.session,
+      });
+
       return;
     }
 
     // ---------- RESUME ----------
     if (intent === 'RESUME' && this.state.mode === 'PAUSED') {
-      const session = this.state.session;
-
-      this.state = {mode: 'ACTIVE', session};
+      this.state = {
+        mode: 'ACTIVE',
+        flowId: this.state.flowId,
+        session: this.state.session,
+      };
 
       await this.saveState();
 
-      const result = askCurrentQuestion(session);
-      this.processResult(result);
+      this.askCurrentStep();
       return;
     }
 
@@ -141,27 +167,37 @@ export class ConversationDriver {
       return;
     }
 
-    // ---------- DOMAIN ----------
-    const result = handleUserAnswer(this.state.session, text);
+    // ---------- FLOW EXECUTION ----------
+    const flow = getFlow(this.state.flowId);
+    if (!flow) return;
 
-    if (hasSession(result)) {
-      this.state = {
-        mode: 'ACTIVE',
-        session: result.session,
-      };
+    const step = flow.steps[this.state.session.stepIndex];
+
+    const result = executeStep(step, this.state.session, text);
+
+    if (result.type === 'ACCEPT') {
+      this.state.session = result.session;
 
       await this.saveState();
-    }
 
-    this.processResult(result);
+      // next step
+      this.state.session.stepIndex++;
+
+      this.askCurrentStep();
+    } else {
+      this.processResult({
+        type: 'INVALID',
+        message: result.message,
+        session: this.state.session,
+      });
+    }
   }
 
   // --------------------------------------------------
   // RESULT → EVENTS
   // --------------------------------------------------
 
-  private processResult(result: ConversationResult): void {
-    // ⭐ NEW — emit workflow effects
+  private processResult(result: ConversationResult<any>): void {
     if ('effects' in result && result.effects) {
       for (const effect of result.effects) {
         this.bus.emit({
@@ -172,30 +208,11 @@ export class ConversationDriver {
     }
 
     switch (result.type) {
-      case 'ASK':
-        this.bus.emit({
-          type: 'SYSTEM_SPEAK',
-          text: result.question,
-        });
-
-        this.bus.emit({type: 'START_LISTENING'});
-        break;
-
-      case 'CONFIRM':
-        this.bus.emit({
-          type: 'SYSTEM_SPEAK',
-          text: result.message,
-        });
-
-        this.bus.emit({type: 'START_LISTENING'});
-        break;
-
       case 'INVALID':
         this.bus.emit({
           type: 'SYSTEM_SPEAK',
           text: result.message,
         });
-
         this.bus.emit({type: 'START_LISTENING'});
         break;
 
@@ -204,21 +221,11 @@ export class ConversationDriver {
           type: 'SYSTEM_SPEAK',
           text: 'Огляд призупинено. Скажіть "продовжити", щоб повернутись.',
         });
-
         this.bus.emit({type: 'START_LISTENING'});
         break;
 
       case 'IGNORED':
         this.bus.emit({type: 'START_LISTENING'});
-        break;
-
-      case 'FINISH':
-        this.bus.emit({
-          type: 'SYSTEM_SPEAK',
-          text: 'Огляд завершено.',
-        });
-
-        this.finishConversation();
         break;
     }
   }

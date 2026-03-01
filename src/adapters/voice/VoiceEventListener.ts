@@ -1,4 +1,4 @@
-import {ConversationDriver} from '../../inspection/conversationDriver';
+import {ConversationDriver} from '../../conversation/conversationDriver';
 import {EventBus} from '../../conversation/eventBus';
 import {ConversationEvent} from '../../conversation/events';
 import {VoiceAdapter} from './VoiceAdapter';

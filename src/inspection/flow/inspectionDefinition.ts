@@ -2,6 +2,14 @@ import {ConversationFlow} from './conversationFlow';
 import {InspectionSession} from '../inspectionSession';
 
 export const inspectionFlow: ConversationFlow<InspectionSession> = {
+  id: 'inspection',
+
+  createSession: (hiveNumber: number) => ({
+    hiveNumber,
+    stepIndex: 0,
+    data: {},
+  }),
+
   steps: [
     {
       id: 'STRENGTH',

@@ -1,7 +1,7 @@
-import {RuntimeSnapshot} from './runtimeSnapshot';
+import {RuntimeState} from './types';
 
 export interface RuntimePersistence {
-  save(snapshot: RuntimeSnapshot): Promise<void>;
-  load(): Promise<RuntimeSnapshot | null>;
+  save(snapshot: RuntimeState): Promise<void>;
+  load(): Promise<RuntimeState | null>;
   clear(): Promise<void>;
 }
