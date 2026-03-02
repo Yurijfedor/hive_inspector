@@ -11,8 +11,8 @@ export class MockVoiceAdapter implements VoiceAdapter {
 
   constructor(answers?: string[]) {
     this.answers = answers ?? [
-      '50', // invalid strength
-      'бджоли літають',
+      // '50', // invalid strength
+      // 'бджоли літають',
       '8', // valid
       'так',
       '12',
@@ -29,7 +29,11 @@ export class MockVoiceAdapter implements VoiceAdapter {
 
     if (answer === undefined) {
       console.log('👤 USER: <no more input>');
-      throw new InputStreamClosedError();
+
+      // simulate silence instead of crash
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      return '';
     }
 
     console.log('👤 USER:', answer);

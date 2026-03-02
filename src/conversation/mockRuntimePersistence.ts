@@ -1,5 +1,7 @@
 import {RuntimePersistence} from './runtimePersistence';
-import {RuntimeSnapshot} from './runtimeSnapshot';
+import {RuntimeState} from './types';
+
+export type RuntimeSnapshot = RuntimeState;
 
 export class MockRuntimePersistence implements RuntimePersistence {
   private snapshot: RuntimeSnapshot | null = null;

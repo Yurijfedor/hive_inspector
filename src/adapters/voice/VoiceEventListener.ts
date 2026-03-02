@@ -9,10 +9,13 @@ export function registerVoiceListener(
   driver: ConversationDriver,
 ): () => void {
   let active = true;
+  let listening = false;
 
   // ---------------- SPEAK ----------------
 
-  const unsubscribeSpeak = bus.on('SYSTEM_SPEAK', e => voice.speak(e.text));
+  const unsubscribeSpeak = bus.on('SYSTEM_SPEAK', e => {
+    voice.speak(e.text);
+  });
 
   // ---------------- STOP ON FINISH ----------------
 
@@ -22,27 +25,37 @@ export function registerVoiceListener(
 
   // ---------------- LISTEN LOOP ----------------
 
-  const unsubscribeListen = bus.on('START_LISTENING', async () => {
-    if (!active) return;
+  async function listenLoop() {
+    if (listening) return; // prevent parallel loops
+    listening = true;
 
-    const generation = driver.getGeneration();
+    while (active) {
+      const generation = driver.getGeneration();
 
-    try {
-      const text = await voice.listen();
+      try {
+        const text = await voice.listen();
 
-      // ignore zombie async result
-      if (!active) return;
+        if (!active) continue;
 
-      if (generation !== driver.getGeneration()) {
-        console.log('👻 Ignored stale voice result');
-        return;
+        // ignore stale async result
+        if (generation !== driver.getGeneration()) {
+          console.log('👻 Ignored stale voice result');
+          continue;
+        }
+
+        await driver.handleExternalInput(text);
+      } catch (e) {
+        // input stream closed → just retry
+        continue;
       }
-
-      await driver.handleExternalInput(text);
-    } catch (e) {
-      // stream closed → silently stop
-      return;
     }
+
+    listening = false;
+  }
+
+  const unsubscribeListen = bus.on('START_LISTENING', () => {
+    if (!active) return;
+    listenLoop();
   });
 
   // ---------------- CLEANUP ----------------

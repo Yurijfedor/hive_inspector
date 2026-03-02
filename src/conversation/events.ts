@@ -1,4 +1,4 @@
-import {FlowEffect} from './flowEffects';
+import {FlowEffect} from './types';
 
 export type ConversationEvent =
   | {type: 'SYSTEM_SPEAK'; text: string}

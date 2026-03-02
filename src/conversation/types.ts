@@ -51,15 +51,20 @@ export type ConversationFlowResult<TSession> =
       session: TSession;
     };
 
-export type RuntimeResult<TSession> =
-  | {type: 'PAUSED'; session: TSession}
-  | {type: 'IGNORED'};
+export type RuntimeResult = {type: 'IGNORED'};
 
 export type ConversationResult<TSession> =
   | ConversationFlowResult<TSession>
-  | RuntimeResult<TSession>;
+  | RuntimeResult;
 
 export type RuntimeState =
   | {mode: 'IDLE'}
-  | {mode: 'ACTIVE'; flowId: string; session: any}
-  | {mode: 'PAUSED'; flowId: string; session: any};
+  | {
+      mode: 'RUNNING';
+      stack: FlowInstance[];
+    };
+
+export type FlowInstance = {
+  flowId: string;
+  session: any;
+};

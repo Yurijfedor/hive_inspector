@@ -26,7 +26,6 @@ let cleanup: (() => void) | null = null;
 async function createApp(): Promise<ConversationDriver> {
   console.log('🚀 APP BOOT');
 
-  // destroy previous runtime
   if (cleanup) {
     cleanup();
     cleanup = null;
@@ -39,24 +38,22 @@ async function createApp(): Promise<ConversationDriver> {
 
   cleanup = registerVoiceListener(bus, voice, driver);
 
-  // ⭐ restore runtime state
   await driver.restore();
 
   return driver;
 }
 
 // --------------------------------------------------
-// TEST SCENARIO
+// TEST SCENARIO — RESTART DURING RUNNING
 // --------------------------------------------------
 
 async function testRestartFlow() {
   let driver = await createApp();
 
-  // simulate OS kill right after ACTIVE snapshot
   persistence.onSave = snapshot => {
-    console.log('💾 SAVE SNAPSHOT:', snapshot);
+    console.log('💾 SAVE SNAPSHOT:', JSON.stringify(snapshot, null, 2));
 
-    if (snapshot.mode === 'ACTIVE') {
+    if (snapshot.mode === 'RUNNING') {
       console.log('\n💥 ===== SIMULATED RESTART ===== 💥\n');
 
       persistence.onSave = undefined;
@@ -69,7 +66,19 @@ async function testRestartFlow() {
 
   console.log('\n▶ START INSPECTION\n');
 
-  await driver.start('inspection', 12);
+  await driver.startFlow('inspection', 12);
 }
 
+// async function testNestedFlow() {
+//   const driver = await createApp();
+
+//   console.log('\n▶ START INSPECTION\n');
+
+//   await driver.startFlow('inspection', 12);
+
+//   console.log('\n▶ START FEEDING (nested)\n');
+
+//   await driver.startFlow('feeding', 12);
+// }
 testRestartFlow();
+// testNestedFlow();
