@@ -32,7 +32,17 @@ async function createApp(): Promise<ConversationDriver> {
   }
 
   const bus = new EventBus<ConversationEvent>();
-  const voice = new MockVoiceAdapter();
+
+  const voice = new MockVoiceAdapter([
+    'огляд',
+    '8',
+    'так',
+    'годівля',
+    '5',
+    'так',
+    '12',
+    'так',
+  ]);
 
   const driver = new ConversationDriver(bus, persistence);
 
@@ -40,45 +50,18 @@ async function createApp(): Promise<ConversationDriver> {
 
   await driver.restore();
 
+  // ⭐ START LISTENING LOOP
+  bus.emit({type: 'START_LISTENING'});
+
   return driver;
 }
 
 // --------------------------------------------------
-// TEST SCENARIO — RESTART DURING RUNNING
+// TEST SCENARIO — INTENT SWITCHING
 // --------------------------------------------------
 
-async function testRestartFlow() {
-  let driver = await createApp();
-
-  persistence.onSave = snapshot => {
-    console.log('💾 SAVE SNAPSHOT:', JSON.stringify(snapshot, null, 2));
-
-    if (snapshot.mode === 'RUNNING') {
-      console.log('\n💥 ===== SIMULATED RESTART ===== 💥\n');
-
-      persistence.onSave = undefined;
-
-      queueMicrotask(async () => {
-        driver = await createApp();
-      });
-    }
-  };
-
-  console.log('\n▶ START INSPECTION\n');
-
-  await driver.startFlow('inspection', 12);
+async function testIntentSwitching() {
+  await createApp();
 }
 
-// async function testNestedFlow() {
-//   const driver = await createApp();
-
-//   console.log('\n▶ START INSPECTION\n');
-
-//   await driver.startFlow('inspection', 12);
-
-//   console.log('\n▶ START FEEDING (nested)\n');
-
-//   await driver.startFlow('feeding', 12);
-// }
-testRestartFlow();
-// testNestedFlow();
+testIntentSwitching();

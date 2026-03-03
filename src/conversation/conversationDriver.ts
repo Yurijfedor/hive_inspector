@@ -7,6 +7,8 @@ import {EventBus} from './eventBus';
 import {ConversationEvent} from './events';
 
 import {RuntimePersistence} from './runtimePersistence';
+import {detectFlowIntent} from './flowIntents';
+import {detectControlIntent} from '../inspection/controlIntents';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -56,22 +58,22 @@ export class ConversationDriver {
 
     this.state.stack.pop();
 
-    // stack empty → conversation finished
     if (this.state.stack.length === 0) {
       this.state = {mode: 'IDLE'};
-
       await this.persistence.clear();
 
+      // НЕ вимикаємо voice
       this.bus.emit({
-        type: 'CONVERSATION_FINISHED',
+        type: 'SYSTEM_SPEAK',
+        text: 'Готовий до нової команди.',
       });
+
+      this.bus.emit({type: 'START_LISTENING'});
 
       return;
     }
 
     await this.saveState();
-
-    // resume previous flow
     this.askCurrentStep();
   }
 
@@ -87,43 +89,48 @@ export class ConversationDriver {
       if (!snapshot || snapshot.mode === 'IDLE') return;
 
       this.state = snapshot;
-
       this.askCurrentStep();
     });
   }
 
   // --------------------------------------------------
-  // START FLOW (push stack)
+  // INTERNAL FLOW PUSH (NO ENQUEUE)
+  // --------------------------------------------------
+
+  private async pushFlow(flowId: string, ...args: any[]): Promise<void> {
+    this.generation++;
+
+    const flow = getFlow(flowId);
+    if (!flow) {
+      throw new Error(`Flow ${flowId} not found`);
+    }
+
+    const session = flow.createSession(...args);
+
+    const instance: FlowInstance = {
+      flowId,
+      session,
+    };
+
+    if (this.state.mode === 'IDLE') {
+      this.state = {
+        mode: 'RUNNING',
+        stack: [instance],
+      };
+    } else {
+      this.state.stack.push(instance);
+    }
+
+    await this.saveState();
+    this.askCurrentStep();
+  }
+
+  // --------------------------------------------------
+  // PUBLIC START FLOW (WRAPPER)
   // --------------------------------------------------
 
   async startFlow(flowId: string, ...args: any[]): Promise<void> {
-    return this.enqueueMutation(async () => {
-      this.generation++;
-
-      const flow = getFlow(flowId);
-      if (!flow) {
-        throw new Error(`Flow ${flowId} not found`);
-      }
-
-      const session = flow.createSession(...args);
-
-      const instance: FlowInstance = {
-        flowId,
-        session,
-      };
-
-      if (this.state.mode === 'IDLE') {
-        this.state = {
-          mode: 'RUNNING',
-          stack: [instance],
-        };
-      } else {
-        this.state.stack.push(instance);
-      }
-
-      await this.saveState();
-      this.askCurrentStep();
-    });
+    return this.enqueueMutation(() => this.pushFlow(flowId, ...args));
   }
 
   // --------------------------------------------------
@@ -153,14 +160,49 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // INPUT HANDLING
+  // INPUT HANDLING (INTENT-AWARE)
   // --------------------------------------------------
 
   async handleExternalInput(value: unknown): Promise<void> {
     return this.enqueueMutation(async () => {
-      const text = String(value);
-
+      const text = String(value).trim();
       const active = this.getActiveInstance();
+
+      // -------------------------
+      // 1️⃣ Control intent
+      // -------------------------
+
+      const control = detectControlIntent(text);
+
+      if (control === 'CANCEL' && active) {
+        await this.finishActiveFlow();
+        return;
+      }
+
+      if (control === 'PAUSE') {
+        return;
+      }
+
+      if (control === 'RESUME') {
+        this.askCurrentStep();
+        return;
+      }
+
+      // -------------------------
+      // 2️⃣ Flow intent (ALWAYS ALLOWED)
+      // -------------------------
+
+      const flowIntent = detectFlowIntent(text);
+
+      if (flowIntent.type === 'START_FLOW') {
+        await this.pushFlow(flowIntent.flowId, ...(flowIntent.args ?? []));
+        return;
+      }
+
+      // -------------------------
+      // 3️⃣ Domain execution
+      // -------------------------
+
       if (!active) {
         this.bus.emit({type: 'START_LISTENING'});
         return;
@@ -178,7 +220,6 @@ export class ConversationDriver {
         active.session.stepIndex++;
 
         await this.saveState();
-
         this.askCurrentStep();
       } else {
         this.processResult({
@@ -189,7 +230,6 @@ export class ConversationDriver {
       }
     });
   }
-
   // --------------------------------------------------
   // RESULT → EVENTS
   // --------------------------------------------------

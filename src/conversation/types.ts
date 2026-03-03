@@ -25,6 +25,13 @@ export type FlowEffect =
       payload: {
         hiveNumber: number;
       };
+    }
+  | {
+      type: 'FEEDING_RECORDED';
+      payload: {
+        hiveNumber: number;
+        syrupLiters: number;
+      };
     };
 
 export type ConversationFlowResult<TSession> =

@@ -10,14 +10,7 @@ export class MockVoiceAdapter implements VoiceAdapter {
   private answers: string[];
 
   constructor(answers?: string[]) {
-    this.answers = answers ?? [
-      // '50', // invalid strength
-      // 'бджоли літають',
-      '8', // valid
-      'так',
-      '12',
-      'так',
-    ];
+    this.answers = answers ?? [];
   }
 
   async speak(text: string): Promise<void> {
@@ -29,10 +22,7 @@ export class MockVoiceAdapter implements VoiceAdapter {
 
     if (answer === undefined) {
       console.log('👤 USER: <no more input>');
-
-      // simulate silence instead of crash
       await new Promise(resolve => setTimeout(resolve, 1000));
-
       return '';
     }
 
