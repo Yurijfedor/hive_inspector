@@ -6,8 +6,6 @@ import {
   Button,
   Modal,
   ActivityIndicator,
-  TextInput,
-  ScrollView,
   Alert,
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
@@ -16,15 +14,9 @@ import {request, PERMISSIONS} from 'react-native-permissions';
 import Tts from 'react-native-tts';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {VoiceHandler} from './VoiceHandler';
-import {getApp, utils} from '@react-native-firebase/app';
+import {getApp} from '@react-native-firebase/app';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  getDatabase,
-  ref,
-  set,
-  update,
-  onValue,
-} from '@react-native-firebase/database';
+import {getDatabase, ref, update} from '@react-native-firebase/database';
 import {
   getAuth,
   signInAnonymously,
@@ -41,6 +33,8 @@ import AuthScreen from './AuthScreen';
 import {handleInspection} from './src/actions/handleInspection';
 import {handleInspectionEffect} from './src/effects/inspectionEffectHandler';
 import {buildInspectionFeedback} from './src/feedback/buildInspectionFeedback';
+import {AuthProvider, useAuth} from './src/auth/AuthProvider';
+
 import './src/inspection/testInspection';
 
 // Константи та мапи
@@ -120,6 +114,10 @@ const MainScreen = ({navigation}) => {
     }
   };
 
+  const {user} = useAuth();
+
+  const userId = user?.uid;
+
   const runTest = async () => {
     const fakeCommand = {
       hiveNumber: 14,
@@ -135,6 +133,7 @@ const MainScreen = ({navigation}) => {
     const feedback = buildInspectionFeedback(result);
 
     console.log('🗣 FEEDBACK:', feedback);
+    console.log('USER:', userId);
   };
 
   return (
@@ -734,42 +733,38 @@ const ViewScreen = () => {
 // Налаштування навігації
 const Stack = createStackNavigator();
 
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      setIsAuthenticated(!!user);
-    });
+const RootNavigator = () => {
+  const {user, loading} = useAuth();
 
-    return () => unsubscribe();
-  }, []);
-
-  if (isAuthenticated === null) {
+  if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={isAuthenticated ? 'Main' : 'Auth'}>
+      <Stack.Navigator initialRouteName={user ? 'Main' : 'Auth'}>
         <Stack.Screen
           name="Auth"
           component={AuthScreen}
           options={{title: 'Авторизація', headerShown: false}}
         />
+
         <Stack.Screen
           name="Main"
           component={MainScreen}
           options={{title: 'BeeVoiceApp'}}
         />
+
         <Stack.Screen
           name="Input"
           component={InputScreen}
           options={{title: 'Введення даних'}}
         />
+
         <Stack.Screen
           name="View"
           component={ViewScreen}
@@ -777,6 +772,14 @@ const App = () => {
         />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
   );
 };
 
