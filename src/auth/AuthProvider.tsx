@@ -1,39 +1,51 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {onAuthStateChanged, signInAnonymously, User} from 'firebase/auth';
-import {auth} from '../firebase/firebase';
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInAnonymously,
+  FirebaseAuthTypes,
+} from '@react-native-firebase/auth';
 
 type AuthContextType = {
-  user: User | null;
+  user: FirebaseAuthTypes.User | null;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
 });
 
+const auth = getAuth();
+
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async u => {
-      if (!u) {
-        const result = await signInAnonymously(auth);
-        setUser(result.user);
-      } else {
-        setUser(u);
-      }
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (u: FirebaseAuthTypes.User | null) => {
+        console.log('AUTH STATE:', u?.uid ?? 'NO USER');
 
-      setLoading(false);
-    });
+        if (!u) {
+          console.log('Signing in anonymously...');
+          const result = await signInAnonymously(auth);
+          console.log('NEW USER:', result.user.uid);
+          setUser(result.user);
+        } else {
+          setUser(u);
+        }
 
-    return unsub;
+        setLoading(false);
+      },
+    );
+
+    return unsubscribe;
   }, []);
 
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
   return <AuthContext.Provider value={{user}}>{children}</AuthContext.Provider>;
 };
