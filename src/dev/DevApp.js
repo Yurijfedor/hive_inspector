@@ -2,12 +2,13 @@ import React from 'react';
 import {View, Text, Button} from 'react-native';
 
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
+// import database from '@react-native-firebase/database';
 
 import {handleInspection} from '../actions/handleInspection';
 import {handleInspectionEffect} from '../effects/inspectionEffectHandler';
 import {buildInspectionFeedback} from '../feedback/buildInspectionFeedback';
+
 import {auth} from '../firebase/firebase';
-import {signOut} from 'firebase/auth';
 
 const DevScreen = () => {
   const {user} = useAuth();
@@ -15,21 +16,34 @@ const DevScreen = () => {
   const userId = user?.uid;
 
   const runTest = async () => {
+    console.log('🚀 RUN TEST START');
+
+    if (!userId) {
+      console.log('❌ NO USER');
+      return;
+    }
+
     const fakeCommand = {
-      hiveNumber: 14,
+      hiveNumber: 15,
       strength: 8,
       honeyKg: 2.5,
       queen: 'absent',
       stop: false,
     };
 
+    console.log('📥 COMMAND:', fakeCommand);
+
     const event = await handleInspection(fakeCommand);
-    const result = await handleInspectionEffect(event);
+
+    console.log('📤 EVENT:', event);
+
+    const result = await handleInspectionEffect(userId, event);
+
+    console.log('📦 EFFECT RESULT:', result);
 
     const feedback = buildInspectionFeedback(result);
 
     console.log('🗣 FEEDBACK:', feedback);
-    console.log('USER:', user?.uid);
   };
 
   const handleSignOut = async () => {
@@ -41,6 +55,24 @@ const DevScreen = () => {
       console.log('SIGN OUT ERROR:', e);
     }
   };
+
+  // const dbTest = async () => {
+  //   try {
+  //     if (!userId) {
+  //       console.log('❌ NO USER');
+  //       return;
+  //     }
+
+  //     await database().ref(`users/${userId}/hives/13`).set({
+  //       lastStrength: 8,
+  //       createdAt: Date.now(),
+  //     });
+
+  //     console.log('✅ DB WRITE OK');
+  //   } catch (e) {
+  //     console.log('🔥 DB ERROR:', e);
+  //   }
+  // };
 
   return (
     <View
@@ -56,6 +88,9 @@ const DevScreen = () => {
       <View style={{marginTop: 20}}>
         <Button title="SignOut" onPress={handleSignOut} />
       </View>
+      {/* <View style={{marginTop: 20}}>
+        <Button title="Database Test" onPress={dbTest} />
+      </View> */}
     </View>
   );
 };

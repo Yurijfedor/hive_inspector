@@ -3,11 +3,12 @@ import {saveInspection} from '../persistence/inspectionRepository';
 import {InspectionEffectResult} from './types';
 
 export async function handleInspectionEffect(
+  uid: string,
   event: InspectionEvent,
 ): Promise<InspectionEffectResult> {
   switch (event.type) {
     case 'STOP_INSPECTION':
-      await saveInspection({
+      await saveInspection(uid, {
         hiveNumber: event.hiveNumber,
         stop: true,
       } as any);
@@ -18,7 +19,7 @@ export async function handleInspectionEffect(
       };
 
     case 'UPDATE_INSPECTION':
-      await saveInspection({
+      await saveInspection(uid, {
         hiveNumber: event.hiveNumber,
         ...event.payload,
       } as any);
