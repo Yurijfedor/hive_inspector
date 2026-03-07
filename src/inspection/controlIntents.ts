@@ -1,8 +1,8 @@
 export type ControlIntent = 'PAUSE' | 'RESUME' | 'CANCEL' | 'NONE';
 
-const pauseWords = ['зупини', 'чекай'];
+const pauseWords = ['стоп', 'зупини', 'чекай'];
 const resumeWords = ['продовж', 'далі', 'можна'];
-const cancelWords = ['стоп', 'скасувати', 'завершити', 'закінчити'];
+const cancelWords = ['скасувати', 'завершити', 'закінчити'];
 
 function matches(text: string, words: string[]) {
   return words.some(word => text.includes(word));

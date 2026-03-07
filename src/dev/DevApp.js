@@ -4,11 +4,11 @@ import {View, Text, Button} from 'react-native';
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
 // import database from '@react-native-firebase/database';
 
-import {handleInspection} from '../actions/handleInspection';
-import {handleInspectionEffect} from '../effects/inspectionEffectHandler';
-import {buildInspectionFeedback} from '../feedback/buildInspectionFeedback';
-
+// import {handleInspection} from '../actions/handleInspection';
+// import {handleInspectionEffect} from '../effects/inspectionEffectHandler';
+// import {buildInspectionFeedback} from '../feedback/buildInspectionFeedback';
 import {auth} from '../firebase/firebase';
+import {runInspectionRuntimeTest} from '../inspection/testInspection';
 
 const DevScreen = () => {
   const {user} = useAuth();
@@ -23,27 +23,7 @@ const DevScreen = () => {
       return;
     }
 
-    const fakeCommand = {
-      hiveNumber: 15,
-      strength: 8,
-      honeyKg: 2.5,
-      queen: 'absent',
-      stop: false,
-    };
-
-    console.log('📥 COMMAND:', fakeCommand);
-
-    const event = await handleInspection(fakeCommand);
-
-    console.log('📤 EVENT:', event);
-
-    const result = await handleInspectionEffect(userId, event);
-
-    console.log('📦 EFFECT RESULT:', result);
-
-    const feedback = buildInspectionFeedback(result);
-
-    console.log('🗣 FEEDBACK:', feedback);
+    await runInspectionRuntimeTest(userId);
   };
 
   const handleSignOut = async () => {

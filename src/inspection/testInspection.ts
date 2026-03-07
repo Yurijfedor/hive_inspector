@@ -1,67 +1,53 @@
 import {ConversationDriver} from '../conversation/conversationDriver';
 import {MockVoiceAdapter} from '../adapters/voice/mockVoiceAdapter';
-
 import {EventBus} from '../conversation/eventBus';
 import {ConversationEvent} from '../conversation/events';
 import {registerVoiceListener} from '../adapters/voice/VoiceEventListener';
+import {LocalRuntimePersistence} from '../runtime/LocalRuntimePersistence';
+import {FirebaseRuntimePersistence} from '../runtime/FirebaseRuntimePersistence';
+import {HybridRuntimePersistence} from '../runtime/HybridRuntimePersistence';
 
-import {MockRuntimePersistence} from '../conversation/mockRuntimePersistence';
+export async function runInspectionRuntimeTest(uid: string) {
+  console.log('🧪 RUNTIME TEST START');
 
-// --------------------------------------------------
-// GLOBAL PERSISTENCE (survives restart)
-// --------------------------------------------------
+  const persistence = new HybridRuntimePersistence(
+    new LocalRuntimePersistence(),
+    new FirebaseRuntimePersistence(uid),
+  );
 
-const persistence = new MockRuntimePersistence();
+  // const persistence = new LocalRuntimePersistence();
 
-// --------------------------------------------------
-// RUNTIME LIFECYCLE CONTROL
-// --------------------------------------------------
+  let cleanup: (() => void) | null = null;
 
-let cleanup: (() => void) | null = null;
+  async function createApp() {
+    console.log('🚀 APP BOOT');
 
-// --------------------------------------------------
-// APP FACTORY
-// --------------------------------------------------
+    if (cleanup) {
+      cleanup();
+      cleanup = null;
+    }
 
-async function createApp(): Promise<ConversationDriver> {
-  console.log('🚀 APP BOOT');
+    const bus = new EventBus<ConversationEvent>();
 
-  if (cleanup) {
-    cleanup();
-    cleanup = null;
+    const voice = new MockVoiceAdapter(['8', 'так', '5', 'так']);
+
+    const driver = new ConversationDriver(bus, persistence);
+
+    cleanup = registerVoiceListener(bus, voice, driver);
+
+    await driver.restore();
+
+    return driver;
   }
 
-  const bus = new EventBus<ConversationEvent>();
+  const driver = await createApp();
 
-  const voice = new MockVoiceAdapter([
-    'огляд',
-    '8',
-    'так',
-    'годівля',
-    '5',
-    'так',
-    '12',
-    'так',
-  ]);
+  // ⭐ запуск flow
+  await driver.startFlow('inspection', 12);
 
-  const driver = new ConversationDriver(bus, persistence);
+  await new Promise(r => setTimeout(r, 1500));
 
-  cleanup = registerVoiceListener(bus, voice, driver);
+  console.log('\n🔁 SIMULATE APP RESTART\n');
 
-  await driver.restore();
-
-  // ⭐ START LISTENING LOOP
-  bus.emit({type: 'START_LISTENING'});
-
-  return driver;
-}
-
-// --------------------------------------------------
-// TEST SCENARIO — INTENT SWITCHING
-// --------------------------------------------------
-
-async function testIntentSwitching() {
   await createApp();
 }
-
-testIntentSwitching();

@@ -189,12 +189,22 @@ export class ConversationDriver {
       }
 
       // -------------------------
-      // 2️⃣ Flow intent (ALWAYS ALLOWED)
+      // 2️⃣ Flow intent
       // -------------------------
 
       const flowIntent = detectFlowIntent(text);
 
       if (flowIntent.type === 'START_FLOW') {
+        if (active?.flowId === flowIntent.flowId) {
+          this.bus.emit({
+            type: 'SYSTEM_SPEAK',
+            text: 'Ми вже виконуємо цю команду.',
+          });
+
+          this.bus.emit({type: 'START_LISTENING'});
+          return;
+        }
+
         await this.pushFlow(flowIntent.flowId, ...(flowIntent.args ?? []));
         return;
       }
