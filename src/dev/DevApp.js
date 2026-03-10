@@ -1,17 +1,20 @@
 import React from 'react';
-import {View, Text, Button} from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  NativeModules,
+  NativeEventEmitter,
+} from 'react-native';
 
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
-// import database from '@react-native-firebase/database';
-
-// import {handleInspection} from '../actions/handleInspection';
-// import {handleInspectionEffect} from '../effects/inspectionEffectHandler';
-// import {buildInspectionFeedback} from '../feedback/buildInspectionFeedback';
 import {auth} from '../firebase/firebase';
 import {runInspectionRuntimeTest} from '../inspection/testInspection';
 
 const DevScreen = () => {
   const {user} = useAuth();
+  const {Vosk} = NativeModules;
+  const voskEmitter = new NativeEventEmitter(Vosk);
 
   const userId = user?.uid;
 
@@ -36,23 +39,33 @@ const DevScreen = () => {
     }
   };
 
-  // const dbTest = async () => {
-  //   try {
-  //     if (!userId) {
-  //       console.log('❌ NO USER');
-  //       return;
-  //     }
+  const testVosk = async () => {
+    console.log('🧪 TEST START');
 
-  //     await database().ref(`users/${userId}/hives/13`).set({
-  //       lastStrength: 8,
-  //       createdAt: Date.now(),
-  //     });
+    try {
+      await Vosk.loadModel('model');
+      console.log('MODEL LOADED');
 
-  //     console.log('✅ DB WRITE OK');
-  //   } catch (e) {
-  //     console.log('🔥 DB ERROR:', e);
-  //   }
-  // };
+      voskEmitter.removeAllListeners('onResult');
+      voskEmitter.removeAllListeners('onPartialResult');
+
+      voskEmitter.addListener('onResult', e => {
+        console.log('RESULT RAW:', JSON.stringify(e));
+      });
+
+      voskEmitter.addListener('onPartialResult', e => {
+        console.log('PARTIAL RAW:', JSON.stringify(e));
+      });
+
+      await Vosk.start({
+        sampleRate: 16000,
+      });
+
+      console.log('🎤 LISTENING...');
+    } catch (e) {
+      console.log('❌ ERROR:', e);
+    }
+  };
 
   return (
     <View
@@ -68,9 +81,9 @@ const DevScreen = () => {
       <View style={{marginTop: 20}}>
         <Button title="SignOut" onPress={handleSignOut} />
       </View>
-      {/* <View style={{marginTop: 20}}>
-        <Button title="Database Test" onPress={dbTest} />
-      </View> */}
+      <View style={{marginTop: 20}}>
+        <Button title="Test Vosk" onPress={testVosk} />
+      </View>
     </View>
   );
 };

@@ -1,11 +1,12 @@
 import {ConversationDriver} from '../conversation/conversationDriver';
-import {MockVoiceAdapter} from '../adapters/voice/mockVoiceAdapter';
+// import {MockVoiceAdapter} from '../adapters/voice/mockVoiceAdapter';
 import {EventBus} from '../conversation/eventBus';
 import {ConversationEvent} from '../conversation/events';
 import {registerVoiceListener} from '../adapters/voice/VoiceEventListener';
 import {LocalRuntimePersistence} from '../runtime/LocalRuntimePersistence';
 import {FirebaseRuntimePersistence} from '../runtime/FirebaseRuntimePersistence';
 import {HybridRuntimePersistence} from '../runtime/HybridRuntimePersistence';
+import {VoskVoiceAdapter} from '../voice/VoskVoiceAdapter';
 
 export async function runInspectionRuntimeTest(uid: string) {
   console.log('🧪 RUNTIME TEST START');
@@ -29,8 +30,7 @@ export async function runInspectionRuntimeTest(uid: string) {
 
     const bus = new EventBus<ConversationEvent>();
 
-    const voice = new MockVoiceAdapter(['8', 'так', '5', 'так']);
-
+    const voice = new VoskVoiceAdapter(bus);
     const driver = new ConversationDriver(bus, persistence);
 
     cleanup = registerVoiceListener(bus, voice, driver);
