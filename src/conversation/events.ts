@@ -1,4 +1,5 @@
 import {FlowEffect} from './types';
+import {RuntimeEffect} from './types';
 
 export type ConversationEvent =
   | {type: 'SYSTEM_SPEAK'; text: string}
@@ -9,5 +10,5 @@ export type ConversationEvent =
   | {type: 'CONVERSATION_PAUSED'}
   | {
       type: 'FLOW_EFFECT';
-      effect: FlowEffect;
+      effect: FlowEffect | RuntimeEffect;
     };

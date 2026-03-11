@@ -10,11 +10,15 @@ import {
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
 import {auth} from '../firebase/firebase';
 import {runInspectionRuntimeTest} from '../inspection/testInspection';
+import {baseGrammar} from '../voice/grammars/baseGrammar';
+import {hiveNumbers} from '../voice/grammars/hiveGrammar';
+import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 
 const DevScreen = () => {
   const {user} = useAuth();
   const {Vosk} = NativeModules;
   const voskEmitter = new NativeEventEmitter(Vosk);
+  const runtime = new DevVoiceRuntime();
 
   const userId = user?.uid;
 
@@ -42,6 +46,8 @@ const DevScreen = () => {
   const testVosk = async () => {
     console.log('🧪 TEST START');
 
+    const grammar = [...baseGrammar, ...hiveNumbers];
+
     try {
       await Vosk.loadModel('model');
       console.log('MODEL LOADED');
@@ -59,6 +65,7 @@ const DevScreen = () => {
 
       await Vosk.start({
         sampleRate: 16000,
+        // grammar,
       });
 
       console.log('🎤 LISTENING...');
@@ -83,6 +90,9 @@ const DevScreen = () => {
       </View>
       <View style={{marginTop: 20}}>
         <Button title="Test Vosk" onPress={testVosk} />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Button title="Start Voice Runtime" onPress={() => runtime.start()} />
       </View>
     </View>
   );

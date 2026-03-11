@@ -75,3 +75,9 @@ export type FlowInstance = {
   flowId: string;
   session: any;
 };
+
+export type RuntimeEffect = {
+  type: 'START_FLOW';
+  flowId: string;
+  args?: any[];
+};
