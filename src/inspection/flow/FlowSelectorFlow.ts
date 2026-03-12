@@ -6,6 +6,7 @@ export const FlowSelectorFlow: ConversationFlow<any> = {
   createSession() {
     return {
       stepIndex: 0,
+      nextFlow: null,
     };
   },
 
@@ -19,36 +20,38 @@ export const FlowSelectorFlow: ConversationFlow<any> = {
         const t = String(text).toLowerCase();
 
         if (t.includes('огляд')) {
-          return {
-            type: 'ACCEPT',
-            session,
-            effects: [
-              {
-                type: 'START_FLOW',
-                flowId: 'inspection',
-              },
-            ],
-          };
+          session.nextFlow = 'inspection';
+          return session;
         }
 
         if (t.includes('год')) {
-          return {
-            type: 'ACCEPT',
-            session,
-            effects: [
-              {
-                type: 'START_FLOW',
-                flowId: 'feeding',
-              },
-            ],
-          };
+          session.nextFlow = 'feeding';
+          return session;
         }
 
-        return {
-          type: 'INVALID',
-          message: 'Скажіть: огляд або годівля.',
-          session,
-        };
+        throw new Error('INVALID');
+      },
+
+      runtimeEffects(session) {
+        if (session.nextFlow === 'inspection') {
+          return [
+            {
+              type: 'REPLACE_FLOW',
+              flowId: 'inspection',
+            },
+          ];
+        }
+
+        if (session.nextFlow === 'feeding') {
+          return [
+            {
+              type: 'REPLACE_FLOW',
+              flowId: 'feeding',
+            },
+          ];
+        }
+
+        return [];
       },
     },
   ],

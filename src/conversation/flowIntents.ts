@@ -5,11 +5,11 @@ export type FlowIntent =
 export function detectFlowIntent(text: string): FlowIntent {
   const t = text.trim().toLowerCase();
 
-  if (t.startsWith('годівл')) {
+  if (t.includes('годівл')) {
     return {type: 'START_FLOW', flowId: 'feeding'};
   }
 
-  if (t.startsWith('огляд')) {
+  if (t.includes('огляд')) {
     return {type: 'START_FLOW', flowId: 'inspection'};
   }
 

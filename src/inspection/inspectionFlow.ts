@@ -5,7 +5,6 @@ export const inspectionStepIds = {
   QUEEN: true,
   HONEY: true,
   CONFIRM: true,
-  DONE: true,
 } as const;
 
 export type InspectionStepId = keyof typeof inspectionStepIds;

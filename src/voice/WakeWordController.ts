@@ -27,6 +27,7 @@ export class WakeWordController {
     await this.stopWakeWord();
 
     await this.driver.startFlow('flow-selector');
+    this.active = true;
   }
 
   async onConversationFinished() {

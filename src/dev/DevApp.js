@@ -55,17 +55,25 @@ const DevScreen = () => {
       voskEmitter.removeAllListeners('onResult');
       voskEmitter.removeAllListeners('onPartialResult');
 
-      voskEmitter.addListener('onResult', e => {
+      voskEmitter.addListener('onResult', async e => {
         console.log('RESULT RAW:', JSON.stringify(e));
+
+        const text = e?.text ?? e?.result?.text ?? '';
+
+        console.log('👤 USER:', text);
+
+        if (!text) return;
+
+        await this.driver.handleExternalInput(text);
       });
 
       voskEmitter.addListener('onPartialResult', e => {
-        console.log('PARTIAL RAW:', JSON.stringify(e));
+        console.log('PARTIAL:', e.partial);
       });
 
       await Vosk.start({
         sampleRate: 16000,
-        // grammar,
+        grammar: ['огляд', 'огляду', 'годівля', 'годувати', 'годування'],
       });
 
       console.log('🎤 LISTENING...');

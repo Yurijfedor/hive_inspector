@@ -1,5 +1,6 @@
 import {ConversationFlow} from './conversationFlow';
 import {InspectionSession} from '../inspectionSession';
+import {parseNumber} from '../../voice/numberParser';
 
 export const inspectionFlow: ConversationFlow<InspectionSession> = {
   id: 'inspection',
@@ -16,7 +17,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       question: "Яка сила бджолосім'ї? Назвіть кількість рамок.",
 
-      normalize: v => Number(v),
+      normalize: v => parseNumber(String(v)),
 
       validate: v => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
 
@@ -76,10 +77,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       question: 'Скільки приблизно кілограмів меду?',
 
-      normalize: v => {
-        const match = String(v).match(/\d+/);
-        return match ? Number(match[0]) : NaN;
-      },
+      normalize: v => parseNumber(String(v)),
 
       validate: v => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 100,
 
@@ -118,20 +116,24 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       apply: (session, value) => {
         const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
 
-        if (positive) {
-          return session;
+        // якщо "ні" → restart inspection
+        if (!positive) {
+          return {
+            ...session,
+            stepIndex: 0,
+            data: {},
+          };
         }
 
-        // restart inspection
+        // якщо "так" → завершуємо flow
         return {
           ...session,
-          stepIndex: 0,
-          data: {},
+          stepIndex: 999, // force finish
         };
       },
 
       afterAccept: session => {
-        // emit SAVE_INSPECTION only if confirmed
+        // якщо inspection підтверджений
         if (
           session.data.strength !== undefined &&
           session.data.honeyKg !== undefined

@@ -1,20 +1,16 @@
-import {FlowEffect} from '../../conversation/types';
-/**
- * Function that applies user answer to session
- */
+import {FlowEffect, RuntimeEffect} from '../../conversation/types';
+
 export type StepHandler<TSession> = (
   session: TSession,
   value: unknown,
 ) => TSession;
 
-/**
- * Side effects emitted after successful step accept
- */
 export type StepEffect<TSession> = (session: TSession) => FlowEffect[];
 
-/**
- * Single step definition inside conversation flow
- */
+export type StepRuntimeEffect<TSession> = (
+  session: TSession,
+) => RuntimeEffect[];
+
 export type StepDefinition<TSession> = {
   id: string;
   question: string;
@@ -27,8 +23,11 @@ export type StepDefinition<TSession> = {
 
   apply: (session: TSession, value: unknown) => TSession;
 
-  /** emitted only when step is ACCEPTED */
+  /** domain effects */
   afterAccept?: StepEffect<TSession>;
+
+  /** runtime effects */
+  runtimeEffects?: StepRuntimeEffect<TSession>;
 };
 
 export type StepResult<TSession> =
@@ -36,15 +35,13 @@ export type StepResult<TSession> =
       type: 'ACCEPT';
       session: TSession;
       effects: FlowEffect[];
+      runtimeEffects?: RuntimeEffect[];
     }
   | {
       type: 'RETRY';
       message: string;
     };
 
-/**
- * Declarative conversation flow
- */
 export type ConversationFlow<TSession> = {
   id: string;
   createSession: (...args: any[]) => TSession;

@@ -34,23 +34,41 @@ export type FlowEffect =
       };
     };
 
+/**
+ * Runtime effects handled by ConversationDriver
+ */
+export type RuntimeEffect =
+  | {
+      type: 'START_FLOW';
+      flowId: string;
+      args?: any[];
+    }
+  | {
+      type: 'REPLACE_FLOW';
+      flowId: string;
+      args?: any[];
+    };
+
 export type ConversationFlowResult<TSession> =
   | {
       type: 'ASK';
       question: string;
       session: TSession;
       effects?: FlowEffect[];
+      runtimeEffects?: RuntimeEffect[];
     }
   | {
       type: 'CONFIRM';
       message: string;
       session: TSession;
       effects?: FlowEffect[];
+      runtimeEffects?: RuntimeEffect[];
     }
   | {
       type: 'FINISH';
       session: TSession;
       effects?: FlowEffect[];
+      runtimeEffects?: RuntimeEffect[];
     }
   | {
       type: 'INVALID';
@@ -74,10 +92,4 @@ export type RuntimeState =
 export type FlowInstance = {
   flowId: string;
   session: any;
-};
-
-export type RuntimeEffect = {
-  type: 'START_FLOW';
-  flowId: string;
-  args?: any[];
 };

@@ -16,10 +16,8 @@ export class ConversationDriver {
 
   private state: RuntimeState = {mode: 'IDLE'};
 
-  // generation → cancels stale voice results
   private generation = 0;
 
-  // ⭐ SINGLE MUTATION LANE (actor mailbox)
   private mutationQueue: Promise<void> = Promise.resolve();
 
   constructor(
@@ -31,7 +29,7 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // MUTATION QUEUE (Actor model)
+  // MUTATION QUEUE
   // --------------------------------------------------
 
   private enqueueMutation(fn: () => Promise<void> | void): Promise<void> {
@@ -56,20 +54,20 @@ export class ConversationDriver {
   private async finishActiveFlow() {
     if (this.state.mode !== 'RUNNING') return;
 
+    if (this.state.stack.length === 0) return;
+
     this.state.stack.pop();
 
     if (this.state.stack.length === 0) {
       this.state = {mode: 'IDLE'};
       await this.persistence.clear();
 
-      // НЕ вимикаємо voice
       this.bus.emit({
         type: 'SYSTEM_SPEAK',
         text: 'Готовий до нової команди.',
       });
 
-      this.bus.emit({type: 'START_LISTENING'});
-
+      this.bus.emit({type: 'CONVERSATION_FINISHED'});
       return;
     }
 
@@ -94,7 +92,7 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // INTERNAL FLOW PUSH (NO ENQUEUE)
+  // PUSH FLOW
   // --------------------------------------------------
 
   private async pushFlow(flowId: string, ...args: any[]): Promise<void> {
@@ -125,16 +123,19 @@ export class ConversationDriver {
     this.askCurrentStep();
   }
 
-  // --------------------------------------------------
-  // PUBLIC START FLOW (WRAPPER)
-  // --------------------------------------------------
-
   async startFlow(flowId: string, ...args: any[]): Promise<void> {
     return this.enqueueMutation(() => this.pushFlow(flowId, ...args));
   }
 
+  async replaceFlow(flowId: string, ...args: any[]): Promise<void> {
+    return this.enqueueMutation(async () => {
+      await this.finishActiveFlow();
+      await this.pushFlow(flowId, ...args);
+    });
+  }
+
   // --------------------------------------------------
-  // ASK CURRENT STEP
+  // ASK STEP
   // --------------------------------------------------
 
   private askCurrentStep() {
@@ -160,7 +161,7 @@ export class ConversationDriver {
   }
 
   // --------------------------------------------------
-  // INPUT HANDLING (INTENT-AWARE)
+  // INPUT
   // --------------------------------------------------
 
   async handleExternalInput(value: unknown): Promise<void> {
@@ -169,7 +170,7 @@ export class ConversationDriver {
       const active = this.getActiveInstance();
 
       // -------------------------
-      // 1️⃣ Control intent
+      // CONTROL INTENT
       // -------------------------
 
       const control = detectControlIntent(text);
@@ -189,7 +190,7 @@ export class ConversationDriver {
       }
 
       // -------------------------
-      // 2️⃣ Flow intent
+      // FLOW INTENT
       // -------------------------
 
       const flowIntent = detectFlowIntent(text);
@@ -210,13 +211,10 @@ export class ConversationDriver {
       }
 
       // -------------------------
-      // 3️⃣ Domain execution
+      // DOMAIN EXECUTION
       // -------------------------
 
-      if (!active) {
-        this.bus.emit({type: 'START_LISTENING'});
-        return;
-      }
+      if (!active) return;
 
       const flow = getFlow(active.flowId);
       if (!flow) return;
@@ -227,7 +225,55 @@ export class ConversationDriver {
 
       if (result.type === 'ACCEPT') {
         active.session = result.session;
+
         active.session.stepIndex++;
+
+        // const flow = getFlow(active.flowId);
+
+        if (active.session.stepIndex >= flow.steps.length) {
+          if (result.effects) {
+            for (const effect of result.effects) {
+              this.bus.emit({
+                type: 'FLOW_EFFECT',
+                effect,
+              });
+            }
+          }
+          if ('runtimeEffects' in result && result.runtimeEffects) {
+            for (const effect of result.runtimeEffects) {
+              if (effect.type === 'START_FLOW') {
+                await this.pushFlow(effect.flowId, ...(effect.args ?? []));
+                return;
+              }
+
+              if (effect.type === 'REPLACE_FLOW') {
+                await this.replaceFlow(effect.flowId, ...(effect.args ?? []));
+                return;
+              }
+            }
+          }
+          console.log('BEFORE finish', {
+            mode: this.state.mode,
+            stack: this.state.mode === 'RUNNING' ? this.state.stack.length : 0,
+          });
+
+          await this.finishActiveFlow();
+
+          console.log('AFTER finish', {
+            mode: this.state.mode,
+            stack: this.state.mode === 'RUNNING' ? this.state.stack.length : 0,
+          });
+          return;
+        }
+
+        if (result.effects) {
+          for (const effect of result.effects) {
+            this.bus.emit({
+              type: 'FLOW_EFFECT',
+              effect,
+            });
+          }
+        }
 
         await this.saveState();
         this.askCurrentStep();
@@ -240,8 +286,9 @@ export class ConversationDriver {
       }
     });
   }
+
   // --------------------------------------------------
-  // RESULT → EVENTS
+  // RESULT
   // --------------------------------------------------
 
   private processResult(result: ConversationResult<any>): void {

@@ -67,16 +67,37 @@ export class DevVoiceRuntime {
     this.bus.on('START_LISTENING', async () => {
       console.log('🎤 VOSK START');
 
+      await this.stopPorcupine(); // ⭐ важливо
+
+      try {
+        await Vosk.stop();
+      } catch (e) {}
+
       await Vosk.start({
         sampleRate: 16000,
       });
     });
 
+    this.bus.on('CONVERSATION_FINISHED', async () => {
+      console.log('🏁 CONVERSATION FINISHED');
+
+      try {
+        await Vosk.stop();
+      } catch (e) {}
+
+      await this.wakeController.onConversationFinished();
+    });
+
     this.bus.on('FLOW_EFFECT', async e => {
       if (e.effect.type === 'START_FLOW') {
-        console.log('➡ START FLOW:', e.effect.flowId);
-
         await this.driver.startFlow(e.effect.flowId);
+      }
+
+      if (e.effect.type === 'REPLACE_FLOW') {
+        await this.driver.replaceFlow(
+          e.effect.flowId,
+          ...(e.effect.args ?? []),
+        );
       }
     });
   }
@@ -90,21 +111,20 @@ export class DevVoiceRuntime {
     this.voskEmitter.removeAllListeners('onPartialResult');
 
     this.voskEmitter.addListener('onResult', async e => {
-      const text = e?.text ?? '';
+      console.log('RESULT RAW:', JSON.stringify(e));
+
+      const text = typeof e === 'string' ? e : e?.text ?? e?.result?.text ?? '';
 
       console.log('👤 USER:', text);
 
       if (!text) return;
 
+      await Vosk.stop();
+
       await this.driver.handleExternalInput(text);
     });
-
     this.voskEmitter.addListener('onPartialResult', e => {
-      const partial = e?.partial ?? '';
-
-      if (partial) {
-        console.log('…', partial);
-      }
+      console.log('PARTIAL RAW:', JSON.stringify(e));
     });
   }
 }
