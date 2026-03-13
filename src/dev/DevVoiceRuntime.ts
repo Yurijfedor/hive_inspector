@@ -23,7 +23,7 @@ export class DevVoiceRuntime {
 
   private wakeController = new WakeWordController(
     this.driver,
-    null as any,
+    this.bus,
     () => this.startPorcupine(),
     () => this.stopPorcupine(),
   );

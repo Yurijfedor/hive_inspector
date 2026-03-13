@@ -87,6 +87,7 @@ export type RuntimeState =
   | {
       mode: 'RUNNING';
       stack: FlowInstance[];
+      hiveNumber?: number;
     };
 
 export type FlowInstance = {

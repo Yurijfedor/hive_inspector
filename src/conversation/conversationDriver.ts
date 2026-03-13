@@ -9,6 +9,7 @@ import {ConversationEvent} from './events';
 import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from './flowIntents';
 import {detectControlIntent} from '../inspection/controlIntents';
+// import {parseHiveNumber} from '../voice/hiveParser';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -36,6 +37,11 @@ export class ConversationDriver {
     const next = this.mutationQueue.then(() => fn());
     this.mutationQueue = next.catch(() => {});
     return next;
+  }
+
+  private async replaceFlowInternal(flowId: string, ...args: any[]) {
+    await this.finishActiveFlow();
+    await this.pushFlow(flowId, ...args);
   }
 
   // --------------------------------------------------
@@ -152,9 +158,14 @@ export class ConversationDriver {
       return;
     }
 
+    const question =
+      typeof step.question === 'function'
+        ? step.question(active.session)
+        : step.question ?? '';
+
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
-      text: step.question,
+      text: question,
     });
 
     this.bus.emit({type: 'START_LISTENING'});
@@ -190,12 +201,39 @@ export class ConversationDriver {
       }
 
       // -------------------------
+      // HIVE NUMBER
+      // -------------------------
+
+      // const hive = parseHiveNumber(text);
+
+      // if (hive && this.state.mode === 'IDLE') {
+      //   this.state = {
+      //     mode: 'RUNNING',
+      //     stack: [],
+      //     hiveNumber: hive,
+      //   };
+
+      //   await this.saveState();
+
+      //   this.bus.emit({
+      //     type: 'SYSTEM_SPEAK',
+      //     text: `Вулик ${hive}. Що виконати? Огляд чи годівля?`,
+      //   });
+
+      //   this.bus.emit({type: 'START_LISTENING'});
+
+      //   return;
+      // }
+
+      // -------------------------
       // FLOW INTENT
       // -------------------------
 
       const flowIntent = detectFlowIntent(text);
 
       if (flowIntent.type === 'START_FLOW') {
+        const active = this.getActiveInstance();
+
         if (active?.flowId === flowIntent.flowId) {
           this.bus.emit({
             type: 'SYSTEM_SPEAK',
@@ -206,7 +244,19 @@ export class ConversationDriver {
           return;
         }
 
-        await this.pushFlow(flowIntent.flowId, ...(flowIntent.args ?? []));
+        const hiveNumber = active?.session?.hiveNumber;
+
+        if (hiveNumber) {
+          await this.pushFlow(flowIntent.flowId, hiveNumber);
+        } else {
+          this.bus.emit({
+            type: 'SYSTEM_SPEAK',
+            text: 'Спочатку скажіть номер вулика.',
+          });
+
+          this.bus.emit({type: 'START_LISTENING'});
+        }
+
         return;
       }
 
@@ -239,6 +289,7 @@ export class ConversationDriver {
               });
             }
           }
+          console.log('STEP RESULT:', result);
           if ('runtimeEffects' in result && result.runtimeEffects) {
             for (const effect of result.runtimeEffects) {
               if (effect.type === 'START_FLOW') {
@@ -247,22 +298,30 @@ export class ConversationDriver {
               }
 
               if (effect.type === 'REPLACE_FLOW') {
-                await this.replaceFlow(effect.flowId, ...(effect.args ?? []));
+                await this.replaceFlowInternal(
+                  effect.flowId,
+                  ...(effect.args ?? []),
+                );
                 return;
               }
             }
           }
-          console.log('BEFORE finish', {
-            mode: this.state.mode,
-            stack: this.state.mode === 'RUNNING' ? this.state.stack.length : 0,
-          });
+          // якщо завершився доменний flow — завершуємо всю розмову
+          if (active.flowId === 'inspection' || active.flowId === 'feeding') {
+            this.state = {mode: 'IDLE'};
+            await this.persistence.clear();
 
+            this.bus.emit({
+              type: 'SYSTEM_SPEAK',
+              text: 'Готовий до нової команди.',
+            });
+
+            this.bus.emit({type: 'CONVERSATION_FINISHED'});
+
+            return;
+          }
           await this.finishActiveFlow();
 
-          console.log('AFTER finish', {
-            mode: this.state.mode,
-            stack: this.state.mode === 'RUNNING' ? this.state.stack.length : 0,
-          });
           return;
         }
 

@@ -1,19 +1,19 @@
 import {ConversationDriver} from '../conversation/conversationDriver';
-import {VoiceAdapter} from '../adapters/voice/VoiceAdapter';
+import {EventBus} from '../conversation/eventBus';
+import {ConversationEvent} from '../conversation/events';
 
 export class WakeWordController {
   private active = false;
 
   constructor(
     private driver: ConversationDriver,
-    private voice: VoiceAdapter,
+    private bus: EventBus<ConversationEvent>,
     private startWakeWord: () => Promise<void>,
     private stopWakeWord: () => Promise<void>,
   ) {}
 
   async start() {
     console.log('🐝 WakeWordController started');
-
     await this.startWakeWord();
   }
 
@@ -26,8 +26,12 @@ export class WakeWordController {
 
     await this.stopWakeWord();
 
-    await this.driver.startFlow('flow-selector');
-    this.active = true;
+    // this.bus.emit({
+    //   type: 'SYSTEM_SPEAK',
+    //   text: 'Слухаю. Скажіть номер вулика.',
+    // });
+
+    await this.driver.startFlow('hive');
   }
 
   async onConversationFinished() {

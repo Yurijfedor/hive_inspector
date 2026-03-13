@@ -1,4 +1,5 @@
 import {ConversationFlow} from './conversationFlow';
+import {parseNumber} from '../../voice/numberParser';
 
 export interface FeedingSession {
   hiveNumber: number;
@@ -23,10 +24,7 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
 
       question: 'Скільки літрів сиропу додати?',
 
-      normalize: v => {
-        const match = String(v).match(/\d+/);
-        return match ? Number(match[0]) : NaN;
-      },
+      normalize: v => parseNumber(String(v)),
 
       validate: v => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
 

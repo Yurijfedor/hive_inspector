@@ -9,11 +9,12 @@ export type StepEffect<TSession> = (session: TSession) => FlowEffect[];
 
 export type StepRuntimeEffect<TSession> = (
   session: TSession,
+  value: unknown,
 ) => RuntimeEffect[];
 
 export type StepDefinition<TSession> = {
   id: string;
-  question: string;
+  question?: string | ((session: TSession) => string);
 
   normalize?: (value: unknown) => unknown;
 

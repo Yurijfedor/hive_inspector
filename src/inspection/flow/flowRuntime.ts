@@ -31,7 +31,7 @@ export function isFlowFinished<TSession>(
 }
 
 /**
- * Виконати step (нове в Day 17)
+ * Виконати step
  */
 export function executeStep<TSession>(
   step: StepDefinition<TSession>,
@@ -50,12 +50,17 @@ export function executeStep<TSession>(
 
   const updated = step.apply(session, value);
 
-  // ⭐ NEW — collect effects
   const effects = step.afterAccept ? step.afterAccept(updated) : [];
+
+  // ✅ передаємо value
+  const runtimeEffects = step.runtimeEffects
+    ? step.runtimeEffects(updated, value)
+    : [];
 
   return {
     type: 'ACCEPT',
     session: updated,
     effects,
+    runtimeEffects,
   };
 }
