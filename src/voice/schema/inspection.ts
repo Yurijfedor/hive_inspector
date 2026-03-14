@@ -20,10 +20,10 @@ import {z} from 'zod';
 
 export const InspectionSchema = z.object({
   hiveNumber: z.number(),
-  strength: z.number().nullable(),
-  honeyKg: z.number().nullable(),
-  queen: z.enum(['present', 'absent', 'unknown']).nullable(),
-  stop: z.boolean().nullable(),
+  strength: z.number().nullable().optional(),
+  honeyKg: z.number().nullable().optional(),
+  queen: z.enum(['present', 'absent', 'unknown']).nullable().optional(),
+  stop: z.boolean().nullable().optional(),
 });
 
 export type InspectionCommand = z.infer<typeof InspectionSchema>;

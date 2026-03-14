@@ -17,10 +17,12 @@ import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 const DevScreen = () => {
   const {user} = useAuth();
   const {Vosk} = NativeModules;
+
   const voskEmitter = new NativeEventEmitter(Vosk);
-  const runtime = new DevVoiceRuntime();
 
   const userId = user?.uid;
+
+  const runtime = userId ? new DevVoiceRuntime(userId) : null;
 
   const runTest = async () => {
     console.log('🚀 RUN TEST START');
@@ -100,7 +102,7 @@ const DevScreen = () => {
         <Button title="Test Vosk" onPress={testVosk} />
       </View>
       <View style={{marginTop: 20}}>
-        <Button title="Start Voice Runtime" onPress={() => runtime.start()} />
+        <Button title="Start Voice Runtime" onPress={() => runtime?.start()} />
       </View>
     </View>
   );

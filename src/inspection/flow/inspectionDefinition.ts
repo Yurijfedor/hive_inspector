@@ -9,6 +9,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     hiveNumber,
     stepIndex: 0,
     data: {},
+    pendingEffects: [],
   }),
 
   steps: [

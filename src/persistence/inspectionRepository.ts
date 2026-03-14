@@ -7,47 +7,85 @@ export async function saveInspection(uid: string, command: InspectionCommand) {
     return;
   }
 
-  await saveInspectionData(uid, command);
+  await upsertInspection(uid, command);
 }
 
 /**
- * Saves a single inspection event
+ * Creates or updates current inspection
  */
-async function saveInspectionData(uid: string, command: InspectionCommand) {
-  const hivePath = `users/${uid}/hives/${command.hiveNumber}`;
-  const hiveRef = database().ref(hivePath);
+async function upsertInspection(uid: string, command: InspectionCommand) {
+  // const inspectionRef = database().ref(
+  //   `users/${uid}/hives/${command.hiveNumber}/currentInspection`,
+  // );
 
-  const inspectionRef = hiveRef.child('inspections').push();
+  const updates: Record<string, any> = {};
 
-  await hiveRef.update({
-    lastInspectionAt: database.ServerValue.TIMESTAMP,
-    lastStrength: command.strength ?? null,
-  });
+  updates[`users/${uid}/hives/${command.hiveNumber}/meta/lastInspectionAt`] =
+    database.ServerValue.TIMESTAMP;
 
-  await inspectionRef.set({
-    strength: command.strength ?? null,
-    honeyKg: command.honeyKg ?? null,
-    queen: command.queen ?? null,
-    createdAt: database.ServerValue.TIMESTAMP,
-    source: 'voice',
-  });
+  if (command.strength !== undefined) {
+    updates[`users/${uid}/hives/${command.hiveNumber}/meta/lastStrength`] =
+      command.strength;
+
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/strength`
+    ] = command.strength;
+  }
+
+  if (command.honeyKg !== undefined) {
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/honeyKg`
+    ] = command.honeyKg;
+  }
+
+  if (command.queen !== undefined) {
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/queen`
+    ] = command.queen;
+  }
+
+  updates[
+    `users/${uid}/hives/${command.hiveNumber}/currentInspection/updatedAt`
+  ] = database.ServerValue.TIMESTAMP;
+
+  await database().ref().update(updates);
 }
 
 /**
  * Finalizes inspection
  */
 async function finalizeInspection(uid: string, hiveNumber: number) {
-  const hiveRef = database().ref(`users/${uid}/hives/${hiveNumber}`);
+  const root = database().ref();
 
-  await hiveRef.update({
-    inspectionClosedAt: database.ServerValue.TIMESTAMP,
-  });
+  const currentRef = database().ref(
+    `users/${uid}/hives/${hiveNumber}/currentInspection`,
+  );
+
+  const snapshot = await currentRef.once('value');
+
+  if (!snapshot.exists()) return;
+
+  const inspection = snapshot.val();
+
+  const archiveRef = database()
+    .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
+    .push();
+
+  const inspectionId = archiveRef.key;
+
+  const updates: Record<string, any> = {};
+
+  updates[`users/${uid}/hives/${hiveNumber}/inspections/${inspectionId}`] = {
+    id: inspectionId,
+    ...inspection,
+    createdAt: database.ServerValue.TIMESTAMP,
+    source: 'voice',
+  };
+
+  updates[`users/${uid}/hives/${hiveNumber}/meta/inspectionClosedAt`] =
+    database.ServerValue.TIMESTAMP;
+
+  updates[`users/${uid}/hives/${hiveNumber}/currentInspection`] = null;
+
+  await root.update(updates);
 }
-
-// export async function saveInspection(command: any) {
-//   console.log('MOCK SAVE INSPECTION:', command);
-
-//   return {
-//     ok: true,
-//   };
-// }

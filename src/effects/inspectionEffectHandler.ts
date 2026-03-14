@@ -11,27 +11,32 @@ export async function handleInspectionEffect(
       await saveInspection(uid, {
         hiveNumber: event.hiveNumber,
         stop: true,
-      } as any);
+      });
 
       return {
         kind: 'STOPPED',
         hiveNumber: event.hiveNumber,
       };
 
-    case 'UPDATE_INSPECTION':
-      await saveInspection(uid, {
+    case 'UPDATE_INSPECTION': {
+      const command = {
         hiveNumber: event.hiveNumber,
-        ...event.payload,
-      } as any);
+        strength: event.payload?.strength,
+        honeyKg: event.payload?.honeyKg,
+        queen: event.payload?.queen,
+      };
+
+      await saveInspection(uid, command);
 
       return {
         kind: 'UPDATED',
         hiveNumber: event.hiveNumber,
         payload: {
-          strength: event.payload.strength ?? null,
-          honeyKg: event.payload.honeyKg ?? null,
-          queen: event.payload.queen ?? null,
+          strength: command.strength ?? null,
+          honeyKg: command.honeyKg ?? null,
+          queen: command.queen ?? null,
         },
       };
+    }
   }
 }
