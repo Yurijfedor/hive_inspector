@@ -51,7 +51,7 @@ export function executeStep<TSession>(
   const updated = step.apply(session, value);
 
   // effects генеруються
-  const effects = step.afterAccept ? step.afterAccept(updated) : [];
+  const effects = step.afterAccept ? step.afterAccept(updated, value) : [];
 
   const runtimeEffects = step.runtimeEffects
     ? step.runtimeEffects(updated, value)

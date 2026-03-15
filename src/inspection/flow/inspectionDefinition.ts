@@ -9,7 +9,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     hiveNumber,
     stepIndex: 0,
     data: {},
-    pendingEffects: [],
   }),
 
   steps: [
@@ -31,16 +30,41 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           strength: value as number,
         },
       }),
+    },
 
-      afterAccept: session => [
-        {
-          type: 'STRENGTH_RECORDED',
-          payload: {
-            hiveNumber: session.hiveNumber,
-            strength: session.data.strength!,
+    {
+      id: 'CONFIRM_STRENGTH',
+
+      question: session => `${session.data.strength} рамок сили. Правильно?`,
+
+      normalize: v => String(v).toLowerCase().trim(),
+
+      validate: v => ['так', 'ні'].includes(v as string),
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        if (value === 'так') return session;
+
+        return {
+          ...session,
+          stepIndex: session.stepIndex - 2,
+        };
+      },
+
+      afterAccept: (session, value) => {
+        if (value !== 'так') return [];
+
+        return [
+          {
+            type: 'STRENGTH_RECORDED',
+            payload: {
+              hiveNumber: session.hiveNumber,
+              strength: session.data.strength!,
+            },
           },
-        },
-      ],
+        ];
+      },
     },
 
     {
@@ -61,16 +85,44 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           queen: value === 'так' ? 'present' : 'absent',
         },
       }),
+    },
 
-      afterAccept: session => [
-        {
-          type: 'QUEEN_STATUS_UPDATED',
-          payload: {
-            hiveNumber: session.hiveNumber,
-            hasQueen: session.data.queen === 'present',
+    {
+      id: 'CONFIRM_QUEEN',
+
+      question: session =>
+        session.data.queen === 'present'
+          ? 'Матка є. Правильно?'
+          : 'Матки немає. Правильно?',
+
+      normalize: v => String(v).toLowerCase().trim(),
+
+      validate: v => ['так', 'ні'].includes(v as string),
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        if (value === 'так') return session;
+
+        return {
+          ...session,
+          stepIndex: session.stepIndex - 2,
+        };
+      },
+
+      afterAccept: (session, value) => {
+        if (value !== 'так') return [];
+
+        return [
+          {
+            type: 'QUEEN_STATUS_UPDATED',
+            payload: {
+              hiveNumber: session.hiveNumber,
+              hasQueen: session.data.queen === 'present',
+            },
           },
-        },
-      ],
+        ];
+      },
     },
 
     {
@@ -91,16 +143,41 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           honeyKg: value as number,
         },
       }),
+    },
 
-      afterAccept: session => [
-        {
-          type: 'HONEY_RECORDED',
-          payload: {
-            hiveNumber: session.hiveNumber,
-            honeyKg: session.data.honeyKg!,
+    {
+      id: 'CONFIRM_HONEY',
+
+      question: session => `${session.data.honeyKg} кілограм меду. Правильно?`,
+
+      normalize: v => String(v).toLowerCase().trim(),
+
+      validate: v => ['так', 'ні'].includes(v as string),
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        if (value === 'так') return session;
+
+        return {
+          ...session,
+          stepIndex: session.stepIndex - 2,
+        };
+      },
+
+      afterAccept: (session, value) => {
+        if (value !== 'так') return [];
+
+        return [
+          {
+            type: 'HONEY_RECORDED',
+            payload: {
+              hiveNumber: session.hiveNumber,
+              honeyKg: session.data.honeyKg!,
+            },
           },
-        },
-      ],
+        ];
+      },
     },
 
     {
@@ -117,7 +194,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       apply: (session, value) => {
         const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
 
-        // якщо "ні" → restart inspection
         if (!positive) {
           return {
             ...session,
@@ -126,15 +202,17 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           };
         }
 
-        // якщо "так" → завершуємо flow
         return {
           ...session,
-          stepIndex: 999, // force finish
+          stepIndex: 999,
         };
       },
 
-      afterAccept: session => {
-        // якщо inspection підтверджений
+      afterAccept: (session, value) => {
+        const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
+
+        if (!positive) return [];
+
         if (
           session.data.strength !== undefined &&
           session.data.honeyKg !== undefined

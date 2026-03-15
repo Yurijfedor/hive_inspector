@@ -281,7 +281,7 @@ export class ConversationDriver {
         // const flow = getFlow(active.flowId);
 
         if (active.session.stepIndex >= flow.steps.length) {
-          if (result.effects) {
+          if (result.effects && result.effects.length) {
             for (const effect of result.effects) {
               this.bus.emit({
                 type: 'FLOW_EFFECT',
@@ -325,7 +325,7 @@ export class ConversationDriver {
           return;
         }
 
-        if (result.effects) {
+        if (result.effects && result.effects.length) {
           for (const effect of result.effects) {
             this.bus.emit({
               type: 'FLOW_EFFECT',
