@@ -10,5 +10,6 @@ export type InspectionEvent =
         strength?: number | null;
         honeyKg?: number | null;
         queen?: 'present' | 'absent' | 'unknown' | null;
+        syrupLiters?: number | null;
       };
     };

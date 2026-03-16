@@ -1,13 +1,8 @@
 import {ConversationFlow} from './conversationFlow';
 import {parseNumber} from '../../voice/numberParser';
-
-export interface FeedingSession {
-  hiveNumber: number;
-  stepIndex: number;
-  data: {
-    syrupLiters?: number;
-  };
-}
+import {createConfirmStep} from './createConfirmStep';
+import type {FeedingSession} from './feedingSession';
+import type {FlowEffect} from '../../conversation/types';
 
 export const feedingFlow: ConversationFlow<FeedingSession> = {
   id: 'feeding',
@@ -37,8 +32,18 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
           syrupLiters: value as number,
         },
       }),
+    },
 
-      afterAccept: session => [
+    createConfirmStep<FeedingSession>(
+      'CONFIRM_AMOUNT',
+      session => `Ви сказали ${session.data.syrupLiters} літрів. Підтвердити?`,
+    ),
+
+    createConfirmStep<FeedingSession>(
+      'CONFIRM_FEEDING',
+      session =>
+        `Додати ${session.data.syrupLiters} літрів сиропу у вулик ${session.hiveNumber}?`,
+      (session): FlowEffect[] => [
         {
           type: 'FEEDING_RECORDED',
           payload: {
@@ -47,31 +52,6 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
           },
         },
       ],
-    },
-
-    {
-      id: 'CONFIRM',
-
-      question: 'Підтвердити годівлю?',
-
-      normalize: v => String(v).toLowerCase().trim(),
-
-      validate: v => ['так', 'ні'].includes(v as string),
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        if (value === 'так') return session;
-
-        // restart feeding
-        return {
-          ...session,
-          stepIndex: 0,
-          data: {},
-        };
-      },
-
-      afterAccept: () => [],
-    },
+    ),
   ],
 };

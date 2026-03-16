@@ -24,6 +24,7 @@ export async function handleInspectionEffect(
         strength: event.payload?.strength,
         honeyKg: event.payload?.honeyKg,
         queen: event.payload?.queen,
+        syrupLiters: event.payload?.syrupLiters,
       };
 
       await saveInspection(uid, command);
@@ -35,6 +36,7 @@ export async function handleInspectionEffect(
           strength: command.strength ?? null,
           honeyKg: command.honeyKg ?? null,
           queen: command.queen ?? null,
+          syrupLiters: command.syrupLiters ?? null,
         },
       };
     }

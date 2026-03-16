@@ -200,6 +200,17 @@ function mapFlowEffectToInspectionEvent(effect: any): InspectionEvent | null {
         hiveNumber: effect.payload.hiveNumber,
       };
 
+    // ✅ ДОДАТИ ЦЕ
+
+    case 'FEEDING_RECORDED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          syrupLiters: effect.payload.syrupLiters,
+        },
+      };
+
     default:
       return null;
   }

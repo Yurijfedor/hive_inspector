@@ -1,6 +1,7 @@
 import {ConversationFlow} from './conversationFlow';
 import {InspectionSession} from '../inspectionSession';
 import {parseNumber} from '../../voice/numberParser';
+import {createConfirmStep} from './createConfirmStep';
 
 export const inspectionFlow: ConversationFlow<InspectionSession> = {
   id: 'inspection',
@@ -32,40 +33,19 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       }),
     },
 
-    {
-      id: 'CONFIRM_STRENGTH',
-
-      question: session => `${session.data.strength} рамок сили. Правильно?`,
-
-      normalize: v => String(v).toLowerCase().trim(),
-
-      validate: v => ['так', 'ні'].includes(v as string),
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        if (value === 'так') return session;
-
-        return {
-          ...session,
-          stepIndex: session.stepIndex - 2,
-        };
-      },
-
-      afterAccept: (session, value) => {
-        if (value !== 'так') return [];
-
-        return [
-          {
-            type: 'STRENGTH_RECORDED',
-            payload: {
-              hiveNumber: session.hiveNumber,
-              strength: session.data.strength!,
-            },
+    createConfirmStep(
+      'CONFIRM_STRENGTH',
+      session => `${session.data.strength} рамок сили. Правильно?`,
+      session => [
+        {
+          type: 'STRENGTH_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            strength: session.data.strength!,
           },
-        ];
-      },
-    },
+        },
+      ],
+    ),
 
     {
       id: 'QUEEN',
@@ -87,44 +67,22 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       }),
     },
 
-    {
-      id: 'CONFIRM_QUEEN',
-
-      question: session =>
+    createConfirmStep(
+      'CONFIRM_QUEEN',
+      session =>
         session.data.queen === 'present'
           ? 'Матка є. Правильно?'
           : 'Матки немає. Правильно?',
-
-      normalize: v => String(v).toLowerCase().trim(),
-
-      validate: v => ['так', 'ні'].includes(v as string),
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        if (value === 'так') return session;
-
-        return {
-          ...session,
-          stepIndex: session.stepIndex - 2,
-        };
-      },
-
-      afterAccept: (session, value) => {
-        if (value !== 'так') return [];
-
-        return [
-          {
-            type: 'QUEEN_STATUS_UPDATED',
-            payload: {
-              hiveNumber: session.hiveNumber,
-              hasQueen: session.data.queen === 'present',
-            },
+      session => [
+        {
+          type: 'QUEEN_STATUS_UPDATED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            hasQueen: session.data.queen === 'present',
           },
-        ];
-      },
-    },
-
+        },
+      ],
+    ),
     {
       id: 'HONEY',
 
@@ -145,40 +103,19 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       }),
     },
 
-    {
-      id: 'CONFIRM_HONEY',
-
-      question: session => `${session.data.honeyKg} кілограм меду. Правильно?`,
-
-      normalize: v => String(v).toLowerCase().trim(),
-
-      validate: v => ['так', 'ні'].includes(v as string),
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        if (value === 'так') return session;
-
-        return {
-          ...session,
-          stepIndex: session.stepIndex - 2,
-        };
-      },
-
-      afterAccept: (session, value) => {
-        if (value !== 'так') return [];
-
-        return [
-          {
-            type: 'HONEY_RECORDED',
-            payload: {
-              hiveNumber: session.hiveNumber,
-              honeyKg: session.data.honeyKg!,
-            },
+    createConfirmStep(
+      'CONFIRM_HONEY',
+      session => `${session.data.honeyKg} кілограм меду. Правильно?`,
+      session => [
+        {
+          type: 'HONEY_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            honeyKg: session.data.honeyKg!,
           },
-        ];
-      },
-    },
+        },
+      ],
+    ),
 
     {
       id: 'CONFIRM',

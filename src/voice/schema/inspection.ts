@@ -1,17 +1,10 @@
-// export type InspectionCommand = {
-//   hiveNumber: number;
-//   strength?: number; // frames
-//   honeyKg?: number;
-//   queen?: 'present' | 'absent' | 'unknown';
-//   stop?: boolean;
-// };
-
 export const INSPECTION_LLM_SCHEMA = `
 {
   "hiveNumber": number,
   "strength": number | null,
   "honeyKg": number | null,
   "queen": "present" | "absent" | "unknown" | null,
+  "syrupLiters": number | null,
   "stop": boolean | null
 }
 `;
@@ -23,6 +16,7 @@ export const InspectionSchema = z.object({
   strength: z.number().nullable().optional(),
   honeyKg: z.number().nullable().optional(),
   queen: z.enum(['present', 'absent', 'unknown']).nullable().optional(),
+  syrupLiters: z.number().nullable().optional(),
   stop: z.boolean().nullable().optional(),
 });
 

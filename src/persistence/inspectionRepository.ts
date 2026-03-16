@@ -44,6 +44,12 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
     ] = command.queen;
   }
 
+  if (command.syrupLiters !== undefined) {
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/syrupLiters`
+    ] = command.syrupLiters;
+  }
+
   updates[
     `users/${uid}/hives/${command.hiveNumber}/currentInspection/updatedAt`
   ] = database.ServerValue.TIMESTAMP;
