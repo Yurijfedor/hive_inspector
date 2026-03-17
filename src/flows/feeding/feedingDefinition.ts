@@ -1,6 +1,6 @@
-import {ConversationFlow} from './conversationFlow';
+import {ConversationFlow} from '../conversationFlow';
 import {parseNumber} from '../../voice/numberParser';
-import {createConfirmStep} from './createConfirmStep';
+import {createConfirmStep} from '../createConfirmStep';
 import type {FeedingSession} from './feedingSession';
 import type {FlowEffect} from '../../conversation/types';
 

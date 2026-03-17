@@ -1,4 +1,4 @@
-import {InspectionStepId} from './inspectionFlow';
+import {InspectionStepId} from './inspection/inspectionFlow';
 
 export function parseAnswer(step: InspectionStepId, value: unknown) {
   const text = String(value).toLowerCase().trim();

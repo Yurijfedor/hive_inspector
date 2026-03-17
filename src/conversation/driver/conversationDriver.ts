@@ -1,14 +1,14 @@
-import {getFlow} from './flowRegistry';
-import {executeStep} from '../inspection/flow/flowRuntime';
+import {getFlow} from '../registry/flowRegistry';
+import {executeStep} from '../../flows/flowRuntime';
 
-import {ConversationResult, RuntimeState, FlowInstance} from './types';
+import {ConversationResult, RuntimeState, FlowInstance} from '../types';
 
 import {EventBus} from './eventBus';
 import {ConversationEvent} from './events';
 
 import {RuntimePersistence} from './runtimePersistence';
-import {detectFlowIntent} from './flowIntents';
-import {detectControlIntent} from '../inspection/controlIntents';
+import {detectFlowIntent} from '../intents/flowIntents';
+import {detectControlIntent} from '../intents/controlIntents';
 // import {parseHiveNumber} from '../voice/hiveParser';
 
 export class ConversationDriver {

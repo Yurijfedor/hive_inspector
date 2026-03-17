@@ -1,5 +1,5 @@
 import {ConversationFlow} from './conversationFlow';
-import {parseHiveNumber} from '../../voice/hiveParser';
+import {parseHiveNumber} from '../voice/hiveParser';
 
 export interface HiveSession {
   stepIndex: number;

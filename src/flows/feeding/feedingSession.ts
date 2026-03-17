@@ -1,5 +1,5 @@
 import {feedingFlow} from './feedingDefinition';
-import {executeStep} from './flowRuntime';
+import {executeStep} from '../flowRuntime';
 import {FlowEffect} from '../../conversation/types';
 
 export type FeedingSession = {

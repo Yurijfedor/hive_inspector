@@ -1,9 +1,9 @@
-import {ConversationFlow} from '../inspection/flow/conversationFlow';
-import {inspectionFlow} from '../inspection/flow/inspectionDefinition';
-import {feedingFlow} from '../inspection/flow/feedingDefinition';
-import {hiveSelectionFlow} from '../inspection/flow/hiveDefinition';
-import {hiveSelectedFlow} from '../inspection/flow/hiveSelectedDefinition';
-import {commandFlow} from '../inspection/flow/commandDefinition';
+import {ConversationFlow} from '../../flows/conversationFlow';
+import {inspectionFlow} from '../../flows/inspection/inspectionDefinition';
+import {feedingFlow} from '../../flows/feeding/feedingDefinition';
+import {hiveSelectionFlow} from '../../flows/hiveDefinition';
+import {hiveSelectedFlow} from '../../flows/hiveSelectedDefinition';
+import {commandFlow} from '../../flows/commandDefinition';
 
 const flows = new Map<string, ConversationFlow<any>>();
 

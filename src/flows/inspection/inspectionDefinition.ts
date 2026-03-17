@@ -1,7 +1,7 @@
-import {ConversationFlow} from './conversationFlow';
-import {InspectionSession} from '../inspectionSession';
+import {ConversationFlow} from '../conversationFlow';
+import {InspectionSession} from './inspectionSession';
 import {parseNumber} from '../../voice/numberParser';
-import {createConfirmStep} from './createConfirmStep';
+import {createConfirmStep} from '../createConfirmStep';
 
 export const inspectionFlow: ConversationFlow<InspectionSession> = {
   id: 'inspection',

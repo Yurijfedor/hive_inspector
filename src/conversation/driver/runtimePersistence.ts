@@ -1,4 +1,4 @@
-import {RuntimeState} from './types';
+import {RuntimeState} from '../types';
 
 export interface RuntimePersistence {
   save(snapshot: RuntimeState): Promise<void>;

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {RuntimePersistence} from '../conversation/runtimePersistence';
+import {RuntimePersistence} from '../conversation/driver/runtimePersistence';
 import {RuntimeState} from '../conversation/types';
 
 const STORAGE_KEY = 'hive_runtime';

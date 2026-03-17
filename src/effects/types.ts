@@ -13,3 +13,13 @@ export type InspectionEffectResult =
       kind: 'STOPPED';
       hiveNumber: number;
     };
+
+export type SwarmEffectResult = {
+  kind: 'RECORDED';
+  hiveNumber: number;
+  payload: {
+    hasSwarmSigns: boolean | null;
+    hasQueenCells: boolean | null;
+    queenCellsCount: number | null;
+  };
+};

@@ -1,4 +1,4 @@
-import {RuntimePersistence} from './runtimePersistence';
+import {RuntimePersistence} from './driver/runtimePersistence';
 import {RuntimeState} from './types';
 
 export type RuntimeSnapshot = RuntimeState;

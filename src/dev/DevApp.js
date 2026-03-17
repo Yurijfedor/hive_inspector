@@ -9,7 +9,7 @@ import {
 
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
 import {auth} from '../firebase/firebase';
-import {runInspectionRuntimeTest} from '../inspection/testInspection';
+import {runInspectionRuntimeTest} from '../flows/testInspection';
 import {baseGrammar} from '../voice/grammars/baseGrammar';
 import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';

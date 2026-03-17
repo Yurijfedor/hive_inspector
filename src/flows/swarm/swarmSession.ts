@@ -1,14 +1,14 @@
-import {inspectionFlow} from './flow/inspectionDefinition';
-import {executeStep} from './flow/flowRuntime';
-import {FlowEffect} from '../conversation/types';
+import {swarmFlow} from './swarmDefinition';
+import {executeStep} from '../flowRuntime';
+import {FlowEffect} from '../../conversation/types';
 
-export type InspectionSession = {
+export type SwarmSession = {
   hiveNumber: number;
   stepIndex: number;
   data: {
-    strength?: number;
-    queen?: 'present' | 'absent';
-    honeyKg?: number;
+    hasSwarmSigns?: boolean;
+    hasQueenCells?: boolean;
+    queenCellsCount?: number;
   };
 };
 
@@ -16,18 +16,15 @@ export type ApplyAnswerResult =
   | {
       type: 'INVALID';
       message: string;
-      session: InspectionSession;
+      session: SwarmSession;
     }
   | {
       type: 'NEXT';
-      session: InspectionSession;
+      session: SwarmSession;
       effects?: FlowEffect[];
     };
 
-/**
- * Create new inspection session
- */
-export function createInspectionSession(hiveNumber: number): InspectionSession {
+export function createSwarmSession(hiveNumber: number): SwarmSession {
   return {
     hiveNumber,
     stepIndex: 0,
@@ -35,14 +32,11 @@ export function createInspectionSession(hiveNumber: number): InspectionSession {
   };
 }
 
-/**
- * Universal declarative applyAnswer (DAY 16)
- */
 export function applyAnswer(
-  session: InspectionSession,
+  session: SwarmSession,
   value: unknown,
 ): ApplyAnswerResult {
-  const step = inspectionFlow.steps[session.stepIndex];
+  const step = swarmFlow.steps[session.stepIndex];
 
   const result = executeStep(step, session, value);
 

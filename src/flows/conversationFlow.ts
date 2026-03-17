@@ -1,4 +1,4 @@
-import {FlowEffect, RuntimeEffect} from '../../conversation/types';
+import {FlowEffect, RuntimeEffect} from '../conversation/types';
 
 export type StepHandler<TSession> = (
   session: TSession,

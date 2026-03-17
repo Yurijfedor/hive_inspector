@@ -1,8 +1,8 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
 
-import {EventBus} from '../conversation/eventBus';
-import {ConversationDriver} from '../conversation/conversationDriver';
-import {ConversationEvent} from '../conversation/events';
+import {EventBus} from '../conversation/driver/eventBus';
+import {ConversationDriver} from '../conversation/driver/conversationDriver';
+import {ConversationEvent} from '../conversation/driver/events';
 
 import {InMemoryRuntimePersistence} from '../conversation/InMemoryRuntimePersistence';
 

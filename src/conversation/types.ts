@@ -32,6 +32,15 @@ export type FlowEffect =
         hiveNumber: number;
         syrupLiters: number;
       };
+    }
+  | {
+      type: 'SWARM_RECORDED';
+      payload: {
+        hiveNumber: number;
+        hasSwarmSigns?: boolean;
+        hasQueenCells?: boolean;
+        queenCellsCount?: number;
+      };
     };
 
 /**

@@ -1,5 +1,5 @@
-import {FlowEffect} from './types';
-import {RuntimeEffect} from './types';
+import {FlowEffect} from '../types';
+import {RuntimeEffect} from '../types';
 
 export type ConversationEvent =
   | {type: 'SYSTEM_SPEAK'; text: string}

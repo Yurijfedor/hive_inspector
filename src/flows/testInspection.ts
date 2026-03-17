@@ -1,7 +1,7 @@
-import {ConversationDriver} from '../conversation/conversationDriver';
+import {ConversationDriver} from '../conversation/driver/conversationDriver';
 // import {MockVoiceAdapter} from '../adapters/voice/mockVoiceAdapter';
-import {EventBus} from '../conversation/eventBus';
-import {ConversationEvent} from '../conversation/events';
+import {EventBus} from '../conversation/driver/eventBus';
+import {ConversationEvent} from '../conversation/driver/events';
 import {registerVoiceListener} from '../adapters/voice/VoiceEventListener';
 import {LocalRuntimePersistence} from '../runtime/LocalRuntimePersistence';
 import {FirebaseRuntimePersistence} from '../runtime/FirebaseRuntimePersistence';

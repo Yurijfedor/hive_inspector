@@ -1,4 +1,4 @@
-import {RuntimePersistence} from '../conversation/runtimePersistence';
+import {RuntimePersistence} from '../conversation/driver/runtimePersistence';
 import {RuntimeState} from '../conversation/types';
 
 import database from '@react-native-firebase/database';

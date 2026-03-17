@@ -1,6 +1,6 @@
-import {ConversationDriver} from '../../conversation/conversationDriver';
-import {EventBus} from '../../conversation/eventBus';
-import {ConversationEvent} from '../../conversation/events';
+import {ConversationDriver} from '../../conversation/driver/conversationDriver';
+import {EventBus} from '../../conversation/driver/eventBus';
+import {ConversationEvent} from '../../conversation/driver/events';
 import {VoiceAdapter} from './VoiceAdapter';
 
 export function registerVoiceListener(
