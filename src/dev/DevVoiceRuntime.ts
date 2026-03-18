@@ -9,8 +9,7 @@ import {InMemoryRuntimePersistence} from '../conversation/InMemoryRuntimePersist
 import {WakeWordController} from '../voice/WakeWordController';
 import {PorcupineEngine} from '../voice/porcupineEngine';
 
-import {handleInspectionEffect} from '../effects/inspectionEffectHandler';
-import {InspectionEvent} from '../actions/inspectionEvents';
+import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
 const {Vosk} = NativeModules;
 
@@ -66,9 +65,17 @@ export class DevVoiceRuntime {
   // --------------------------------------------------
 
   private bindDriverEvents() {
+    // -------------------------
+    // SYSTEM SPEAK
+    // -------------------------
+
     this.bus.on('SYSTEM_SPEAK', e => {
       console.log('🗣 SYSTEM:', e.text);
     });
+
+    // -------------------------
+    // START LISTENING
+    // -------------------------
 
     this.bus.on('START_LISTENING', async () => {
       console.log('🎤 VOSK START');
@@ -84,6 +91,10 @@ export class DevVoiceRuntime {
       });
     });
 
+    // -------------------------
+    // CONVERSATION FINISHED
+    // -------------------------
+
     this.bus.on('CONVERSATION_FINISHED', async () => {
       console.log('🏁 CONVERSATION FINISHED');
 
@@ -94,41 +105,25 @@ export class DevVoiceRuntime {
       await this.wakeController.onConversationFinished();
     });
 
-    // --------------------------------------------------
-    // FLOW EFFECTS
-    // --------------------------------------------------
+    // -------------------------
+    // DEBUG (optional)
+    // -------------------------
 
-    this.bus.on('FLOW_EFFECT', async e => {
-      const effect = e.effect;
+    this.bus.on('FLOW_EFFECT', e => {
+      console.log('⚙️ FLOW EFFECT:', e.effect);
+    });
 
-      // ---------------------------
-      // RUNTIME EFFECTS
-      // ---------------------------
+    // -------------------------
+    // ✅ NEW: DOMAIN EVENTS
+    // -------------------------
 
-      if (effect.type === 'START_FLOW') {
-        await this.driver.startFlow(effect.flowId, ...(effect.args ?? []));
-        return;
-      }
-
-      if (effect.type === 'REPLACE_FLOW') {
-        await this.driver.replaceFlow(effect.flowId, ...(effect.args ?? []));
-        return;
-      }
-
-      // ---------------------------
-      // DOMAIN EFFECTS
-      // ---------------------------
-
+    this.bus.on('DOMAIN_EVENT', async e => {
       try {
-        const inspectionEvent = mapFlowEffectToInspectionEvent(effect);
+        console.log('📦 DOMAIN EVENT:', e.event);
 
-        if (inspectionEvent) {
-          console.log('💾 SAVE INSPECTION EVENT', inspectionEvent);
-
-          await handleInspectionEffect(this.uid, inspectionEvent);
-        }
+        await handleDomainEvent(this.uid, e.event);
       } catch (err) {
-        console.error('❌ EFFECT HANDLER ERROR', err);
+        console.error('❌ DOMAIN HANDLER ERROR', err);
       }
     });
   }
@@ -158,60 +153,5 @@ export class DevVoiceRuntime {
     this.voskEmitter.addListener('onPartialResult', e => {
       console.log('PARTIAL RAW:', JSON.stringify(e));
     });
-  }
-}
-
-// --------------------------------------------------
-// FLOW EFFECT → DOMAIN EVENT MAPPER
-// --------------------------------------------------
-
-function mapFlowEffectToInspectionEvent(effect: any): InspectionEvent | null {
-  switch (effect.type) {
-    case 'STRENGTH_RECORDED':
-      return {
-        type: 'UPDATE_INSPECTION',
-        hiveNumber: effect.payload.hiveNumber,
-        payload: {
-          strength: effect.payload.strength,
-        },
-      };
-
-    case 'QUEEN_STATUS_UPDATED':
-      return {
-        type: 'UPDATE_INSPECTION',
-        hiveNumber: effect.payload.hiveNumber,
-        payload: {
-          queen: effect.payload.hasQueen ? 'present' : 'absent',
-        },
-      };
-
-    case 'HONEY_RECORDED':
-      return {
-        type: 'UPDATE_INSPECTION',
-        hiveNumber: effect.payload.hiveNumber,
-        payload: {
-          honeyKg: effect.payload.honeyKg,
-        },
-      };
-
-    case 'SAVE_INSPECTION':
-      return {
-        type: 'STOP_INSPECTION',
-        hiveNumber: effect.payload.hiveNumber,
-      };
-
-    // ✅ ДОДАТИ ЦЕ
-
-    case 'FEEDING_RECORDED':
-      return {
-        type: 'UPDATE_INSPECTION',
-        hiveNumber: effect.payload.hiveNumber,
-        payload: {
-          syrupLiters: effect.payload.syrupLiters,
-        },
-      };
-
-    default:
-      return null;
   }
 }

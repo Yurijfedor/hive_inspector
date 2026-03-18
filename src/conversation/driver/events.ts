@@ -1,5 +1,6 @@
 import {FlowEffect} from '../types';
 import {RuntimeEffect} from '../types';
+import {DomainEvent} from '../../domain/events/domainEvents';
 
 export type ConversationEvent =
   | {type: 'SYSTEM_SPEAK'; text: string}
@@ -11,4 +12,8 @@ export type ConversationEvent =
   | {
       type: 'FLOW_EFFECT';
       effect: FlowEffect | RuntimeEffect;
+    }
+  | {
+      type: 'DOMAIN_EVENT';
+      event: DomainEvent;
     };

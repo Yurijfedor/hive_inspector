@@ -1,0 +1,70 @@
+import {FlowEffect} from '../../conversation/types';
+import {DomainEvent} from '../events/domainEvents';
+
+export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
+  switch (effect.type) {
+    // -------------------------
+    // INSPECTION
+    // -------------------------
+
+    case 'STRENGTH_RECORDED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          strength: effect.payload.strength,
+        },
+      };
+
+    case 'QUEEN_STATUS_UPDATED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          queen: effect.payload.hasQueen ? 'present' : 'absent',
+        },
+      };
+
+    case 'HONEY_RECORDED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          honeyKg: effect.payload.honeyKg,
+        },
+      };
+
+    case 'FEEDING_RECORDED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          syrupLiters: effect.payload.syrupLiters,
+        },
+      };
+
+    case 'SAVE_INSPECTION':
+      return {
+        type: 'STOP_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+      };
+
+    // -------------------------
+    // SWARM
+    // -------------------------
+
+    case 'SWARM_RECORDED':
+      return {
+        type: 'UPDATE_SWARM',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          hasSwarmSigns: effect.payload.hasSwarmSigns,
+          hasQueenCells: effect.payload.hasQueenCells,
+          queenCellsCount: effect.payload.queenCellsCount,
+        },
+      };
+
+    default:
+      return null;
+  }
+}

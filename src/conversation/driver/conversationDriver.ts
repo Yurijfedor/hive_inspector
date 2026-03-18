@@ -9,6 +9,7 @@ import {ConversationEvent} from './events';
 import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from '../intents/flowIntents';
 import {detectControlIntent} from '../intents/controlIntents';
+import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 // import {parseHiveNumber} from '../voice/hiveParser';
 
 export class ConversationDriver {
@@ -201,31 +202,6 @@ export class ConversationDriver {
       }
 
       // -------------------------
-      // HIVE NUMBER
-      // -------------------------
-
-      // const hive = parseHiveNumber(text);
-
-      // if (hive && this.state.mode === 'IDLE') {
-      //   this.state = {
-      //     mode: 'RUNNING',
-      //     stack: [],
-      //     hiveNumber: hive,
-      //   };
-
-      //   await this.saveState();
-
-      //   this.bus.emit({
-      //     type: 'SYSTEM_SPEAK',
-      //     text: `Вулик ${hive}. Що виконати? Огляд чи годівля?`,
-      //   });
-
-      //   this.bus.emit({type: 'START_LISTENING'});
-
-      //   return;
-      // }
-
-      // -------------------------
       // FLOW INTENT
       // -------------------------
 
@@ -272,11 +248,36 @@ export class ConversationDriver {
       const step = flow.steps[active.session.stepIndex];
 
       const result = executeStep(step, active.session, text);
+      console.log('🧪 STEP RESULT:', result);
 
       if (result.type === 'ACCEPT') {
         active.session = result.session;
-
         active.session.stepIndex++;
+
+        // -------------------------
+        // 🔥 ОБРОБКА runtimeEffects (ВАЖЛИВО)
+        // -------------------------
+
+        const runtimeEffects = result.runtimeEffects ?? [];
+
+        for (const effect of runtimeEffects) {
+          console.log('🔥 RUNTIME EFFECT:', effect);
+
+          if (effect.type === 'START_FLOW') {
+            console.log('🔥 STARTING SWARM FLOW');
+
+            await this.pushFlow(effect.flowId, ...(effect.args ?? []));
+            return;
+          }
+
+          if (effect.type === 'REPLACE_FLOW') {
+            await this.replaceFlowInternal(
+              effect.flowId,
+              ...(effect.args ?? []),
+            );
+            return;
+          }
+        }
 
         // const flow = getFlow(active.flowId);
 
@@ -287,25 +288,17 @@ export class ConversationDriver {
                 type: 'FLOW_EFFECT',
                 effect,
               });
+              const domainEvent = mapFlowEffectToEvent(effect);
+              if (domainEvent) {
+                this.bus.emit({
+                  type: 'DOMAIN_EVENT',
+                  event: domainEvent,
+                });
+              }
             }
           }
           console.log('STEP RESULT:', result);
-          if ('runtimeEffects' in result && result.runtimeEffects) {
-            for (const effect of result.runtimeEffects) {
-              if (effect.type === 'START_FLOW') {
-                await this.pushFlow(effect.flowId, ...(effect.args ?? []));
-                return;
-              }
 
-              if (effect.type === 'REPLACE_FLOW') {
-                await this.replaceFlowInternal(
-                  effect.flowId,
-                  ...(effect.args ?? []),
-                );
-                return;
-              }
-            }
-          }
           // якщо завершився доменний flow — завершуємо всю розмову
           if (active.flowId === 'inspection' || active.flowId === 'feeding') {
             this.state = {mode: 'IDLE'};
@@ -331,10 +324,18 @@ export class ConversationDriver {
               type: 'FLOW_EFFECT',
               effect,
             });
+            const domainEvent = mapFlowEffectToEvent(effect);
+            if (domainEvent) {
+              this.bus.emit({
+                type: 'DOMAIN_EVENT',
+                event: domainEvent,
+              });
+            }
           }
         }
 
         await this.saveState();
+        await Promise.resolve();
         this.askCurrentStep();
       } else {
         this.processResult({

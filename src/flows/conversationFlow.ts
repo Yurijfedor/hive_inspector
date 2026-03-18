@@ -5,10 +5,15 @@ export type StepHandler<TSession> = (
   value: unknown,
 ) => TSession;
 
+export type StepEffectResult = {
+  effects?: FlowEffect[];
+  runtimeEffects?: RuntimeEffect[];
+};
+
 export type StepEffect<TSession> = (
   session: TSession,
   value: unknown,
-) => FlowEffect[];
+) => FlowEffect[] | StepEffectResult;
 
 export type StepRuntimeEffect<TSession> = (
   session: TSession,

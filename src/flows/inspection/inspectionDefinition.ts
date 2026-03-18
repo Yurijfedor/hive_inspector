@@ -48,6 +48,42 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     ),
 
     {
+      id: 'SWARM_CHECK',
+
+      question: 'Чи є ознаки роїння?',
+
+      normalize: v => String(v).toLowerCase(),
+
+      validate: v => v === 'так' || v === 'ні',
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => ({
+        ...session,
+        data: {
+          ...session.data,
+          hasSwarmSigns: value === 'так',
+        },
+      }),
+
+      afterAccept: (session, value) => {
+        if (value === 'так') {
+          return {
+            runtimeEffects: [
+              {
+                type: 'START_FLOW',
+                flowId: 'swarm',
+                args: [session.hiveNumber],
+              },
+            ],
+          };
+        }
+
+        return {};
+      },
+    },
+
+    {
       id: 'QUEEN',
 
       question: 'Чи є матка?',

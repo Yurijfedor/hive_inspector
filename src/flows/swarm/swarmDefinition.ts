@@ -14,38 +14,6 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
   steps: [
     // -------------------------
-    // SWARM SIGNS
-    // -------------------------
-    {
-      id: 'SWARM_SIGNS',
-
-      question: 'Чи є ознаки роїння?',
-
-      normalize: v => String(v).toLowerCase(),
-
-      validate: v => v === 'так' || v === 'ні',
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          hasSwarmSigns: value === 'так',
-        },
-      }),
-    },
-
-    createConfirmStep(
-      'CONFIRM_SWARM_SIGNS',
-      session =>
-        session.data.hasSwarmSigns
-          ? 'Ознаки роїння є. Правильно?'
-          : 'Ознак роїння немає. Правильно?',
-      _session => [],
-    ),
-
-    // -------------------------
     // QUEEN CELLS
     // -------------------------
     {

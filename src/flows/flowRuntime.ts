@@ -1,5 +1,5 @@
 import {ConversationFlow, StepDefinition, StepResult} from './conversationFlow';
-
+import {FlowEffect, RuntimeEffect} from '../conversation/types';
 /**
  * Отримати поточний step
  */
@@ -51,11 +51,34 @@ export function executeStep<TSession>(
   const updated = step.apply(session, value);
 
   // effects генеруються
-  const effects = step.afterAccept ? step.afterAccept(updated, value) : [];
+  let effects: FlowEffect[] = [];
+  let runtimeEffects: RuntimeEffect[] = [];
 
-  const runtimeEffects = step.runtimeEffects
-    ? step.runtimeEffects(updated, value)
-    : [];
+  // -------------------------
+  // AFTER ACCEPT
+  // -------------------------
+
+  if (step.afterAccept) {
+    const result = step.afterAccept(updated, value);
+
+    if (Array.isArray(result)) {
+      // старий формат
+      effects = result;
+    } else if (result) {
+      // новий формат
+      effects = result.effects ?? [];
+      runtimeEffects = result.runtimeEffects ?? [];
+    }
+  }
+
+  // -------------------------
+  // STEP RUNTIME EFFECTS (старий механізм)
+  // -------------------------
+
+  if (step.runtimeEffects) {
+    const stepRuntime = step.runtimeEffects(updated, value);
+    runtimeEffects = [...runtimeEffects, ...stepRuntime];
+  }
 
   return {
     type: 'ACCEPT',
