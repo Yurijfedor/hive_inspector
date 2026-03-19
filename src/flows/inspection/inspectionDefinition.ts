@@ -48,42 +48,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     ),
 
     {
-      id: 'SWARM_CHECK',
-
-      question: 'Чи є ознаки роїння?',
-
-      normalize: v => String(v).toLowerCase(),
-
-      validate: v => v === 'так' || v === 'ні',
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          hasSwarmSigns: value === 'так',
-        },
-      }),
-
-      afterAccept: (session, value) => {
-        if (value === 'так') {
-          return {
-            runtimeEffects: [
-              {
-                type: 'START_FLOW',
-                flowId: 'swarm',
-                args: [session.hiveNumber],
-              },
-            ],
-          };
-        }
-
-        return {};
-      },
-    },
-
-    {
       id: 'QUEEN',
 
       question: 'Чи є матка?',
@@ -94,31 +58,31 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       retryMessage: 'Скажіть "так" або "ні".',
 
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          queen: value === 'так' ? 'present' : 'absent',
-        },
-      }),
+      apply: (session, value) => {
+        const hasQueen = value === 'так';
+        const status = hasQueen ? 'present' : 'absent';
+
+        return {
+          session: {
+            ...session,
+            data: {
+              ...session.data,
+              queen: status,
+            },
+          },
+          effects: [
+            {
+              type: 'QUEEN_STATUS_UPDATED',
+              payload: {
+                hiveNumber: session.hiveNumber,
+                hasQueen,
+              },
+            },
+          ],
+        };
+      },
     },
 
-    createConfirmStep(
-      'CONFIRM_QUEEN',
-      session =>
-        session.data.queen === 'present'
-          ? 'Матка є. Правильно?'
-          : 'Матки немає. Правильно?',
-      session => [
-        {
-          type: 'QUEEN_STATUS_UPDATED',
-          payload: {
-            hiveNumber: session.hiveNumber,
-            hasQueen: session.data.queen === 'present',
-          },
-        },
-      ],
-    ),
     {
       id: 'HONEY',
 

@@ -10,7 +10,7 @@ import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from '../intents/flowIntents';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
-// import {parseHiveNumber} from '../voice/hiveParser';
+import {detectDomainIntent} from '../intents/domainIntent';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -202,6 +202,56 @@ export class ConversationDriver {
       }
 
       // -------------------------
+      // DOMAIN INTERRUPT (🔥 НОВЕ)
+      // -------------------------
+
+      const domainIntent = detectDomainIntent(text);
+      console.log('🧠 DOMAIN:', domainIntent);
+
+      if (domainIntent !== 'NONE') {
+        const active = this.getActiveInstance();
+
+        const flowIdMap: Record<string, string> = {
+          SWARM: 'swarm',
+          SPLIT: 'split',
+          DISEASE: 'disease',
+          FEEDING: 'feeding',
+        };
+
+        const targetFlowId = flowIdMap[domainIntent];
+
+        if (!targetFlowId) return;
+
+        // 👉 не запускати той самий flow повторно
+        if (active?.flowId === targetFlowId) {
+          this.bus.emit({
+            type: 'SYSTEM_SPEAK',
+            text: 'Ми вже в цьому сценарії.',
+          });
+
+          this.bus.emit({type: 'START_LISTENING'});
+          return;
+        }
+
+        const hiveNumber = active?.session?.hiveNumber;
+
+        if (hiveNumber) {
+          console.log('🔥 DOMAIN INTERRUPT → START FLOW:', targetFlowId);
+
+          await this.pushFlow(targetFlowId, hiveNumber);
+        } else {
+          this.bus.emit({
+            type: 'SYSTEM_SPEAK',
+            text: 'Спочатку скажіть номер вулика.',
+          });
+
+          this.bus.emit({type: 'START_LISTENING'});
+        }
+
+        return; // ❗ КРИТИЧНО — не йдемо далі
+      }
+
+      // -------------------------
       // FLOW INTENT
       // -------------------------
 
@@ -300,7 +350,7 @@ export class ConversationDriver {
           console.log('STEP RESULT:', result);
 
           // якщо завершився доменний flow — завершуємо всю розмову
-          if (active.flowId === 'inspection' || active.flowId === 'feeding') {
+          if (active.flowId === 'inspection') {
             this.state = {mode: 'IDLE'};
             await this.persistence.clear();
 

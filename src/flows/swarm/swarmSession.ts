@@ -6,9 +6,10 @@ export type SwarmSession = {
   hiveNumber: number;
   stepIndex: number;
   data: {
-    hasSwarmSigns?: boolean;
-    hasQueenCells?: boolean;
-    queenCellsCount?: number;
+    queenEmergence?: boolean;
+    sealedCells?: boolean;
+    openCells?: boolean;
+    eggsInCells?: boolean;
   };
 };
 

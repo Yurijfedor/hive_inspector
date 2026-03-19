@@ -1,7 +1,7 @@
 import {DomainEvent} from '../events/domainEvents';
 import {handleInspectionEffect} from '../../effects/inspectionEffectHandler';
 import {handleSwarmEffect} from './swarmEffectHandler';
-// (пізніше додамо swarm)
+import {handleFeedingEffect} from './feedingEffectHandler';
 
 export async function handleDomainEvent(uid: string, event: DomainEvent) {
   switch (event.type) {
@@ -20,5 +20,13 @@ export async function handleDomainEvent(uid: string, event: DomainEvent) {
     case 'UPDATE_SWARM':
     case 'STOP_SWARM':
       return handleSwarmEffect(uid, event);
+
+    // -------------------------
+    // FEEDING
+    // -------------------------
+
+    case 'UPDATE_FEEDING':
+    case 'STOP_FEEDING':
+      return handleFeedingEffect(uid, event);
   }
 }

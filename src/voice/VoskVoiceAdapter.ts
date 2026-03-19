@@ -1,5 +1,5 @@
 import {EventBus} from '../conversation/driver/eventBus';
-import {ConversationEvent} from '../conversation/events';
+import {ConversationEvent} from '../conversation/driver/events';
 import {VoiceAdapter} from '../adapters/voice/VoiceAdapter';
 import Vosk from 'react-native-vosk';
 

@@ -30,7 +30,10 @@ export type StepDefinition<TSession> = {
 
   retryMessage?: string;
 
-  apply: (session: TSession, value: unknown) => TSession;
+  apply: (
+    session: TSession,
+    value: unknown,
+  ) => TSession | StepApplyResult<TSession>;
 
   /** domain effects */
   afterAccept?: StepEffect<TSession>;
@@ -55,4 +58,10 @@ export type ConversationFlow<TSession> = {
   id: string;
   createSession: (...args: any[]) => TSession;
   steps: StepDefinition<TSession>[];
+};
+
+export type StepApplyResult<TSession> = {
+  session: TSession;
+  effects?: FlowEffect[];
+  runtimeEffects?: RuntimeEffect[];
 };

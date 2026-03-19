@@ -1,6 +1,6 @@
-import {ConversationDriver} from '../conversation/conversationDriver';
+import {ConversationDriver} from '../conversation/driver/conversationDriver';
 import {EventBus} from '../conversation/driver/eventBus';
-import {ConversationEvent} from '../conversation/events';
+import {ConversationEvent} from '../conversation/driver/events';
 
 export class WakeWordController {
   private active = false;

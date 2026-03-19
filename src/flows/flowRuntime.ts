@@ -48,12 +48,27 @@ export function executeStep<TSession>(
     };
   }
 
-  const updated = step.apply(session, value);
+  const applyResult = step.apply(session, value);
+
+  let updated: TSession;
+  let applyEffects: FlowEffect[] = [];
+  let applyRuntimeEffects: RuntimeEffect[] = [];
+
+  if (
+    typeof applyResult === 'object' &&
+    applyResult !== null &&
+    'session' in applyResult
+  ) {
+    updated = applyResult.session;
+    applyEffects = applyResult.effects ?? [];
+    applyRuntimeEffects = applyResult.runtimeEffects ?? [];
+  } else {
+    updated = applyResult;
+  }
 
   // effects генеруються
-  let effects: FlowEffect[] = [];
-  let runtimeEffects: RuntimeEffect[] = [];
-
+  let effects: FlowEffect[] = [...applyEffects];
+  let runtimeEffects: RuntimeEffect[] = [...applyRuntimeEffects];
   // -------------------------
   // AFTER ACCEPT
   // -------------------------
@@ -62,12 +77,10 @@ export function executeStep<TSession>(
     const result = step.afterAccept(updated, value);
 
     if (Array.isArray(result)) {
-      // старий формат
-      effects = result;
+      effects = [...effects, ...result];
     } else if (result) {
-      // новий формат
-      effects = result.effects ?? [];
-      runtimeEffects = result.runtimeEffects ?? [];
+      effects = [...effects, ...(result.effects ?? [])];
+      runtimeEffects = [...runtimeEffects, ...(result.runtimeEffects ?? [])];
     }
   }
 

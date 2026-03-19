@@ -36,7 +36,7 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
 
     case 'FEEDING_RECORDED':
       return {
-        type: 'UPDATE_INSPECTION',
+        type: 'UPDATE_FEEDING',
         hiveNumber: effect.payload.hiveNumber,
         payload: {
           syrupLiters: effect.payload.syrupLiters,
@@ -58,9 +58,10 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         type: 'UPDATE_SWARM',
         hiveNumber: effect.payload.hiveNumber,
         payload: {
-          hasSwarmSigns: effect.payload.hasSwarmSigns,
-          hasQueenCells: effect.payload.hasQueenCells,
-          queenCellsCount: effect.payload.queenCellsCount,
+          queenEmergence: effect.payload.queenEmergence,
+          sealedCells: effect.payload.sealedCells,
+          openCells: effect.payload.openCells,
+          eggsInCells: effect.payload.eggsInCells,
         },
       };
 

@@ -3,9 +3,10 @@ export type SwarmEvent =
       type: 'UPDATE_SWARM';
       hiveNumber: number;
       payload: {
-        hasSwarmSigns?: boolean;
-        hasQueenCells?: boolean;
-        queenCellsCount?: number;
+        queenEmergence?: boolean;
+        sealedCells?: boolean;
+        openCells?: boolean;
+        eggsInCells?: boolean;
       };
     }
   | {

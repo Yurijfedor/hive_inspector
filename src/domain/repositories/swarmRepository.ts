@@ -4,29 +4,33 @@ export async function saveSwarm(
   uid: string,
   data: {
     hiveNumber: number;
-    hasSwarmSigns?: boolean;
-    hasQueenCells?: boolean;
-    queenCellsCount?: number;
+    queenEmergence?: boolean;
+    sealedCells?: boolean;
+    openCells?: boolean;
+    eggsInCells?: boolean;
   },
 ) {
   const updates: Record<string, any> = {};
 
   const basePath = `users/${uid}/hives/${data.hiveNumber}`;
 
+  // 🔥 агрегований сигнал роїння
+  const hasSwarmSigns =
+    data.queenEmergence ||
+    data.sealedCells ||
+    data.openCells ||
+    data.eggsInCells ||
+    false;
+
   // 🔹 поточний стан
   updates[`${basePath}/currentSwarm`] = {
     ...data,
+    hasSwarmSigns, // 👉 додаємо сюди
     updatedAt: database.ServerValue.TIMESTAMP,
   };
 
   // 🔹 meta (швидкий доступ)
-  if (data.hasSwarmSigns !== undefined) {
-    updates[`${basePath}/meta/hasSwarmSigns`] = data.hasSwarmSigns;
-  }
-
-  if (data.queenCellsCount !== undefined) {
-    updates[`${basePath}/meta/queenCellsCount`] = data.queenCellsCount;
-  }
+  updates[`${basePath}/meta/hasSwarmSigns`] = hasSwarmSigns;
 
   updates[`${basePath}/meta/lastSwarmCheckAt`] = database.ServerValue.TIMESTAMP;
 

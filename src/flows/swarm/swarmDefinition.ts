@@ -1,7 +1,14 @@
 import {ConversationFlow} from '../conversationFlow';
 import {SwarmSession} from './swarmSession';
-import {createConfirmStep} from '../createConfirmStep';
-import {parseNumber} from '../../voice/numberParser';
+
+const YES = ['так', 'да', 'yes', 'ага'];
+const NO = ['ні', 'нет', 'no'];
+
+const isYes = (v: string) => YES.some(word => v.includes(word));
+
+const isNo = (v: string) => NO.some(word => v.includes(word));
+
+const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
 
 export const swarmFlow: ConversationFlow<SwarmSession> = {
   id: 'swarm',
@@ -14,114 +21,214 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
   steps: [
     // -------------------------
-    // QUEEN CELLS
+    // 1. QUEEN EMERGENCE
     // -------------------------
     {
-      id: 'QUEEN_CELLS',
+      id: 'QUEEN_EMERGED',
 
-      question: 'Чи є маточники?',
+      question: 'Чи є виходи маток з маточників?',
 
-      normalize: v => String(v).toLowerCase(),
+      normalize: normalizeText,
 
-      validate: v => v === 'так' || v === 'ні',
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          hasQueenCells: value === 'так',
-        },
-      }),
-    },
-
-    createConfirmStep(
-      'CONFIRM_QUEEN_CELLS',
-      session =>
-        session.data.hasQueenCells
-          ? 'Маточники є. Правильно?'
-          : 'Маточників немає. Правильно?',
-      _session => [],
-    ),
-
-    // -------------------------
-    // COUNT
-    // -------------------------
-    {
-      id: 'QUEEN_CELLS_COUNT',
-
-      question: 'Скільки маточників?',
-
-      normalize: v => parseNumber(String(v)),
-
-      validate: v => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 50,
-
-      retryMessage: 'Назвіть кількість маточників числом.',
-
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          queenCellsCount: value as number,
-        },
-      }),
-    },
-
-    createConfirmStep(
-      'CONFIRM_QUEEN_CELLS_COUNT',
-      session => `${session.data.queenCellsCount} маточників. Правильно?`,
-      _session => [],
-    ),
-
-    // -------------------------
-    // FINAL CONFIRM
-    // -------------------------
-    {
-      id: 'CONFIRM',
-
-      question: 'Підтвердити дані по роїнню?',
-
-      normalize: v => String(v).toLowerCase().trim(),
-
-      validate: v => ['так', 'ні', 'да', 'yes', 'ага'].includes(v as string),
+      validate: v => {
+        const val = normalizeText(v);
+        return isYes(val) || isNo(val);
+      },
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
+        const val = normalizeText(value);
+        const yes = isYes(val);
 
-        if (!positive) {
+        if (yes) {
+          const data = {
+            ...session.data,
+            queenEmergence: true,
+          };
+
           return {
-            ...session,
-            stepIndex: 0,
-            data: {},
+            session: {
+              ...session,
+              data,
+              stepIndex: 999,
+            },
+            effects: [
+              {
+                type: 'SWARM_RECORDED',
+                payload: {
+                  hiveNumber: session.hiveNumber,
+                  ...data,
+                },
+              },
+            ],
           };
         }
 
         return {
           ...session,
-          stepIndex: 999,
+          data: {
+            ...session.data,
+            queenEmergence: false,
+          },
         };
       },
+    },
 
-      afterAccept: session => {
-        if (
-          session.data.hasSwarmSigns !== undefined &&
-          session.data.hasQueenCells !== undefined
-        ) {
-          return [
+    // -------------------------
+    // 2. SEALED CELLS
+    // -------------------------
+    {
+      id: 'SEALED_CELLS',
+
+      question: 'Чи є печатні маточники?',
+
+      normalize: normalizeText,
+
+      validate: v => {
+        const val = normalizeText(v);
+        return isYes(val) || isNo(val);
+      },
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        const val = normalizeText(value);
+        const yes = isYes(val);
+
+        if (yes) {
+          const data = {
+            ...session.data,
+            sealedCells: true,
+          };
+
+          return {
+            session: {
+              ...session,
+              data,
+              stepIndex: 999,
+            },
+            effects: [
+              {
+                type: 'SWARM_RECORDED',
+                payload: {
+                  hiveNumber: session.hiveNumber,
+                  ...data,
+                },
+              },
+            ],
+          };
+        }
+
+        return {
+          ...session,
+          data: {
+            ...session.data,
+            sealedCells: false,
+          },
+        };
+      },
+    },
+
+    // -------------------------
+    // 3. OPEN CELLS
+    // -------------------------
+    {
+      id: 'OPEN_CELLS',
+
+      question: 'Чи є відкриті маточники?',
+
+      normalize: normalizeText,
+
+      validate: v => {
+        const val = normalizeText(v);
+        return isYes(val) || isNo(val);
+      },
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        const val = normalizeText(value);
+        const yes = isYes(val);
+
+        if (yes) {
+          const data = {
+            ...session.data,
+            openCells: true,
+          };
+
+          return {
+            session: {
+              ...session,
+              data,
+              stepIndex: 999,
+            },
+            effects: [
+              {
+                type: 'SWARM_RECORDED',
+                payload: {
+                  hiveNumber: session.hiveNumber,
+                  ...data,
+                },
+              },
+            ],
+          };
+        }
+
+        return {
+          session: {
+            ...session,
+            data: {
+              ...session.data,
+              openCells: false,
+            },
+          },
+        };
+      },
+    },
+
+    // -------------------------
+    // 4. EGGS IN CELLS
+    // -------------------------
+    {
+      id: 'EGGS_IN_CELLS',
+
+      question: 'Чи є яйця в маточниках?',
+
+      normalize: normalizeText,
+
+      validate: v => {
+        const val = normalizeText(v);
+        return isYes(val) || isNo(val);
+      },
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        const val = normalizeText(value);
+        const yes = isYes(val);
+
+        const data = {
+          ...session.data,
+          eggsInCells: yes,
+        };
+
+        return {
+          session: {
+            ...session,
+            data,
+            stepIndex: 999,
+          },
+          effects: [
             {
               type: 'SWARM_RECORDED',
               payload: {
                 hiveNumber: session.hiveNumber,
-                ...session.data,
+                ...data,
               },
             },
-          ];
-        }
-
-        return [];
+          ],
+        };
       },
     },
   ],

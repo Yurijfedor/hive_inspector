@@ -1,8 +1,14 @@
 import {ConversationFlow} from '../conversationFlow';
 import {parseNumber} from '../../voice/numberParser';
-import {createConfirmStep} from '../createConfirmStep';
 import type {FeedingSession} from './feedingSession';
-import type {FlowEffect} from '../../conversation/types';
+
+const YES = ['так', 'да', 'yes', 'ага'];
+const NO = ['ні', 'нет', 'no'];
+
+const isYes = (v: string) => YES.some(w => v.includes(w));
+const isNo = (v: string) => NO.some(w => v.includes(w));
+
+const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
 
 export const feedingFlow: ConversationFlow<FeedingSession> = {
   id: 'feeding',
@@ -14,6 +20,9 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
   }),
 
   steps: [
+    // -------------------------
+    // 1. AMOUNT
+    // -------------------------
     {
       id: 'SYRUP_AMOUNT',
 
@@ -25,33 +34,70 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
 
       retryMessage: 'Назвіть кількість літрів числом.',
 
-      apply: (session, value) => ({
-        ...session,
-        data: {
-          ...session.data,
-          syrupLiters: value as number,
-        },
-      }),
+      apply: (session, value) => {
+        const amount = value as number;
+
+        return {
+          session: {
+            ...session,
+            data: {
+              ...session.data,
+              syrupLiters: amount,
+            },
+          },
+        };
+      },
     },
 
-    createConfirmStep<FeedingSession>(
-      'CONFIRM_AMOUNT',
-      session => `Ви сказали ${session.data.syrupLiters} літрів. Підтвердити?`,
-    ),
+    // -------------------------
+    // 2. FINAL CONFIRM
+    // -------------------------
+    {
+      id: 'CONFIRM_FEEDING',
 
-    createConfirmStep<FeedingSession>(
-      'CONFIRM_FEEDING',
-      session =>
+      question: session =>
         `Додати ${session.data.syrupLiters} літрів сиропу у вулик ${session.hiveNumber}?`,
-      (session): FlowEffect[] => [
-        {
-          type: 'FEEDING_RECORDED',
-          payload: {
-            hiveNumber: session.hiveNumber,
-            syrupLiters: session.data.syrupLiters!,
+
+      normalize: normalizeText,
+
+      validate: v => {
+        const val = normalizeText(v);
+        return isYes(val) || isNo(val);
+      },
+
+      retryMessage: 'Скажіть "так" або "ні".',
+
+      apply: (session, value) => {
+        const val = normalizeText(value);
+        const yes = isYes(val);
+
+        if (yes) {
+          return {
+            session: {
+              ...session,
+              stepIndex: 999,
+            },
+            effects: [
+              {
+                type: 'FEEDING_RECORDED',
+                payload: {
+                  hiveNumber: session.hiveNumber,
+                  syrupLiters: session.data.syrupLiters!,
+                },
+              },
+            ],
+          };
+        }
+
+        // ❗ якщо ні — повертаємось на початок
+        return {
+          session: {
+            ...session,
+            stepIndex: 0,
+            data: {},
           },
-        },
-      ],
-    ),
+        };
+      },
+    },
   ],
 };
