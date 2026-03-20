@@ -5,6 +5,7 @@ import {hiveSelectionFlow} from '../../flows/hiveDefinition';
 import {hiveSelectedFlow} from '../../flows/hiveSelectedDefinition';
 import {commandFlow} from '../../flows/commandDefinition';
 import {swarmFlow} from '../../flows/swarm/swarmDefinition';
+import {diseaseFlow} from '../../flows/disease/diseaseDefinition';
 
 const flows = new Map<string, ConversationFlow<any>>();
 
@@ -14,6 +15,7 @@ flows.set(hiveSelectionFlow.id, hiveSelectionFlow);
 flows.set(hiveSelectedFlow.id, hiveSelectedFlow);
 flows.set(commandFlow.id, commandFlow);
 flows.set(swarmFlow.id, swarmFlow);
+flows.set(diseaseFlow.id, diseaseFlow);
 
 export function getFlow(id: string) {
   return flows.get(id);

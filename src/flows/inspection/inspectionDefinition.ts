@@ -114,58 +114,64 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
             honeyKg: session.data.honeyKg!,
           },
         },
+        {
+          type: 'SAVE_INSPECTION',
+          payload: {
+            hiveNumber: session.hiveNumber,
+          },
+        },
       ],
     ),
 
-    {
-      id: 'CONFIRM',
+    // {
+    //   id: 'CONFIRM',
 
-      question: 'Підтвердити огляд?',
+    //   question: 'Підтвердити огляд?',
 
-      normalize: v => String(v).toLowerCase().replace(/[.!?]/g, '').trim(),
+    //   normalize: v => String(v).toLowerCase().replace(/[.!?]/g, '').trim(),
 
-      validate: v => ['так', 'ні', 'да', 'yes', 'ага'].includes(v as string),
+    //   validate: v => ['так', 'ні', 'да', 'yes', 'ага'].includes(v as string),
 
-      retryMessage: 'Скажіть "так" або "ні".',
+    //   retryMessage: 'Скажіть "так" або "ні".',
 
-      apply: (session, value) => {
-        const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
+    //   apply: (session, value) => {
+    //     const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
 
-        if (!positive) {
-          return {
-            ...session,
-            stepIndex: 0,
-            data: {},
-          };
-        }
+    //     if (!positive) {
+    //       return {
+    //         ...session,
+    //         stepIndex: 0,
+    //         data: {},
+    //       };
+    //     }
 
-        return {
-          ...session,
-          stepIndex: 999,
-        };
-      },
+    //     return {
+    //       ...session,
+    //       stepIndex: 999,
+    //     };
+    //   },
 
-      afterAccept: (session, value) => {
-        const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
+    //   afterAccept: (session, value) => {
+    //     const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
 
-        if (!positive) return [];
+    //     if (!positive) return [];
 
-        if (
-          session.data.strength !== undefined &&
-          session.data.honeyKg !== undefined
-        ) {
-          return [
-            {
-              type: 'SAVE_INSPECTION',
-              payload: {
-                hiveNumber: session.hiveNumber,
-              },
-            },
-          ];
-        }
+    //     if (
+    //       session.data.strength !== undefined &&
+    //       session.data.honeyKg !== undefined
+    //     ) {
+    //       return [
+    //         {
+    //           type: 'SAVE_INSPECTION',
+    //           payload: {
+    //             hiveNumber: session.hiveNumber,
+    //           },
+    //         },
+    //       ];
+    //     }
 
-        return [];
-      },
-    },
+    //     return [];
+    //   },
+    // },
   ],
 };

@@ -45,10 +45,7 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
 
       apply: (session, value) => {
         if (value === 'так') {
-          return {
-            ...session,
-            stepIndex: 999,
-          };
+          return session;
         }
 
         return {
@@ -66,7 +63,7 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
         return [
           {
             type: 'REPLACE_FLOW',
-            flowId: 'command',
+            flowId: 'inspection',
             args: [session.hiveNumber],
           },
         ];

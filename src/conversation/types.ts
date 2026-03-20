@@ -42,6 +42,22 @@ export type FlowEffect =
         openCells?: boolean;
         eggsInCells?: boolean;
       };
+    }
+  | {
+      type: 'DISEASE_RECORDED';
+      payload: {
+        hiveNumber: number;
+        disease:
+          | 'NOSEMA'
+          | 'VARROA'
+          | 'VARROA_OR_DWV'
+          | 'BROOD_DISEASE'
+          | 'NONE';
+        diarrhea?: boolean;
+        deformedWings?: boolean;
+        mitesVisible?: boolean;
+        weakBrood?: boolean;
+      };
     };
 
 /**

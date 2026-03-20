@@ -65,6 +65,23 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         },
       };
 
+    // -------------------------
+    // DISEASE 👈 ДОДАЛИ
+    // -------------------------
+
+    case 'DISEASE_RECORDED':
+      return {
+        type: 'UPDATE_DISEASE',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          disease: effect.payload.disease,
+          diarrhea: effect.payload.diarrhea,
+          deformedWings: effect.payload.deformedWings,
+          mitesVisible: effect.payload.mitesVisible,
+          weakBrood: effect.payload.weakBrood,
+        },
+      };
+
     default:
       return null;
   }
