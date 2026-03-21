@@ -82,6 +82,18 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         },
       };
 
+    case 'SPLIT_RECORDED':
+      return {
+        type: 'UPDATE_SPLIT',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          isSplit: effect.payload.isSplit,
+          usedForSplits: effect.payload.usedForSplits,
+          broodFrames: effect.payload.broodFrames,
+          foodFrames: effect.payload.foodFrames,
+        },
+      };
+
     default:
       return null;
   }

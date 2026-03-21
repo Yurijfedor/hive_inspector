@@ -58,6 +58,16 @@ export type FlowEffect =
         mitesVisible?: boolean;
         weakBrood?: boolean;
       };
+    }
+  | {
+      type: 'SPLIT_RECORDED';
+      payload: {
+        hiveNumber: number;
+        isSplit?: boolean;
+        usedForSplits?: boolean;
+        broodFrames?: number;
+        foodFrames?: number;
+      };
     };
 
 /**

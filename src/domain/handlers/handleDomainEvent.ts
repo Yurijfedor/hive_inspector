@@ -2,7 +2,8 @@ import {DomainEvent} from '../events/domainEvents';
 import {handleInspectionEffect} from '../../effects/inspectionEffectHandler';
 import {handleSwarmEffect} from './swarmEffectHandler';
 import {handleFeedingEffect} from './feedingEffectHandler';
-import {handleDiseaseEffect} from './diseaseEffectHandler'; // 👈 ДОДАЛИ
+import {handleDiseaseEffect} from './diseaseEffectHandler';
+import {handleSplitEffect} from './splitEffectHandler'; // 👈 ДОДАЛИ
 
 export async function handleDomainEvent(uid: string, event: DomainEvent) {
   switch (event.type) {
@@ -31,11 +32,19 @@ export async function handleDomainEvent(uid: string, event: DomainEvent) {
       return handleFeedingEffect(uid, event);
 
     // -------------------------
-    // DISEASE 👈 НОВЕ
+    // DISEASE
     // -------------------------
 
     case 'UPDATE_DISEASE':
     case 'STOP_DISEASE':
       return handleDiseaseEffect(uid, event);
+
+    // -------------------------
+    // SPLIT 👈 ОСЬ ВІН
+    // -------------------------
+
+    case 'UPDATE_SPLIT':
+    case 'STOP_SPLIT':
+      return handleSplitEffect(uid, event);
   }
 }

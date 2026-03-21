@@ -122,56 +122,5 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         },
       ],
     ),
-
-    // {
-    //   id: 'CONFIRM',
-
-    //   question: 'Підтвердити огляд?',
-
-    //   normalize: v => String(v).toLowerCase().replace(/[.!?]/g, '').trim(),
-
-    //   validate: v => ['так', 'ні', 'да', 'yes', 'ага'].includes(v as string),
-
-    //   retryMessage: 'Скажіть "так" або "ні".',
-
-    //   apply: (session, value) => {
-    //     const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
-
-    //     if (!positive) {
-    //       return {
-    //         ...session,
-    //         stepIndex: 0,
-    //         data: {},
-    //       };
-    //     }
-
-    //     return {
-    //       ...session,
-    //       stepIndex: 999,
-    //     };
-    //   },
-
-    //   afterAccept: (session, value) => {
-    //     const positive = ['так', 'да', 'yes', 'ага'].includes(value as string);
-
-    //     if (!positive) return [];
-
-    //     if (
-    //       session.data.strength !== undefined &&
-    //       session.data.honeyKg !== undefined
-    //     ) {
-    //       return [
-    //         {
-    //           type: 'SAVE_INSPECTION',
-    //           payload: {
-    //             hiveNumber: session.hiveNumber,
-    //           },
-    //         },
-    //       ];
-    //     }
-
-    //     return [];
-    //   },
-    // },
   ],
 };

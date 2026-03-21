@@ -6,7 +6,7 @@ function normalizeWord(text: string): string {
 }
 
 const NUMBER_WORDS: Record<string, number> = {
-  нуль: 0,
+  нуля: 0,
 
   один: 1,
   одна: 1,
