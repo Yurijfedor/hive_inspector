@@ -40,9 +40,35 @@ export class ConversationDriver {
     return next;
   }
 
+  // private async replaceFlowInternal(flowId: string, ...args: any[]) {
+  //   await this.finishActiveFlow();
+  //   await this.pushFlow(flowId, ...args);
+  // }
+
   private async replaceFlowInternal(flowId: string, ...args: any[]) {
-    await this.finishActiveFlow();
-    await this.pushFlow(flowId, ...args);
+    if (this.state.mode !== 'RUNNING') return;
+
+    // ❗ просто прибираємо поточний flow
+    this.state.stack.pop();
+
+    const flow = getFlow(flowId);
+    if (!flow) {
+      throw new Error(`Flow ${flowId} not found`);
+    }
+
+    const session = flow.createSession(...args);
+
+    const instance: FlowInstance = {
+      flowId,
+      session,
+    };
+
+    this.state.stack.push(instance);
+
+    await this.saveState();
+
+    // ❗ одразу питаємо новий step (без idle, без wake)
+    this.askCurrentStep();
   }
 
   // --------------------------------------------------
@@ -169,7 +195,7 @@ export class ConversationDriver {
       text: question,
     });
 
-    this.bus.emit({type: 'START_LISTENING'});
+    // this.bus.emit({type: 'START_LISTENING'});
   }
 
   // --------------------------------------------------
@@ -350,7 +376,12 @@ export class ConversationDriver {
           console.log('STEP RESULT:', result);
 
           // якщо завершився доменний flow — завершуємо всю розмову
-          if (active.flowId === 'inspection') {
+
+          const hasReplaceFlow = (result.runtimeEffects ?? []).some(
+            e => e.type === 'REPLACE_FLOW',
+          );
+
+          if (active.flowId === 'inspection' && !hasReplaceFlow) {
             this.state = {mode: 'IDLE'};
             await this.persistence.clear();
 

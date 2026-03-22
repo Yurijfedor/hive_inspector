@@ -1,4 +1,5 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
+import Tts from 'react-native-tts';
 
 import {EventBus} from '../conversation/driver/eventBus';
 import {ConversationDriver} from '../conversation/driver/conversationDriver';
@@ -23,7 +24,27 @@ export class DevVoiceRuntime {
   private persistence = new InMemoryRuntimePersistence();
 
   private driver = new ConversationDriver(this.bus, this.persistence);
+  private ttsResolve: (() => void) | null = null;
+  private ttsInitialized = false;
+  private initTts() {
+    if (this.ttsInitialized) return;
 
+    this.ttsInitialized = true;
+
+    Tts.addEventListener('tts-finish', () => {
+      if (this.ttsResolve) {
+        this.ttsResolve();
+        this.ttsResolve = null;
+      }
+    });
+
+    Tts.addEventListener('tts-cancel', () => {
+      if (this.ttsResolve) {
+        this.ttsResolve();
+        this.ttsResolve = null;
+      }
+    });
+  }
   private porcupine = new PorcupineEngine();
 
   private wakeController = new WakeWordController(
@@ -32,6 +53,8 @@ export class DevVoiceRuntime {
     () => this.startPorcupine(),
     () => this.stopPorcupine(),
   );
+
+  private speaking = false;
 
   async start() {
     console.log('🚀 DEV VOICE RUNTIME START');
@@ -61,16 +84,50 @@ export class DevVoiceRuntime {
   }
 
   // --------------------------------------------------
+  // 🔊 TTS (через events — ПРАВИЛЬНО)
+  // --------------------------------------------------
+
+  private speak(text: string): Promise<void> {
+    this.initTts();
+
+    return new Promise(resolve => {
+      this.ttsResolve = resolve;
+      Tts.speak(text);
+    });
+  }
+
+  // --------------------------------------------------
   // DRIVER EVENTS
   // --------------------------------------------------
 
   private bindDriverEvents() {
     // -------------------------
-    // SYSTEM SPEAK
+    // SYSTEM SPEAK (🔥 ГОЛОВНЕ)
     // -------------------------
 
-    this.bus.on('SYSTEM_SPEAK', e => {
+    this.bus.on('SYSTEM_SPEAK', async e => {
+      if (this.speaking) return;
+
+      this.speaking = true;
+
       console.log('🗣 SYSTEM:', e.text);
+
+      // ❗ гарантуємо що мікрофон вимкнений
+      try {
+        await Vosk.stop();
+      } catch {}
+
+      await this.stopPorcupine();
+
+      // 🔊 говоримо
+      await this.speak(e.text);
+
+      this.speaking = false;
+
+      // 🎤 тільки після цього слухаємо
+      this.bus.emit({
+        type: 'START_LISTENING',
+      });
     });
 
     // -------------------------
@@ -78,13 +135,16 @@ export class DevVoiceRuntime {
     // -------------------------
 
     this.bus.on('START_LISTENING', async () => {
-      console.log('🎤 VOSK START');
+      if (this.speaking) {
+        console.log('⛔ SKIP LISTENING (still speaking)');
+        return;
+      }
 
-      await this.stopPorcupine();
+      console.log('🎤 VOSK START');
 
       try {
         await Vosk.stop();
-      } catch (e) {}
+      } catch {}
 
       await Vosk.start({
         sampleRate: 16000,
@@ -100,13 +160,13 @@ export class DevVoiceRuntime {
 
       try {
         await Vosk.stop();
-      } catch (e) {}
+      } catch {}
 
       await this.wakeController.onConversationFinished();
     });
 
     // -------------------------
-    // DEBUG (optional)
+    // DEBUG
     // -------------------------
 
     this.bus.on('FLOW_EFFECT', e => {
@@ -114,7 +174,7 @@ export class DevVoiceRuntime {
     });
 
     // -------------------------
-    // ✅ NEW: DOMAIN EVENTS
+    // DOMAIN EVENTS
     // -------------------------
 
     this.bus.on('DOMAIN_EVENT', async e => {
