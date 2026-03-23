@@ -13,6 +13,7 @@ import {runInspectionRuntimeTest} from '../flows/testInspection';
 import {baseGrammar} from '../voice/grammars/baseGrammar';
 import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
+import {generateTasks} from '../services/ai/generateTasks';
 
 const DevScreen = () => {
   const {user} = useAuth();
@@ -84,6 +85,25 @@ const DevScreen = () => {
     }
   };
 
+  const testAI = async () => {
+    console.log('🤖 AI TEST START');
+
+    try {
+      const res = await generateTasks([
+        {
+          hiveNumber: 1,
+          strength: 5,
+          honeyKg: 2,
+          hasQueen: true,
+        },
+      ]);
+
+      console.log('🔥 AI RESULT:', res);
+    } catch (e) {
+      console.log('❌ AI ERROR:', e);
+    }
+  };
+
   return (
     <View
       style={{
@@ -91,7 +111,8 @@ const DevScreen = () => {
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-      }}>
+      }}
+    >
       <Text style={{fontSize: 22, marginBottom: 20}}>BeeVoice Dev App</Text>
       <Text style={{marginBottom: 20}}>User: {userId}</Text>
       <Button title="Run Inspection Test" onPress={runTest} />
@@ -103,6 +124,9 @@ const DevScreen = () => {
       </View>
       <View style={{marginTop: 20}}>
         <Button title="Start Voice Runtime" onPress={() => runtime?.start()} />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Button title="Test AI" onPress={testAI} />
       </View>
     </View>
   );
