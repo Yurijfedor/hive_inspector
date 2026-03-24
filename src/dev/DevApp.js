@@ -13,7 +13,7 @@ import {runInspectionRuntimeTest} from '../flows/testInspection';
 import {baseGrammar} from '../voice/grammars/baseGrammar';
 import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-import {generateTasks} from '../services/ai/generateTasks';
+// import {generateTasks} from '../services/ai/generateTasks';
 
 const DevScreen = () => {
   const {user} = useAuth();
@@ -58,7 +58,7 @@ const DevScreen = () => {
       voskEmitter.removeAllListeners('onResult');
       voskEmitter.removeAllListeners('onPartialResult');
 
-      voskEmitter.addListener('onResult', async e => {
+      voskEmitter.addListener('onResult', async (e) => {
         console.log('RESULT RAW:', JSON.stringify(e));
 
         const text = e?.text ?? e?.result?.text ?? '';
@@ -70,7 +70,7 @@ const DevScreen = () => {
         await this.driver.handleExternalInput(text);
       });
 
-      voskEmitter.addListener('onPartialResult', e => {
+      voskEmitter.addListener('onPartialResult', (e) => {
         console.log('PARTIAL:', e.partial);
       });
 
@@ -88,20 +88,29 @@ const DevScreen = () => {
   const testAI = async () => {
     console.log('🤖 AI TEST START');
 
-    try {
-      const res = await generateTasks([
-        {
-          hiveNumber: 1,
-          strength: 5,
-          honeyKg: 2,
-          hasQueen: true,
+    const res = await fetch(
+      'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ]);
+        body: JSON.stringify({
+          inspections: [
+            {
+              hiveNumber: 1,
+              strength: 5,
+              honeyKg: 2,
+              hasQueen: true,
+            },
+          ],
+        }),
+      },
+    );
 
-      console.log('🔥 AI RESULT:', res);
-    } catch (e) {
-      console.log('❌ AI ERROR:', e);
-    }
+    const data = await res.json();
+
+    console.log('🔥 AI RESULT:', data);
   };
 
   return (
@@ -111,8 +120,7 @@ const DevScreen = () => {
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-      }}
-    >
+      }}>
       <Text style={{fontSize: 22, marginBottom: 20}}>BeeVoice Dev App</Text>
       <Text style={{marginBottom: 20}}>User: {userId}</Text>
       <Button title="Run Inspection Test" onPress={runTest} />
