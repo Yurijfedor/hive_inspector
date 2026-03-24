@@ -18,9 +18,16 @@ export const generateTasksHttp = onRequest(
       const aiPrompt = `
 You are an expert beekeeper.
 
-Based on hive inspection data, generate a list of tasks.
+IMPORTANT RULES:
+- Respond ONLY in Ukrainian language
+- Respond ONLY with valid JSON
+- DO NOT add explanations
+- DO NOT add markdown
+- DO NOT wrap response in \`\`\`
+- DO NOT add any text before or after JSON
+- Output must be parseable by JSON.parse()
 
-Return STRICT JSON:
+Return EXACTLY this structure:
 {
   "tasks": [
     {

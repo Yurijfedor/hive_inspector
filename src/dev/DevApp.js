@@ -13,7 +13,7 @@ import {runInspectionRuntimeTest} from '../flows/testInspection';
 import {baseGrammar} from '../voice/grammars/baseGrammar';
 import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-// import {generateTasks} from '../services/ai/generateTasks';
+import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
 
 const DevScreen = () => {
   const {user} = useAuth();
@@ -109,8 +109,9 @@ const DevScreen = () => {
     );
 
     const data = await res.json();
+    const tasks = mapLLMTasksToDomain(data.tasks);
 
-    console.log('🔥 AI RESULT:', data);
+    console.log('✅ READY TASKS:', tasks);
   };
 
   return (
