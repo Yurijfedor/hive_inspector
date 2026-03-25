@@ -1,150 +1,176 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Button,
-  NativeModules,
-  NativeEventEmitter,
-} from 'react-native';
+// import React from 'react';
+// import {
+//   View,
+//   Text,
+//   Button,
+//   NativeModules,
+//   NativeEventEmitter,
+// } from 'react-native';
+
+// import {useNavigation} from '@react-navigation/native';
 
 import {AuthProvider, useAuth} from '../auth/AuthProvider';
-import {auth} from '../firebase/firebase';
-import {runInspectionRuntimeTest} from '../flows/testInspection';
-import {baseGrammar} from '../voice/grammars/baseGrammar';
-import {hiveNumbers} from '../voice/grammars/hiveGrammar';
-import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
+// import {auth} from '../firebase/firebase';
+// import {runInspectionRuntimeTest} from '../flows/testInspection';
+// import {baseGrammar} from '../voice/grammars/baseGrammar';
+// import {hiveNumbers} from '../voice/grammars/hiveGrammar';
+// import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
+// import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
 
-const DevScreen = () => {
-  const {user} = useAuth();
-  const {Vosk} = NativeModules;
+// export const DevScreen = () => {
+//   const {user} = useAuth();
+//   const {Vosk} = NativeModules;
 
-  const voskEmitter = new NativeEventEmitter(Vosk);
+//   const navigation = useNavigation(); // 👈 ДОДАЛИ
 
-  const userId = user?.uid;
+//   const voskEmitter = new NativeEventEmitter(Vosk);
 
-  const runtime = userId ? new DevVoiceRuntime(userId) : null;
+//   const userId = user?.uid;
 
-  const runTest = async () => {
-    console.log('🚀 RUN TEST START');
+//   const runtime = userId ? new DevVoiceRuntime(userId) : null;
 
-    if (!userId) {
-      console.log('❌ NO USER');
-      return;
-    }
+//   const runTest = async () => {
+//     console.log('🚀 RUN TEST START');
 
-    await runInspectionRuntimeTest(userId);
-  };
+//     if (!userId) {
+//       console.log('❌ NO USER');
+//       return;
+//     }
 
-  const handleSignOut = async () => {
-    console.log('SIGN OUT PRESSED');
+//     await runInspectionRuntimeTest(userId);
+//   };
 
-    try {
-      await auth().signOut();
-    } catch (e) {
-      console.log('SIGN OUT ERROR:', e);
-    }
-  };
+//   const handleSignOut = async () => {
+//     console.log('SIGN OUT PRESSED');
 
-  const testVosk = async () => {
-    console.log('🧪 TEST START');
+//     try {
+//       await auth().signOut();
+//     } catch (e) {
+//       console.log('SIGN OUT ERROR:', e);
+//     }
+//   };
 
-    const grammar = [...baseGrammar, ...hiveNumbers];
+//   const testVosk = async () => {
+//     console.log('🧪 TEST START');
 
-    try {
-      await Vosk.loadModel('model');
-      console.log('MODEL LOADED');
+//     const grammar = [...baseGrammar, ...hiveNumbers];
 
-      voskEmitter.removeAllListeners('onResult');
-      voskEmitter.removeAllListeners('onPartialResult');
+//     try {
+//       await Vosk.loadModel('model');
+//       console.log('MODEL LOADED');
 
-      voskEmitter.addListener('onResult', async (e) => {
-        console.log('RESULT RAW:', JSON.stringify(e));
+//       voskEmitter.removeAllListeners('onResult');
+//       voskEmitter.removeAllListeners('onPartialResult');
 
-        const text = e?.text ?? e?.result?.text ?? '';
+//       voskEmitter.addListener('onResult', async (e) => {
+//         console.log('RESULT RAW:', JSON.stringify(e));
 
-        console.log('👤 USER:', text);
+//         const text = e?.text ?? e?.result?.text ?? '';
 
-        if (!text) return;
+//         console.log('👤 USER:', text);
 
-        await this.driver.handleExternalInput(text);
-      });
+//         if (!text) return;
 
-      voskEmitter.addListener('onPartialResult', (e) => {
-        console.log('PARTIAL:', e.partial);
-      });
+//         await this.driver.handleExternalInput(text);
+//       });
 
-      await Vosk.start({
-        sampleRate: 16000,
-        grammar: ['огляд', 'огляду', 'годівля', 'годувати', 'годування'],
-      });
+//       voskEmitter.addListener('onPartialResult', (e) => {
+//         console.log('PARTIAL:', e.partial);
+//       });
 
-      console.log('🎤 LISTENING...');
-    } catch (e) {
-      console.log('❌ ERROR:', e);
-    }
-  };
+//       await Vosk.start({
+//         sampleRate: 16000,
+//         grammar: ['огляд', 'огляду', 'годівля', 'годувати', 'годування'],
+//       });
 
-  const testAI = async () => {
-    console.log('🤖 AI TEST START');
+//       console.log('🎤 LISTENING...');
+//     } catch (e) {
+//       console.log('❌ ERROR:', e);
+//     }
+//   };
 
-    const res = await fetch(
-      'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inspections: [
-            {
-              hiveNumber: 1,
-              strength: 5,
-              honeyKg: 2,
-              hasQueen: true,
-            },
-          ],
-        }),
-      },
-    );
+//   const testAI = async () => {
+//     console.log('🤖 AI TEST START');
 
-    const data = await res.json();
-    const tasks = mapLLMTasksToDomain(data.tasks);
+//     const res = await fetch(
+//       'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           inspections: [
+//             {
+//               hiveNumber: 1,
+//               strength: 5,
+//               honeyKg: 2,
+//               hasQueen: true,
+//             },
+//           ],
+//         }),
+//       },
+//     );
 
-    console.log('✅ READY TASKS:', tasks);
-  };
+//     const data = await res.json();
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-      }}>
-      <Text style={{fontSize: 22, marginBottom: 20}}>BeeVoice Dev App</Text>
-      <Text style={{marginBottom: 20}}>User: {userId}</Text>
-      <Button title="Run Inspection Test" onPress={runTest} />
-      <View style={{marginTop: 20}}>
-        <Button title="SignOut" onPress={handleSignOut} />
-      </View>
-      <View style={{marginTop: 20}}>
-        <Button title="Test Vosk" onPress={testVosk} />
-      </View>
-      <View style={{marginTop: 20}}>
-        <Button title="Start Voice Runtime" onPress={() => runtime?.start()} />
-      </View>
-      <View style={{marginTop: 20}}>
-        <Button title="Test AI" onPress={testAI} />
-      </View>
-    </View>
-  );
-};
+//     const tasks = mapLLMTasksToDomain(data.tasks);
+
+//     console.log('✅ READY TASKS:', tasks);
+
+//     // 🚀 ПЕРЕХІД НА TasksScreen
+//     navigation.navigate('Tasks', {
+//       initialTasks: tasks,
+//     });
+//   };
+
+//   return (
+//     <View
+//       style={{
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         padding: 20,
+//       }}>
+//       <Text style={{fontSize: 22, marginBottom: 20}}>BeeVoice Dev App</Text>
+
+//       <Text style={{marginBottom: 20}}>User: {userId}</Text>
+
+//       <Button title="Run Inspection Test" onPress={runTest} />
+
+//       <View style={{marginTop: 20}}>
+//         <Button title="SignOut" onPress={handleSignOut} />
+//       </View>
+
+//       <View style={{marginTop: 20}}>
+//         <Button title="Test Vosk" onPress={testVosk} />
+//       </View>
+
+//       <View style={{marginTop: 20}}>
+//         <Button title="Start Voice Runtime" onPress={() => runtime?.start()} />
+//       </View>
+
+//       <View style={{marginTop: 20}}>
+//         <Button title="Test AI" onPress={testAI} />
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default function DevApp() {
+//   return (
+//     <AuthProvider>
+//       <DevScreen />
+//     </AuthProvider>
+//   );
+// }
+
+import {AppNavigator} from '../navigation/AppNavigator';
 
 export default function DevApp() {
   return (
     <AuthProvider>
-      <DevScreen />
+      <AppNavigator />
     </AuthProvider>
   );
 }

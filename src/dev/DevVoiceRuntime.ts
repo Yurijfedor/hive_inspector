@@ -90,7 +90,7 @@ export class DevVoiceRuntime {
   private speak(text: string): Promise<void> {
     this.initTts();
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.ttsResolve = resolve;
       Tts.speak(text);
     });
@@ -105,7 +105,7 @@ export class DevVoiceRuntime {
     // SYSTEM SPEAK (🔥 ГОЛОВНЕ)
     // -------------------------
 
-    this.bus.on('SYSTEM_SPEAK', async e => {
+    this.bus.on('SYSTEM_SPEAK', async (e) => {
       if (this.speaking) return;
 
       this.speaking = true;
@@ -169,7 +169,7 @@ export class DevVoiceRuntime {
     // DEBUG
     // -------------------------
 
-    this.bus.on('FLOW_EFFECT', e => {
+    this.bus.on('FLOW_EFFECT', (e) => {
       console.log('⚙️ FLOW EFFECT:', e.effect);
     });
 
@@ -177,7 +177,7 @@ export class DevVoiceRuntime {
     // DOMAIN EVENTS
     // -------------------------
 
-    this.bus.on('DOMAIN_EVENT', async e => {
+    this.bus.on('DOMAIN_EVENT', async (e) => {
       try {
         console.log('📦 DOMAIN EVENT:', e.event);
 
@@ -196,7 +196,7 @@ export class DevVoiceRuntime {
     this.voskEmitter.removeAllListeners('onResult');
     this.voskEmitter.removeAllListeners('onPartialResult');
 
-    this.voskEmitter.addListener('onResult', async e => {
+    this.voskEmitter.addListener('onResult', async (e) => {
       console.log('RESULT RAW:', JSON.stringify(e));
 
       const text = typeof e === 'string' ? e : e?.text ?? e?.result?.text ?? '';
@@ -210,8 +210,16 @@ export class DevVoiceRuntime {
       await this.driver.handleExternalInput(text);
     });
 
-    this.voskEmitter.addListener('onPartialResult', e => {
+    this.voskEmitter.addListener('onPartialResult', (e) => {
       console.log('PARTIAL RAW:', JSON.stringify(e));
     });
+  }
+  public async handleTextInput(text: string) {
+    if (!this.driver) {
+      console.log('❌ DRIVER NOT READY');
+      return;
+    }
+
+    await this.driver.handleExternalInput(text);
   }
 }
