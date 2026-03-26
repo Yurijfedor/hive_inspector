@@ -66,7 +66,7 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
       };
 
     // -------------------------
-    // DISEASE 👈 ДОДАЛИ
+    // DISEASE
     // -------------------------
 
     case 'DISEASE_RECORDED':

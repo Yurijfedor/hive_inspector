@@ -6,58 +6,185 @@ import {mergeTasks} from '../services/taskMergeService';
 import {sanitizeFirebaseKey} from '../../utils/firebase/sanitizeKey';
 
 export class TaskRepository {
+  // =============================
+  // GET ALL (LOCAL)
+  // =============================
   async getAll(): Promise<Task[]> {
     return await loadTasks();
   }
 
+  // =============================
+  // 🔥 SMART SAVE (LOCAL + DIFF PUSH)
+  // =============================
   async saveAll(uid: string, tasks: Task[]): Promise<void> {
-    // ✅ 1. LOCAL (source of truth)
+    // ✅ 1. LOCAL = source of truth
     await saveTasks(tasks);
 
-    // ✅ 2. FIREBASE (sync)
-    const updates: Record<string, any> = {};
-
-    for (const task of tasks) {
-      const safeTaskId = sanitizeFirebaseKey(task.id.toString());
-
-      const basePath = `users/${uid}/hives/${task.hiveNumber}/tasks/${safeTaskId}`;
-
-      updates[basePath] = {
-        title: task.title,
-        type: task.type,
-        date: task.date,
-        completed: task.completed,
-        priority: task.priority ?? null,
-        source: task.source,
-        updatedAt: database.ServerValue.TIMESTAMP,
-      };
-    }
-
     try {
+      // ✅ 2. LOAD CLOUD
+      const cloudTasks = await this.loadFromFirebase(uid);
+
+      // ✅ 3. DIFF
+      const tasksToPush = this.getTasksToPush(tasks, cloudTasks);
+
+      console.log('📤 TASKS TO PUSH:', tasksToPush.length);
+
+      if (tasksToPush.length === 0) {
+        console.log('✅ NOTHING TO PUSH');
+        return;
+      }
+
+      // ✅ 4. BUILD UPDATE
+      const updates: Record<string, any> = {};
+
+      for (const task of tasksToPush) {
+        const safeTaskId = sanitizeFirebaseKey(task.id.toString());
+
+        const path = `users/${uid}/hives/${task.hiveNumber}/tasks/${safeTaskId}`;
+
+        updates[path] = {
+          title: task.title,
+          type: task.type,
+          date: task.date,
+          completed: task.completed,
+          priority: task.priority ?? null,
+          source: 'local',
+          updatedAt: task.updatedAt ?? Date.now(),
+        };
+      }
+
+      // ✅ 5. PUSH (batch)
       await database().ref().update(updates);
-      console.log('☁️ TASKS SYNCED');
+
+      console.log('☁️ SMART SYNC DONE');
     } catch (e) {
-      console.log('⚠️ TASKS SYNC FAILED', e);
+      console.log('⚠️ SMART SYNC FAILED', e);
     }
   }
 
+  // =============================
+  // 🔥 DIFF LOGIC
+  // =============================
+  private getTasksToPush(local: Task[], cloud: Task[]): Task[] {
+    const cloudMap = new Map(cloud.map((t) => [t.id, t]));
+
+    const toPush: Task[] = [];
+
+    for (const localTask of local) {
+      const cloudTask = cloudMap.get(localTask.id);
+
+      // 🆕 нова задача
+      if (!cloudTask) {
+        toPush.push(localTask);
+        continue;
+      }
+
+      // 🔄 локальна новіша
+      if ((localTask.updatedAt ?? 0) > (cloudTask.updatedAt ?? 0)) {
+        toPush.push(localTask);
+      }
+    }
+
+    return toPush;
+  }
+
+  // =============================
+  // MERGE FROM AI
+  // =============================
   async mergeFromAI(uid: string, newTasks: Task[]): Promise<Task[]> {
     const existing = await this.getAll();
 
-    const merged = mergeTasks(existing, newTasks);
+    const withTimestamps = newTasks.map((t) => ({
+      ...t,
+      updatedAt: Date.now(),
+      source: 'USER' as const,
+    }));
+
+    const merged = mergeTasks(existing, withTimestamps);
 
     await this.saveAll(uid, merged);
 
     return merged;
   }
 
+  // =============================
+  // COMPLETE TASK
+  // =============================
   async completeTask(uid: string, taskId: string): Promise<void> {
     const tasks = await this.getAll();
 
+    const now = Date.now();
+
     const updated = tasks.map((t) =>
-      t.id === taskId ? {...t, completed: true} : t,
+      t.id === taskId
+        ? {...t, completed: true, updatedAt: now, source: 'USER' as const}
+        : t,
     );
 
     await this.saveAll(uid, updated);
+  }
+
+  // =============================
+  // 🔽 LOAD FROM FIREBASE
+  // =============================
+  async loadFromFirebase(uid: string): Promise<Task[]> {
+    try {
+      const snap = await database().ref(`users/${uid}/hives`).once('value');
+
+      const data = snap.val();
+      if (!data) return [];
+
+      const tasks: Task[] = [];
+
+      for (const hiveNumber in data) {
+        const hive = data[hiveNumber];
+
+        if (!hive?.tasks) continue;
+
+        for (const taskId in hive.tasks) {
+          const t = hive.tasks[taskId];
+
+          tasks.push({
+            id: taskId,
+            hiveNumber: Number(hiveNumber),
+            title: t.title ?? '',
+            type: t.type ?? 'UNKNOWN',
+            date: t.date ?? '',
+            completed: t.completed ?? false,
+            priority: t.priority ?? 'normal',
+            source: 'CLOUD',
+            updatedAt: t.updatedAt ?? 0,
+          });
+        }
+      }
+
+      return tasks;
+    } catch (e) {
+      console.log('❌ LOAD TASKS FROM FIREBASE FAILED', e);
+      return [];
+    }
+  }
+
+  // =============================
+  // 🔄 FULL SYNC (PULL + MERGE)
+  // =============================
+  async syncWithFirebase(uid: string): Promise<Task[]> {
+    const localTasks = await this.getAll();
+
+    const cloudTasks = await Promise.race([
+      this.loadFromFirebase(uid),
+      new Promise<Task[]>((resolve) => setTimeout(() => resolve([]), 2000)),
+    ]);
+
+    console.log('☁️ CLOUD TASKS:', cloudTasks.length);
+    console.log('📱 LOCAL TASKS:', localTasks.length);
+
+    const merged = mergeTasks(localTasks, cloudTasks);
+
+    console.log('🔀 MERGED TASKS:', merged.length);
+
+    await saveTasks(merged);
+
+    return merged;
   }
 }

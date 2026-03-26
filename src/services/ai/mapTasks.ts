@@ -8,7 +8,7 @@ type LLMResponse =
     };
 
 export const mapLLMTasksToDomain = (data: LLMResponse): Task[] => {
-  const now = Date.now();
+  // const now = Date.now();
 
   const allowedTypes = ['FEEDING', 'INSPECTION', 'TREATMENT'];
 
@@ -28,15 +28,18 @@ export const mapLLMTasksToDomain = (data: LLMResponse): Task[] => {
 
     const title = String(t.title || 'Без назви');
 
+    const nowTs = Date.now(); // 🔥 єдина точка часу
+
     return {
-      id: `${Date.now()}-${Math.random()}`,
+      id: `${nowTs}-${Math.random()}`,
       hiveNumber,
       title,
       type,
-      date: new Date(now + inDays * 86400000).toISOString(),
+      date: new Date(nowTs + inDays * 86400000).toISOString(),
       source: 'LLM',
       completed: false,
       priority,
+      updatedAt: nowTs,
     };
   };
 
