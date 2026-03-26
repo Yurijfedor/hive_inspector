@@ -16,7 +16,8 @@ import {runInspectionRuntimeTest} from '../flows/testInspection';
 // import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
-import {loadTasks} from '../services/tasks/tasksStorage';
+// import {loadTasks} from '../services/tasks/tasksStorage';
+import {TaskRepository} from '../domain/repositories/taskRepository';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -29,6 +30,8 @@ export const DevScreen = () => {
   const userId = user?.uid;
 
   const runtime = userId ? new DevVoiceRuntime(userId) : null;
+
+  const repo = new TaskRepository();
 
   const runTest = async () => {
     console.log('🚀 RUN TEST START');
@@ -114,19 +117,23 @@ export const DevScreen = () => {
     );
 
     const data = await res.json();
+    console.log(data);
 
-    const tasks = mapLLMTasksToDomain(data.tasks);
+    // const tasks = mapLLMTasksToDomain(data.tasks);
+    const mappedTasks = mapLLMTasksToDomain(data);
+    const mergedTasks = await repo.mergeFromAI(mappedTasks);
 
-    console.log('✅ READY TASKS:', tasks);
+    console.log('✅ MAPPED TASKS:', mappedTasks);
+    console.log('✅ MERGED TASKS:', mergedTasks);
 
     // 🚀 ПЕРЕХІД НА TasksScreen
     navigation.navigate('Tasks', {
-      initialTasks: tasks,
+      initialTasks: mergedTasks,
     });
   };
 
   const testLoad = async () => {
-    const tasks = await loadTasks();
+    const tasks = await repo.getAll();
     console.log('📦 LOADED TASKS:', tasks);
   };
 

@@ -3,20 +3,23 @@ import {View, Text, TextInput, Button, ScrollView} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {Task} from '../types/task';
-import {saveTasks} from '../services/tasks/tasksStorage';
+// import {saveTasks} from '../services/tasks/tasksStorage';
+import {TaskRepository} from '../domain/repositories/taskRepository';
 
-type Props = {
-  route: {
-    params: {
-      initialTasks: Task[];
-    };
-  };
-  navigation: any;
-};
+// type Props = {
+//   route: {
+//     params: {
+//       initialTasks: Task[];
+//     };
+//   };
+//   navigation: any;
+// };
 
 export const TasksScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+
+  const repo = new TaskRepository();
 
   const {initialTasks} = route.params;
 
@@ -33,7 +36,7 @@ export const TasksScreen = () => {
   };
 
   const handleSave = async () => {
-    await saveTasks(tasks);
+    await repo.saveAll(tasks);
     console.log('💾 SAVING TASKS:', tasks);
 
     navigation.goBack();
