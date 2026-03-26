@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, TextInput, Button, ScrollView} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
+import {useAuth} from '../auth/AuthProvider';
 import {Task} from '../types/task';
 // import {saveTasks} from '../services/tasks/tasksStorage';
 import {TaskRepository} from '../domain/repositories/taskRepository';
@@ -18,6 +19,8 @@ import {TaskRepository} from '../domain/repositories/taskRepository';
 export const TasksScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+
+  const {user} = useAuth();
 
   const repo = new TaskRepository();
 
@@ -36,10 +39,15 @@ export const TasksScreen = () => {
   };
 
   const handleSave = async () => {
-    await repo.saveAll(tasks);
-    console.log('💾 SAVING TASKS:', tasks);
+    if (!user) return;
 
-    navigation.goBack();
+    try {
+      await repo.saveAll(user.uid, tasks);
+      console.log('💾 SAVING TASKS:', tasks);
+      navigation.goBack();
+    } catch (e) {
+      console.log('❌ SAVE FAILED', e);
+    }
   };
 
   return (

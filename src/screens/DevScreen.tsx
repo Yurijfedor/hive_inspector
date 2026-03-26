@@ -18,6 +18,7 @@ import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
 // import {loadTasks} from '../services/tasks/tasksStorage';
 import {TaskRepository} from '../domain/repositories/taskRepository';
+import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -26,7 +27,10 @@ export const DevScreen = () => {
   const navigation = useNavigation<any>(); // 👈 ДОДАЛИ
 
   const voskEmitter = new NativeEventEmitter(Vosk);
-
+  if (!user) {
+    console.log('❌ Not authenticated');
+    return;
+  }
   const userId = user?.uid;
 
   const runtime = userId ? new DevVoiceRuntime(userId) : null;
@@ -121,15 +125,23 @@ export const DevScreen = () => {
 
     // const tasks = mapLLMTasksToDomain(data.tasks);
     const mappedTasks = mapLLMTasksToDomain(data);
-    const mergedTasks = await repo.mergeFromAI(mappedTasks);
+
+    const mergedTasks = await handleDomainEvent(userId, {
+      type: 'TASKS_CREATED_FROM_AI',
+      payload: {
+        tasks: mappedTasks,
+      },
+    });
 
     console.log('✅ MAPPED TASKS:', mappedTasks);
     console.log('✅ MERGED TASKS:', mergedTasks);
 
     // 🚀 ПЕРЕХІД НА TasksScreen
-    navigation.navigate('Tasks', {
-      initialTasks: mergedTasks,
-    });
+    if (mergedTasks.kind === 'TASKS_UPDATED') {
+      navigation.navigate('Tasks', {
+        initialTasks: mergedTasks.tasks,
+      });
+    }
   };
 
   const testLoad = async () => {

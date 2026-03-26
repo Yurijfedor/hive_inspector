@@ -3,7 +3,8 @@ import {handleInspectionEffect} from '../../effects/inspectionEffectHandler';
 import {handleSwarmEffect} from './swarmEffectHandler';
 import {handleFeedingEffect} from './feedingEffectHandler';
 import {handleDiseaseEffect} from './diseaseEffectHandler';
-import {handleSplitEffect} from './splitEffectHandler'; // 👈 ДОДАЛИ
+import {handleSplitEffect} from './splitEffectHandler';
+import {handleTaskEffect} from './taskEffectHandler';
 
 export async function handleDomainEvent(uid: string, event: DomainEvent) {
   switch (event.type) {
@@ -40,11 +41,18 @@ export async function handleDomainEvent(uid: string, event: DomainEvent) {
       return handleDiseaseEffect(uid, event);
 
     // -------------------------
-    // SPLIT 👈 ОСЬ ВІН
+    // SPLIT
     // -------------------------
 
     case 'UPDATE_SPLIT':
     case 'STOP_SPLIT':
       return handleSplitEffect(uid, event);
+
+    // ----------------------
+    // TASKS
+    // ----------------------
+    case 'TASKS_CREATED_FROM_AI':
+    case 'TASK_COMPLETED':
+      return handleTaskEffect(uid, event);
   }
 }
