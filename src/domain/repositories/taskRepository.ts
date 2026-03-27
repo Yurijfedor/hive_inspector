@@ -36,7 +36,6 @@ export class TaskRepository {
 
       // ✅ 4. BUILD UPDATE
       const updates: Record<string, any> = {};
-
       for (const task of tasksToPush) {
         const safeTaskId = sanitizeFirebaseKey(task.id.toString());
 
@@ -52,6 +51,9 @@ export class TaskRepository {
           updatedAt: task.updatedAt ?? Date.now(),
         };
       }
+
+      console.log('🔥 UID:', uid);
+      console.log('🔥 UPDATE PATHS:', Object.keys(updates));
 
       // ✅ 5. PUSH (batch)
       await database().ref().update(updates);

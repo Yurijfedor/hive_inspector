@@ -1,6 +1,7 @@
 import {InspectionEvent} from '../actions/inspectionEvents';
 import {saveInspection} from '../persistence/inspectionRepository';
 import {InspectionEffectResult} from './types';
+import {generateTasksForApiary} from '../services/ai/generateTasks';
 
 export async function handleInspectionEffect(
   uid: string,
@@ -12,6 +13,9 @@ export async function handleInspectionEffect(
         hiveNumber: event.hiveNumber,
         stop: true,
       });
+
+      // 🔥 ТРИГЕР AI
+      await generateTasksForApiary(uid);
 
       return {
         kind: 'STOPPED',
