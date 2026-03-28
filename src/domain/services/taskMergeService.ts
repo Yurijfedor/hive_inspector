@@ -1,10 +1,10 @@
 import {Task} from '../../types/task';
 
-function isRecent(date: string, days = 3): boolean {
+function isRecent(date: number, days = 3): boolean {
   const now = Date.now();
-  const taskTime = new Date(date).getTime();
+  // const taskTime = new Date(date).getTime();
 
-  return now - taskTime < days * 24 * 60 * 60 * 1000;
+  return now - date < days * 24 * 60 * 60 * 1000;
 }
 
 function key(task: Task) {

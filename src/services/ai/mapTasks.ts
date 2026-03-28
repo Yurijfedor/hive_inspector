@@ -28,6 +28,8 @@ export const mapLLMTasksToDomain = (data: LLMResponse): Task[] => {
 
     const title = String(t.title || 'Без назви');
 
+    const DAY = 1000 * 60 * 60 * 24;
+
     const nowTs = Date.now(); // 🔥 єдина точка часу
 
     return {
@@ -35,7 +37,7 @@ export const mapLLMTasksToDomain = (data: LLMResponse): Task[] => {
       hiveNumber,
       title,
       type,
-      date: new Date(nowTs + inDays * 86400000).toISOString(),
+      date: Date.now() + inDays * DAY, // 🔥 дата з урахуванням inDays
       source: 'LLM',
       completed: false,
       priority,

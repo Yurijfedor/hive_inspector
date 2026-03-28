@@ -1,4 +1,5 @@
 import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 import {Task} from '../../types/task';
 import {loadTasks, saveTasks} from '../../services/tasks/tasksStorage';
@@ -17,12 +18,15 @@ export class TaskRepository {
   // 🔥 SMART SAVE (LOCAL + DIFF PUSH)
   // =============================
   async saveAll(uid: string, tasks: Task[]): Promise<void> {
+    console.log('я тут');
+
     // ✅ 1. LOCAL = source of truth
     await saveTasks(tasks);
 
     try {
       // ✅ 2. LOAD CLOUD
-      const cloudTasks = await this.loadFromFirebase(uid);
+      // const cloudTasks = await this.loadFromFirebase(uid);
+      const cloudTasks: Task[] = [];
 
       // ✅ 3. DIFF
       const tasksToPush = this.getTasksToPush(tasks, cloudTasks);
@@ -36,6 +40,13 @@ export class TaskRepository {
 
       // ✅ 4. BUILD UPDATE
       const updates: Record<string, any> = {};
+
+      const user = auth().currentUser;
+      const token = await user?.getIdToken();
+
+      console.log('🔥 USER:', user?.uid);
+      console.log('🔥 TOKEN EXISTS:', !!token);
+
       for (const task of tasksToPush) {
         const safeTaskId = sanitizeFirebaseKey(task.id.toString());
 
@@ -52,8 +63,8 @@ export class TaskRepository {
         };
       }
 
-      console.log('🔥 UID:', uid);
-      console.log('🔥 UPDATE PATHS:', Object.keys(updates));
+      // console.log('🔥 UID:', uid);
+      // console.log('🔥 UPDATE PATHS:', Object.keys(updates));
 
       // ✅ 5. PUSH (batch)
       await database().ref().update(updates);

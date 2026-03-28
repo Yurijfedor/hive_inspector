@@ -15,10 +15,11 @@ import {runInspectionRuntimeTest} from '../flows/testInspection';
 // import {baseGrammar} from '../voice/grammars/baseGrammar';
 // import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
+// import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
 // import {loadTasks} from '../services/tasks/tasksStorage';
 import {TaskRepository} from '../domain/repositories/taskRepository';
-import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
+// import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
+import {generateTasksForApiary} from '../services/ai/generateTasks';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -100,46 +101,18 @@ export const DevScreen = () => {
   const testAI = async () => {
     console.log('🤖 AI TEST START');
 
-    const res = await fetch(
-      'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inspections: [
-            {
-              hiveNumber: 1,
-              strength: 5,
-              honeyKg: 2,
-              hasQueen: true,
-            },
-          ],
-        }),
-      },
-    );
+    const mergedTasks = await generateTasksForApiary(userId);
+    if (!mergedTasks || mergedTasks.length === 0) {
+      console.log('😴 NO NEW TASKS');
+      return;
+    }
 
-    const data = await res.json();
-    console.log(data);
-
-    // const tasks = mapLLMTasksToDomain(data.tasks);
-    const mappedTasks = mapLLMTasksToDomain(data);
-
-    const mergedTasks = await handleDomainEvent(userId, {
-      type: 'TASKS_CREATED_FROM_AI',
-      payload: {
-        tasks: mappedTasks,
-      },
-    });
-
-    console.log('✅ MAPPED TASKS:', mappedTasks);
     console.log('✅ MERGED TASKS:', mergedTasks);
 
     // 🚀 ПЕРЕХІД НА TasksScreen
-    if (mergedTasks.kind === 'TASKS_UPDATED') {
+    if (mergedTasks && mergedTasks.length > 0) {
       navigation.navigate('Tasks', {
-        initialTasks: mergedTasks.tasks,
+        initialTasks: mergedTasks,
       });
     }
   };
@@ -180,7 +153,19 @@ export const DevScreen = () => {
       </View>
 
       <View style={{marginTop: 20}}>
-        <Button title="Load Tasks" onPress={testLoad} />
+        <Button
+          title="Load Tasks"
+          onPress={() => {
+            testLoad();
+          }}
+        />
+      </View>
+
+      <View style={{marginTop: 20}}>
+        <Button
+          title="📅 Open Tasks List"
+          onPress={() => navigation.navigate('TasksList')}
+        />
       </View>
     </View>
   );

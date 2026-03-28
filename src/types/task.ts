@@ -5,16 +5,15 @@ export type Task = {
 
   type: 'FEEDING' | 'INSPECTION' | 'TREATMENT' | 'OTHER';
 
-  date: string;
+  date: number; // 🔥 було string → стало timestamp
 
   completed: boolean;
 
-  // 🔥 джерело задачі (розширимо)
   source: 'LLM' | 'USER' | 'SYSTEM' | 'CLOUD';
 
-  // 🔥 пріоритет
   priority?: 'PRIMARY' | 'SECONDARY';
 
-  // 🔥 КРИТИЧНО для sync
-  updatedAt: number; // timestamp (Date.now())
+  note?: string; // 🔥 нове поле
+
+  updatedAt: number;
 };

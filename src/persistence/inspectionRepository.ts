@@ -75,30 +75,26 @@ async function finalizeInspection(uid: string, hiveNumber: number) {
 
   const inspection = snapshot.val();
 
-  // 🔹 1. створюємо запис в архіві
-  const archiveRef = database().ref(
-    `users/${uid}/hives/${hiveNumber}/inspections`,
-  );
-
-  const newRef = archiveRef.push();
-  const inspectionId = newRef.key!;
+  // 1. create inspection
+  const newRef = database()
+    .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
+    .push();
 
   await newRef.set({
-    id: inspectionId,
     ...inspection,
-    createdAt: Date.now(), // 🔥 тимчасово без ServerValue
+    createdAt: Date.now(),
     source: 'voice',
   });
 
-  // 🔹 2. оновлюємо meta
-  await database()
-    .ref(`users/${uid}/hives/${hiveNumber}/meta/inspectionClosedAt`)
-    .set(Date.now());
+  // 2. update meta
+  await database().ref(`users/${uid}/hives/${hiveNumber}/meta`).update({
+    inspectionClosedAt: Date.now(),
+  });
 
-  // 🔹 3. видаляємо currentInspection
+  // 3. remove currentInspection
   await currentRef.remove();
 
-  console.log('✅ INSPECTION FINALIZED');
+  console.log('✅ FINALIZED OK');
 }
 
 export async function loadInspections(uid: string): Promise<Inspection[]> {

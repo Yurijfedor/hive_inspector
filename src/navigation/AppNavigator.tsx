@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {DevScreen} from '../screens/DevScreen';
 import {TasksScreen} from '../screens/TasksScreen';
+import {TasksListScreen} from '../screens/TasksListScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -15,6 +16,11 @@ export const AppNavigator = () => {
       <Stack.Navigator>
         <Stack.Screen name="Dev" component={DevScreen} />
         <Stack.Screen name="Tasks" component={TasksScreen} />
+        <Stack.Screen
+          name="TasksList"
+          component={TasksListScreen}
+          options={{title: '📅 Мої задачі'}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

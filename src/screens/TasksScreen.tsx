@@ -44,7 +44,7 @@ export const TasksScreen = () => {
     try {
       await repo.saveAll(user.uid, tasks);
       console.log('💾 SAVING TASKS:', tasks);
-      navigation.goBack();
+      navigation.navigate('TasksList');
     } catch (e) {
       console.log('❌ SAVE FAILED', e);
     }
