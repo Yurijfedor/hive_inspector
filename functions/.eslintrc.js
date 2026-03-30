@@ -29,5 +29,14 @@ module.exports = {
     'import/no-unresolved': 0,
     'quote-props': ['error', 'as-needed'],
     'arrow-parens': ['error', 'always'],
+    'max-len': [
+      'warn',
+      {
+        code: 120, // 👈 замість 80
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreUrls: true,
+      },
+    ],
   },
 };

@@ -1,9 +1,12 @@
 // import {getFunctions} from 'firebase/functions';
 // import {app} from '../../firebase/firebaseApp';
 
-import {Inspection} from '../../types/inspection';
+// import {Inspection} from '../../types/inspection';
 import {Task} from '../../types/task';
-import {loadInspections} from '../../persistence/inspectionRepository';
+import {
+  // loadInspections,
+  loadHiveContexts,
+} from '../../persistence/inspectionRepository';
 import {TaskRepository} from '../../domain/repositories/taskRepository';
 import {mapLLMTasksToDomain} from './mapTasks';
 
@@ -11,11 +14,9 @@ import {mapLLMTasksToDomain} from './mapTasks';
 
 const taskRepository = new TaskRepository();
 
-export const generateTasks = async (
-  inspections: Inspection[],
-): Promise<{tasks: Task[]}> => {
+export const generateTasks = async (hives: any[]): Promise<{tasks: Task[]}> => {
   try {
-    console.log('🤖 CALLING AI (fetch)...', inspections);
+    console.log('🤖 CALLING AI (fetch)...', hives);
 
     const res = await fetch(
       'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
@@ -24,7 +25,7 @@ export const generateTasks = async (
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({inspections}),
+        body: JSON.stringify({hives}),
       },
     );
 
@@ -36,7 +37,7 @@ export const generateTasks = async (
 
     console.log('✅ AI RESPONSE:', data);
 
-    return data; // { tasks: [...] }
+    return data;
   } catch (e) {
     console.error('💥 AI FETCH ERROR:', e);
     throw e;
@@ -45,42 +46,29 @@ export const generateTasks = async (
 
 export const generateTasksForApiary = async (uid: string) => {
   const tasks = await taskRepository.getAll();
-  const inspections = await loadInspections(uid);
+  const hives = await loadHiveContexts(uid);
 
-  const hives = [...new Set(inspections.map((i) => i.hiveNumber))];
+  const hivesToSend = [];
 
-  const inspectionsToSend: Inspection[] = [];
-
-  for (const hiveNumber of hives) {
+  for (const hive of hives) {
     const hasActive = tasks.some(
-      (t) => t.hiveNumber === hiveNumber && !t.completed,
+      (t) => t.hiveNumber === hive.hiveNumber && !t.completed,
     );
 
     if (hasActive) continue;
 
-    const latest = inspections
-      .filter((i) => i.hiveNumber === hiveNumber)
-      .sort((a, b) => b.date - a.date)[0];
-
-    if (!latest) continue;
-
-    inspectionsToSend.push(latest);
+    hivesToSend.push(hive);
   }
 
-  if (inspectionsToSend.length === 0) {
+  if (hivesToSend.length === 0) {
     console.log('✅ NO NEED TO GENERATE TASKS');
     return [];
   }
 
-  console.log('🤖 GENERATING TASKS...', inspectionsToSend);
+  console.log('🤖 GENERATING TASKS...', hivesToSend);
 
-  const result = await generateTasks(inspectionsToSend);
+  const result = await generateTasks(hivesToSend);
 
-  // 🔥 ВАЖЛИВО — ЗБЕРІГАЄМО ЧЕРЕЗ REPOSITORY
-  // const merged = await taskRepository.mergeFromAI(uid, result.tasks);
-
-  console.log('🔥 RAW AI RESULT:', result);
-  console.log('🔥 TASKS:', result?.tasks);
   const mappedTasks = mapLLMTasksToDomain(result);
 
   const merged = await taskRepository.mergeFromAI(uid, mappedTasks);
@@ -89,20 +77,18 @@ export const generateTasksForApiary = async (uid: string) => {
 };
 
 export const generateTasksForHive = async (uid: string, hiveNumber: number) => {
-  const inspections = await loadInspections(uid);
+  const hives = await loadHiveContexts(uid);
 
-  const latest = inspections
-    .filter((i) => i.hiveNumber === hiveNumber)
-    .sort((a, b) => b.date - a.date)[0];
+  const hive = hives.find((h) => h.hiveNumber === hiveNumber);
 
-  if (!latest) {
-    console.log('❌ NO INSPECTION FOR HIVE');
+  if (!hive) {
+    console.log('❌ NO HIVE CONTEXT');
     return [];
   }
 
-  console.log('🤖 GENERATING TASKS FOR HIVE...', latest);
+  console.log('🤖 GENERATING TASKS FOR HIVE...', hive);
 
-  const result = await generateTasks([latest]); // 👈 КЛЮЧ
+  const result = await generateTasks([hive]); // 🔥 тепер передаємо контекст
 
   const mappedTasks = mapLLMTasksToDomain(result);
 

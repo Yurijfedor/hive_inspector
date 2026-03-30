@@ -8,3 +8,10 @@ export type Inspection = {
 
   hasQueen: boolean;
 };
+
+export type InspectionRaw = {
+  createdAt?: number;
+  strength?: number;
+  honeyKg?: number;
+  queen?: 'present' | 'absent';
+};

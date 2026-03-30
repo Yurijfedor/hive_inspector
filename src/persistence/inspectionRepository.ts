@@ -1,7 +1,8 @@
 import database from '@react-native-firebase/database';
-import {InspectionCommand} from '../voice/schema/inspection';
-import {Inspection} from '../types/inspection';
 import auth from '@react-native-firebase/auth';
+import {InspectionCommand} from '../voice/schema/inspection';
+import {Inspection, InspectionRaw} from '../types/inspection';
+import {HiveContext} from '../types/hive';
 
 export async function saveInspection(uid: string, command: InspectionCommand) {
   console.log('🔥 AUTH USER UID:', auth().currentUser?.uid);
@@ -124,10 +125,105 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
         });
       }
     }
+    console.log('✅ INSPECTIONS:', inspections);
 
     return inspections;
   } catch (e) {
     console.log('❌ LOAD INSPECTIONS FAILED', e);
     return [];
   }
+}
+
+export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
+  const snap = await database().ref(`users/${uid}/hives`).once('value');
+
+  const data = snap.val();
+  if (!data) return [];
+
+  const result: HiveContext[] = [];
+
+  for (const hiveNumber in data) {
+    const hive = data[hiveNumber];
+
+    // 🧠 last inspection
+    let lastInspection = null;
+
+    if (hive.inspections) {
+      const inspectionsArray = Object.values(
+        hive.inspections,
+      ) as InspectionRaw[];
+
+      const last = inspectionsArray.sort(
+        (a: any, b: any) => (b.createdAt ?? 0) - (a.createdAt ?? 0),
+      )[0];
+
+      if (last) {
+        lastInspection = {
+          date: last.createdAt ?? 0,
+          strength: last.strength ?? 0,
+          honeyKg: last.honeyKg ?? 0,
+          hasQueen: last.queen === 'present',
+        };
+      }
+    }
+
+    result.push({
+      hiveNumber: Number(hiveNumber),
+
+      lastInspection,
+
+      // 🟡 FEEDING
+      feeding: hive.currentFeeding
+        ? {
+            hasFeeding: hive.currentFeeding.hasFeeding,
+            syrupLiters: hive.currentFeeding.syrupLiters ?? 0,
+            lastFeedingAt:
+              hive.meta?.lastFeedingAt ?? hive.currentFeeding.updatedAt,
+          }
+        : undefined,
+
+      // 🔴 SWARM
+      swarm: hive.currentSwarm
+        ? {
+            hasSwarmSigns: hive.currentSwarm.hasSwarmSigns,
+            queenEmergence: hive.currentSwarm.queenEmergence ?? false,
+            lastSwarmCheck:
+              hive.meta?.lastSwarmCheck ?? hive.currentSwarm.updatedAt,
+          }
+        : undefined,
+
+      // 🟣 DISEASE (НОВЕ 🔥)
+      disease: hive.currentDisease
+        ? {
+            hasDiseaseSigns: hive.currentDisease.hasDiseaseSigns,
+            lastDiseaseCheck:
+              hive.meta?.lastDiseaseCheckAt ?? hive.currentDisease.updatedAt,
+          }
+        : undefined,
+
+      // 🔵 SPLIT (НОВЕ 🔥)
+      split: hive.currentSplit
+        ? {
+            isSplit: hive.currentSplit.isSplit,
+            usedForSplits: hive.currentSplit.usedForSplits,
+            totalBroodFrames: hive.currentSplit.totalBroodFrames,
+            totalFoodFrames: hive.currentSplit.totalFoodFrames,
+            lastSplitActionAt:
+              hive.meta?.lastSplitActionAt ?? hive.currentSplit.updatedAt,
+          }
+        : undefined,
+
+      // ⚫ META (як summary)
+      meta: {
+        lastInspectionAt: hive.meta?.lastInspectionAt,
+        lastFeedingAt: hive.meta?.lastFeedingAt,
+        hasFeeding: hive.meta?.hasFeeding,
+        hasSwarmSigns: hive.meta?.hasSwarmSigns,
+        hasDiseaseSigns: hive.meta?.hasDiseaseSigns,
+        lastStrength: hive.meta?.lastStrength,
+      },
+    });
+  }
+
+  return result;
 }
