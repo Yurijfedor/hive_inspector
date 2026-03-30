@@ -3,6 +3,8 @@ import {saveInspection} from '../persistence/inspectionRepository';
 import {InspectionEffectResult} from './types';
 import {generateTasksForHive} from '../services/ai/generateTasks';
 
+import {applyTaskAutoComplete} from '../domain/tasks/applyTaskAutoComplete';
+
 export async function handleInspectionEffect(
   uid: string,
   event: InspectionEvent,
@@ -14,7 +16,10 @@ export async function handleInspectionEffect(
         stop: true,
       });
 
-      // 🔥 ТРИГЕР AI
+      // 🔥 закриваємо старі inspection tasks
+      await applyTaskAutoComplete(uid, event.hiveNumber, 'INSPECTION');
+
+      // 🔥 генеруємо нові задачі
       await generateTasksForHive(uid, event.hiveNumber);
 
       return {
