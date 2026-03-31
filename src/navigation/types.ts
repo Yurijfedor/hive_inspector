@@ -5,4 +5,7 @@ export type RootStackParamList = {
   Tasks: {
     initialTasks: Task[];
   };
+  Hive: {
+    hiveNumber: number;
+  };
 };

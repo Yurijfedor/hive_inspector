@@ -20,6 +20,7 @@ import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 // import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
+import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -119,7 +120,12 @@ export const DevScreen = () => {
 
   const testLoad = async () => {
     const tasks = await repo.getAll();
+    const vm = mapTasksToViewModel(tasks);
+    console.log('VM:', vm);
     console.log('📦 LOADED TASKS:', tasks);
+
+    // 🚀 ПЕРЕХІД НА TodayScreen
+    navigation.navigate('Today');
   };
 
   return (

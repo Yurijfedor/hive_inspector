@@ -6,6 +6,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {DevScreen} from '../screens/DevScreen';
 import {TasksScreen} from '../screens/TasksScreen';
 import {TasksListScreen} from '../screens/TasksListScreen';
+import {TodayScreen} from '../screens/TodayScreen';
+import {HiveScreen} from '../screens/HiveScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -21,6 +23,12 @@ export const AppNavigator = () => {
           component={TasksListScreen}
           options={{title: '📅 Мої задачі'}}
         />
+        <Stack.Screen
+          name="Today"
+          component={TodayScreen}
+          options={{title: '🐝 Сьогодні'}}
+        />
+        <Stack.Screen name="Hive" component={HiveScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

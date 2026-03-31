@@ -35,3 +35,27 @@ export const groupTasksByDate = (tasks: Task[]) => {
 
   return groups;
 };
+
+export const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}.${month}.${year}`;
+};
+
+export const groupTasksByType = (tasks: Task[]) => {
+  const result: Record<string, Task[]> = {};
+
+  tasks.forEach((task) => {
+    if (!result[task.type]) {
+      result[task.type] = [];
+    }
+
+    result[task.type].push(task);
+  });
+
+  return result;
+};

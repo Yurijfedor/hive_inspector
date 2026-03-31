@@ -135,7 +135,11 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
 }
 
 export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
+  console.log('🚀 START LOAD HIVES');
+
   const snap = await database().ref(`users/${uid}/hives`).once('value');
+
+  console.log('✅ SNAP RECEIVED');
 
   const data = snap.val();
   if (!data) return [];
@@ -144,6 +148,7 @@ export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
 
   for (const hiveNumber in data) {
     const hive = data[hiveNumber];
+    console.log('🐝 HIVE:', hiveNumber, hive);
 
     // 🧠 last inspection
     let lastInspection = null;

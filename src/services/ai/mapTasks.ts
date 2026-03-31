@@ -10,7 +10,7 @@ type LLMResponse =
 export const mapLLMTasksToDomain = (data: LLMResponse): Task[] => {
   // const now = Date.now();
 
-  const allowedTypes = ['FEEDING', 'INSPECTION', 'TREATMENT'];
+  const allowedTypes = ['FEEDING', 'INSPECTION', 'DISEASE', 'SWARM', 'SPLIT'];
 
   const result: Task[] = [];
 
