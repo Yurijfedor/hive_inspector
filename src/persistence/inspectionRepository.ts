@@ -232,3 +232,40 @@ export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
 
   return result;
 }
+
+export async function loadInspectionsByHive(
+  uid: string,
+  hiveNumber: number,
+): Promise<Inspection[]> {
+  try {
+    const snap = await database()
+      .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
+      .once('value');
+
+    const data = snap.val();
+    if (!data) return [];
+
+    const inspections: Inspection[] = [];
+
+    for (const inspectionId in data) {
+      const i = data[inspectionId];
+
+      inspections.push({
+        id: inspectionId,
+        hiveNumber,
+        date: i.createdAt ?? 0,
+        strength: i.strength ?? 0,
+        honeyKg: i.honeyKg ?? 0,
+        hasQueen: i.queen === 'present',
+      });
+    }
+
+    // 🔥 ВАЖЛИВО — одразу сортуємо тут
+    inspections.sort((a, b) => b.date - a.date);
+
+    return inspections;
+  } catch (e) {
+    console.log('❌ LOAD INSPECTIONS BY HIVE FAILED', e);
+    return [];
+  }
+}

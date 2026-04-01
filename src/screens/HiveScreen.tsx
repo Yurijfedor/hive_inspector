@@ -1,24 +1,29 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useRoute} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
 
+import {useAuth} from '../auth/AuthProvider';
 import {HiveContext} from '../types/hive';
-import {loadHiveContexts} from '../persistence/inspectionRepository';
+import {
+  loadHiveContexts,
+  loadInspectionsByHive,
+} from '../persistence/inspectionRepository';
 
 export const HiveScreen = () => {
   const route = useRoute<any>();
   const {hiveNumber} = route.params;
 
+  const {user} = useAuth();
+  const uid = user?.uid;
+
   const [context, setContext] = useState<HiveContext | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!uid) return;
+
     const load = async () => {
       try {
-        const uid = auth().currentUser?.uid;
-        if (!uid) return;
-
         const contexts = await loadHiveContexts(uid);
 
         const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
@@ -32,7 +37,15 @@ export const HiveScreen = () => {
     };
 
     load();
-  }, [hiveNumber]);
+  }, [hiveNumber, uid]);
+
+  // 🧪 Тест історії (поки що лог)
+  const handleOpenHistory = async () => {
+    if (!uid) return;
+
+    const data = await loadInspectionsByHive(uid, hiveNumber);
+    console.log('📜 HIVE HISTORY:', data);
+  };
 
   if (loading) {
     return (
@@ -45,6 +58,11 @@ export const HiveScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
+
+      {/* 📜 КНОПКА ІСТОРІЇ */}
+      <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
+        <Text style={styles.buttonText}>📜 Історія</Text>
+      </TouchableOpacity>
 
       {/* 🧠 Стан */}
       <Text style={styles.section}>Стан</Text>
@@ -105,5 +123,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
     marginBottom: 4,
+  },
+
+  button: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#222',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
