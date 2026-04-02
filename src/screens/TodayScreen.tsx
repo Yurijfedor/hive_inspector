@@ -5,18 +5,28 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/types';
+import {LineChart} from 'react-native-chart-kit';
 
+import {RootStackParamList} from '../navigation/types';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 import {Task} from '../types/task';
+
+import {
+  buildApiaryDynamics,
+  getApiaryStatus,
+} from '../services/analytics/apiaryAnalytics';
+import {loadInspections} from '../persistence/inspectionRepository';
 
 import {buildTimeline} from '../services/tasks/buildTimeline';
 import {getRelativeDateLabel} from '../services/tasks/getRelativeDateLabel';
 import {formatDate, groupTasksByType} from '../services/tasks/taskUtils';
 import {getTaskTypeLabel} from '../services/tasks/getTaskTypeLabel';
+
+import {useAuth} from '../auth/AuthProvider';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -24,24 +34,67 @@ export const TodayScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const repo = useMemo(() => new TaskRepository(), []);
 
+  const {user} = useAuth();
+  const uid = user?.uid;
+
   const [tasks, setTasks] = useState<Task[]>([]);
-  console.log('📅 TASKS:', tasks);
+  const [chartData, setChartData] = useState<any>(null);
+  const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
+
+  const screenWidth = Dimensions.get('window').width;
 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
+  // 📦 LOAD TASKS
   useEffect(() => {
     const load = async () => {
       const data = await repo.getAll();
-      console.log('📅 DATA:', data);
-
       setTasks(data);
     };
     load();
   }, [repo]);
 
-  const timeline = buildTimeline(tasks, 5);
-  console.log('📅 TIMELINE:', timeline);
+  // 📊 LOAD APIARY ANALYTICS
+  useEffect(() => {
+    if (!uid) return;
 
+    const loadAnalytics = async () => {
+      try {
+        const inspections = await loadInspections(uid);
+
+        const points = buildApiaryDynamics(inspections);
+
+        if (points.length === 0) return;
+
+        const chart = {
+          labels: points.map((p) => p.date.slice(0, 5)),
+          datasets: [
+            {
+              data: points.map((p) => p.avgStrength),
+              color: () => '#4CAF50',
+              strokeWidth: 2,
+            },
+            {
+              data: points.map((p) => p.avgHoney),
+              color: () => '#FFC107',
+              strokeWidth: 2,
+            },
+          ],
+          legend: ['Середня сила', 'Середній мед'],
+        };
+
+        setChartData(chart);
+        setStatus(getApiaryStatus(points));
+      } catch (e) {
+        console.log('❌ ANALYTICS ERROR', e);
+      }
+    };
+
+    loadAnalytics();
+  }, [uid]);
+
+  // 📅 TASKS LOGIC
+  const timeline = buildTimeline(tasks, 5);
   const today = buildTimeline(tasks, 1)[0];
 
   const handleOpenDay = (day: {date: number}) => {
@@ -53,15 +106,13 @@ export const TodayScreen = () => {
   };
 
   const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
-  console.log('📅 SELECTED DAY TASKS:', selectedTasks);
-
   const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
-  console.log('📂 GROUPED TASKS:', grouped);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>🐝 Сьогодні</Text>
 
+      {/* 🧾 TODAY TASKS */}
       {today.tasks.length === 0 ? (
         <Text style={styles.empty}>✅ Сьогодні задач немає</Text>
       ) : (
@@ -89,7 +140,7 @@ export const TodayScreen = () => {
         </TouchableOpacity>
       ))}
 
-      {/* 📋 Selected day tasks */}
+      {/* 📋 SELECTED DAY */}
       {selectedTasks && selectedDay && (
         <View style={styles.details}>
           <Text style={styles.sectionTitle}>
@@ -118,8 +169,32 @@ export const TodayScreen = () => {
         </View>
       )}
 
-      {/* 📆 Calendar link */}
       <Text style={styles.link}>📆 Відкрити календар</Text>
+
+      {/* 🟢 STATUS */}
+      <View style={styles.statusBox}>
+        <Text style={styles.statusText}>
+          {status === 'good' && '🟢 Пасіка в хорошому стані'}
+          {status === 'warning' && '🟡 Пасіка слабшає'}
+          {status === 'critical' && '🔴 КРИТИЧНЕ падіння сили!'}
+        </Text>
+      </View>
+
+      {/* 📊 CHART */}
+      {chartData && (
+        <LineChart
+          data={chartData}
+          width={screenWidth - 32}
+          height={220}
+          chartConfig={{
+            backgroundGradientFrom: '#fff',
+            backgroundGradientTo: '#fff',
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+          }}
+          bezier
+        />
+      )}
     </ScrollView>
   );
 };
@@ -176,5 +251,16 @@ const styles = StyleSheet.create({
     padding: 6,
     fontWeight: 'bold',
     color: '#1976d2',
+  },
+
+  statusBox: {
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#eef6ff',
+    marginTop: 12,
+  },
+
+  statusText: {
+    fontWeight: '600',
   },
 });
