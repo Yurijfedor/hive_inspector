@@ -8,6 +8,7 @@ import {TasksScreen} from '../screens/TasksScreen';
 import {TasksListScreen} from '../screens/TasksListScreen';
 import {TodayScreen} from '../screens/TodayScreen';
 import {HiveScreen} from '../screens/HiveScreen';
+import {InspectionHistoryScreen} from '../screens/InspectionHistoryScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -29,6 +30,10 @@ export const AppNavigator = () => {
           options={{title: '🐝 Сьогодні'}}
         />
         <Stack.Screen name="Hive" component={HiveScreen} />
+        <Stack.Screen
+          name="InspectionHistory"
+          component={InspectionHistoryScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

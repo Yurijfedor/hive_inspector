@@ -1,16 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {HiveContext} from '../types/hive';
-import {
-  loadHiveContexts,
-  loadInspectionsByHive,
-} from '../persistence/inspectionRepository';
+import {loadHiveContexts} from '../persistence/inspectionRepository';
 
 export const HiveScreen = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const {hiveNumber} = route.params;
 
   const {user} = useAuth();
@@ -40,11 +38,10 @@ export const HiveScreen = () => {
   }, [hiveNumber, uid]);
 
   // 🧪 Тест історії (поки що лог)
-  const handleOpenHistory = async () => {
-    if (!uid) return;
-
-    const data = await loadInspectionsByHive(uid, hiveNumber);
-    console.log('📜 HIVE HISTORY:', data);
+  const handleOpenHistory = () => {
+    navigation.navigate('InspectionHistory', {
+      hiveNumber,
+    });
   };
 
   if (loading) {
@@ -58,11 +55,6 @@ export const HiveScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
-
-      {/* 📜 КНОПКА ІСТОРІЇ */}
-      <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
-        <Text style={styles.buttonText}>📜 Історія</Text>
-      </TouchableOpacity>
 
       {/* 🧠 Стан */}
       <Text style={styles.section}>Стан</Text>
@@ -103,6 +95,11 @@ export const HiveScreen = () => {
       <Text>Остання сила: {context?.meta?.lastStrength ?? '—'}</Text>
 
       <Text>Підгодівля: {context?.feeding?.hasFeeding ? 'є' : 'немає'}</Text>
+
+      {/* 📜 КНОПКА ІСТОРІЇ */}
+      <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
+        <Text style={styles.buttonText}>📜 Історія</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -126,9 +123,9 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    marginBottom: 16,
+    marginTop: 25,
     padding: 12,
-    backgroundColor: '#222',
+    backgroundColor: '#02d413',
     borderRadius: 8,
     alignItems: 'center',
   },
