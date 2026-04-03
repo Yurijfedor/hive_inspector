@@ -25,6 +25,18 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         },
       };
 
+    case 'UPDATE_QUEEN':
+      return {
+        type: 'UPDATE_QUEEN',
+        hiveNumber: effect.hiveNumber,
+        payload: {
+          status: effect.payload.status,
+          breed: effect.payload.breed,
+          birthYear: effect.payload.birthYear,
+          marked: effect.payload.marked,
+        },
+      };
+
     case 'HONEY_RECORDED':
       return {
         type: 'UPDATE_INSPECTION',

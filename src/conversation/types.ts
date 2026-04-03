@@ -14,6 +14,16 @@ export type FlowEffect =
       };
     }
   | {
+      type: 'UPDATE_QUEEN';
+      hiveNumber: number;
+      payload: {
+        status: 'present' | 'absent' | 'unknown';
+        breed?: 'карніка' | 'бакфаст' | 'місцева' | 'невідомо';
+        birthYear?: number;
+        marked?: boolean;
+      };
+    }
+  | {
       type: 'HONEY_RECORDED';
       payload: {
         hiveNumber: number;

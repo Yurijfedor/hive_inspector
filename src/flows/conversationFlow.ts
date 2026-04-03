@@ -30,6 +30,8 @@ export type StepDefinition<TSession> = {
 
   retryMessage?: string;
 
+  shouldSkip?: (session: TSession, context: any) => boolean;
+
   apply: (
     session: TSession,
     value: unknown,

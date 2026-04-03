@@ -1,5 +1,5 @@
 import {inspectionFlow} from './inspectionDefinition';
-import {executeStep} from '../flowRuntime';
+import {executeStep, resolveStep} from '../flowRuntime';
 import {FlowEffect} from '../../conversation/types';
 
 export type InspectionSession = {
@@ -8,6 +8,8 @@ export type InspectionSession = {
   data: {
     strength?: number;
     queen?: 'present' | 'absent';
+    queenBreed?: string;
+    queenYear?: number;
     honeyKg?: number;
   };
 };
@@ -42,15 +44,31 @@ export function applyAnswer(
   session: InspectionSession,
   value: unknown,
 ): ApplyAnswerResult {
-  const step = inspectionFlow.steps[session.stepIndex];
+  const resolved = resolveStep(inspectionFlow, session);
 
-  const result = executeStep(step, session, value);
+  if (!resolved) {
+    return {
+      type: 'INVALID',
+      message: 'Flow завершено',
+      session,
+    };
+  }
+
+  const {step, index} = resolved;
+
+  // 🔥 ВАЖЛИВО — синхронізація stepIndex
+  const alignedSession: InspectionSession = {
+    ...session,
+    stepIndex: index,
+  };
+
+  const result = executeStep(step, alignedSession, value);
 
   if (result.type === 'RETRY') {
     return {
       type: 'INVALID',
       message: result.message,
-      session,
+      session: alignedSession,
     };
   }
 
@@ -58,7 +76,7 @@ export function applyAnswer(
     type: 'NEXT',
     session: {
       ...result.session,
-      stepIndex: session.stepIndex + 1,
+      stepIndex: index + 1,
     },
     effects: result.effects,
   };

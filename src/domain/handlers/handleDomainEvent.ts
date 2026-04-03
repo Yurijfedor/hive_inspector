@@ -5,6 +5,7 @@ import {handleFeedingEffect} from './feedingEffectHandler';
 import {handleDiseaseEffect} from './diseaseEffectHandler';
 import {handleSplitEffect} from './splitEffectHandler';
 import {handleTaskEffect} from './taskEffectHandler';
+import {handleQueenEffect} from './queenEffectHandler';
 
 export async function handleDomainEvent(uid: string, event: DomainEvent) {
   switch (event.type) {
@@ -54,5 +55,13 @@ export async function handleDomainEvent(uid: string, event: DomainEvent) {
     case 'TASKS_CREATED_FROM_AI':
     case 'TASK_COMPLETED':
       return handleTaskEffect(uid, event);
+
+    // -------------------------
+    // QUEEN
+    // -------------------------
+
+    case 'UPDATE_QUEEN':
+    case 'STOP_QUEEN':
+      return handleQueenEffect(uid, event);
   }
 }

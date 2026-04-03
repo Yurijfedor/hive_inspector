@@ -1,5 +1,5 @@
 import {getFlow} from '../registry/flowRegistry';
-import {executeStep} from '../../flows/flowRuntime';
+import {executeStep, resolveStep} from '../../flows/flowRuntime';
 
 import {ConversationResult, RuntimeState, FlowInstance} from '../types';
 
@@ -108,6 +108,24 @@ export class ConversationDriver {
     this.askCurrentStep();
   }
 
+  // private resolveStep(flow: any, session: any) {
+  //   let index = session.stepIndex;
+
+  //   while (index < flow.steps.length) {
+  //     const step = flow.steps[index];
+
+  //     // 🔥 поки без context (MVP безпечно)
+  //     if (step.shouldSkip?.(session, {})) {
+  //       index++;
+  //       continue;
+  //     }
+
+  //     return {step, index};
+  //   }
+
+  //   return null;
+  // }
+
   // --------------------------------------------------
   // RESTORE
   // --------------------------------------------------
@@ -178,7 +196,18 @@ export class ConversationDriver {
     const flow = getFlow(active.flowId);
     if (!flow) return;
 
-    const step = flow.steps[active.session.stepIndex];
+    // const step = flow.steps[active.session.stepIndex];
+    const resolved = resolveStep(flow, active.session);
+
+    if (!resolved) {
+      this.finishActiveFlow();
+      return;
+    }
+
+    const {step, index} = resolved;
+
+    // 🔥 синхронізуємо index
+    active.session.stepIndex = index;
 
     if (!step) {
       this.finishActiveFlow();
@@ -321,7 +350,16 @@ export class ConversationDriver {
       const flow = getFlow(active.flowId);
       if (!flow) return;
 
-      const step = flow.steps[active.session.stepIndex];
+      // const step = flow.steps[active.session.stepIndex];
+
+      const resolved = resolveStep(flow, active.session);
+
+      if (!resolved) return;
+
+      const {step, index} = resolved;
+
+      // 🔥 критично
+      active.session.stepIndex = index;
 
       const result = executeStep(step, active.session, text);
       console.log('🧪 STEP RESULT:', result);
@@ -378,7 +416,7 @@ export class ConversationDriver {
           // якщо завершився доменний flow — завершуємо всю розмову
 
           const hasReplaceFlow = (result.runtimeEffects ?? []).some(
-            e => e.type === 'REPLACE_FLOW',
+            (e) => e.type === 'REPLACE_FLOW',
           );
 
           if (active.flowId === 'inspection' && !hasReplaceFlow) {

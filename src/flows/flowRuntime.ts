@@ -100,3 +100,45 @@ export function executeStep<TSession>(
     runtimeEffects,
   };
 }
+
+export function getNextStep<TSession>(
+  flow: ConversationFlow<TSession>,
+  session: TSession & {stepIndex: number},
+  context: any,
+): {step: StepDefinition<TSession>; index: number} | null {
+  let index = session.stepIndex;
+
+  while (index < flow.steps.length) {
+    const step = flow.steps[index];
+
+    if (step.shouldSkip?.(session, context)) {
+      index++;
+      continue;
+    }
+
+    return {step, index};
+  }
+
+  return null;
+}
+
+export function resolveStep<TSession>(
+  flow: ConversationFlow<TSession>,
+  session: TSession & {stepIndex: number},
+  context: any = {},
+): {step: StepDefinition<TSession>; index: number} | null {
+  let index = session.stepIndex;
+
+  while (index < flow.steps.length) {
+    const step = flow.steps[index];
+
+    if (step.shouldSkip?.(session, context)) {
+      index++;
+      continue;
+    }
+
+    return {step, index};
+  }
+
+  return null;
+}
