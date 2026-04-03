@@ -3,14 +3,8 @@ export type Task = {
   hiveNumber: number;
   title: string;
 
-  type:
-    | 'FEEDING'
-    | 'INSPECTION'
-    | 'DISEASE' // 🔥 було TREATMENT
-    | 'SWARM' // 🔥 нове
-    | 'SPLIT' // 🔥 нове
-    | 'OTHER';
-  date: number; // 🔥 було string → стало timestamp
+  type: 'FEEDING' | 'INSPECTION' | 'DISEASE' | 'SWARM' | 'SPLIT' | 'OTHER';
+  date: number;
 
   completed: boolean;
 
