@@ -4,8 +4,7 @@ import {FeedingEvent} from './feedingEvents';
 import {DiseaseEvent} from './diseaseEvents';
 import {SplitEvent} from './splitEvents';
 import {TaskEvent} from './taskEvents';
-
-// (потім додаси SwarmEvent, FeedingEvent і т.д.)
+import {QueenEvent} from './queenEvents';
 
 export type DomainEvent =
   | InspectionEvent
@@ -13,4 +12,5 @@ export type DomainEvent =
   | FeedingEvent
   | DiseaseEvent
   | SplitEvent
-  | TaskEvent;
+  | TaskEvent
+  | QueenEvent;
