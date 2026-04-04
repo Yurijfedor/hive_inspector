@@ -175,6 +175,14 @@ export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
     result.push({
       hiveNumber: Number(hiveNumber),
 
+      queen: hive.queen
+        ? {
+            status: hive.queen.status,
+            breed: hive.queen.breed,
+            birthYear: hive.queen.birthYear,
+          }
+        : undefined,
+
       lastInspection,
 
       // 🟡 FEEDING

@@ -25,17 +25,22 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         },
       };
 
-    case 'UPDATE_QUEEN':
-      return {
-        type: 'UPDATE_QUEEN',
-        hiveNumber: effect.hiveNumber,
-        payload: {
+    case 'UPDATE_QUEEN': {
+      const payload = Object.fromEntries(
+        Object.entries({
           status: effect.payload.status,
           breed: effect.payload.breed,
           birthYear: effect.payload.birthYear,
           marked: effect.payload.marked,
-        },
+        }).filter(([, v]) => v !== undefined),
+      );
+
+      return {
+        type: 'UPDATE_QUEEN',
+        hiveNumber: effect.hiveNumber,
+        payload,
       };
+    }
 
     case 'HONEY_RECORDED':
       return {

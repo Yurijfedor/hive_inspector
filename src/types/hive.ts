@@ -1,5 +1,14 @@
+export type HiveQueen = {
+  status?: 'present' | 'absent';
+  breed?: string;
+  birthYear?: number;
+};
+
 export type HiveContext = {
   hiveNumber: number;
+
+  // 🔥 НОВЕ
+  queen?: HiveQueen;
 
   lastInspection: {
     date: number;
@@ -22,13 +31,13 @@ export type HiveContext = {
     lastSwarmCheck?: number;
   };
 
-  // 🟣 DISEASE (FIX 🔥)
+  // 🟣 DISEASE
   disease?: {
     hasDiseaseSigns: boolean;
     lastDiseaseCheck?: number;
   };
 
-  // 🔵 SPLIT (НОВЕ 🔥)
+  // 🔵 SPLIT
   split?: {
     isSplit: boolean;
     usedForSplits: boolean;
@@ -37,7 +46,7 @@ export type HiveContext = {
     lastSplitActionAt?: number;
   };
 
-  // ⚫ META (розширюємо трохи)
+  // ⚫ META
   meta?: {
     lastInspectionAt?: number;
     lastFeedingAt?: number;

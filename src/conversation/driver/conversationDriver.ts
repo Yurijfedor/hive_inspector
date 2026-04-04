@@ -11,6 +11,8 @@ import {detectFlowIntent} from '../intents/flowIntents';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
+import {loadHiveContexts} from '../../persistence/inspectionRepository';
+import {HiveContext} from '../../types/hive';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -22,9 +24,12 @@ export class ConversationDriver {
 
   private mutationQueue: Promise<void> = Promise.resolve();
 
+  private hiveContexts: HiveContext[] = [];
+
   constructor(
     bus: EventBus<ConversationEvent>,
     persistence: RuntimePersistence,
+    private userId: string,
   ) {
     this.bus = bus;
     this.persistence = persistence;
@@ -40,11 +45,6 @@ export class ConversationDriver {
     return next;
   }
 
-  // private async replaceFlowInternal(flowId: string, ...args: any[]) {
-  //   await this.finishActiveFlow();
-  //   await this.pushFlow(flowId, ...args);
-  // }
-
   private async replaceFlowInternal(flowId: string, ...args: any[]) {
     if (this.state.mode !== 'RUNNING') return;
 
@@ -56,7 +56,30 @@ export class ConversationDriver {
       throw new Error(`Flow ${flowId} not found`);
     }
 
-    const session = flow.createSession(...args);
+    // const session = flow.createSession(...args);
+
+    let session = flow.createSession(...args);
+
+    if (flowId === 'inspection') {
+      const hiveNumber = args[0];
+
+      if (hiveNumber) {
+        await this.ensureHiveContexts();
+
+        const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
+
+        session = {
+          ...session,
+          hiveContext: hive
+            ? {
+                queen: hive.queen,
+              }
+            : undefined,
+        };
+
+        console.log('🐝 INJECTED HIVE CONTEXT (REPLACE)', session.hiveContext);
+      }
+    }
 
     const instance: FlowInstance = {
       flowId,
@@ -108,23 +131,18 @@ export class ConversationDriver {
     this.askCurrentStep();
   }
 
-  // private resolveStep(flow: any, session: any) {
-  //   let index = session.stepIndex;
+  private async ensureHiveContexts(): Promise<void> {
+    if (this.hiveContexts.length > 0) return;
 
-  //   while (index < flow.steps.length) {
-  //     const step = flow.steps[index];
-
-  //     // 🔥 поки без context (MVP безпечно)
-  //     if (step.shouldSkip?.(session, {})) {
-  //       index++;
-  //       continue;
-  //     }
-
-  //     return {step, index};
-  //   }
-
-  //   return null;
-  // }
+    try {
+      console.log('📦 Loading hive contexts...');
+      this.hiveContexts = await loadHiveContexts(this.userId);
+      console.log('✅ Hive contexts loaded:', this.hiveContexts.length);
+    } catch (e) {
+      console.log('❌ Failed to load hive contexts', e);
+      this.hiveContexts = [];
+    }
+  }
 
   // --------------------------------------------------
   // RESTORE
@@ -154,7 +172,31 @@ export class ConversationDriver {
       throw new Error(`Flow ${flowId} not found`);
     }
 
-    const session = flow.createSession(...args);
+    // const session = flow.createSession(...args);
+
+    let session = flow.createSession(...args);
+
+    // 🔥 інжектимо context тільки для inspection
+    if (flowId === 'inspection') {
+      const hiveNumber = args[0];
+
+      if (hiveNumber) {
+        await this.ensureHiveContexts();
+
+        const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
+
+        session = {
+          ...session,
+          hiveContext: hive
+            ? {
+                queen: hive.queen,
+              }
+            : undefined,
+        };
+
+        console.log('🐝 INJECTED HIVE CONTEXT', session.hiveContext);
+      }
+    }
 
     const instance: FlowInstance = {
       flowId,

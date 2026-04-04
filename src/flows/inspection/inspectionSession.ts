@@ -2,9 +2,29 @@ import {inspectionFlow} from './inspectionDefinition';
 import {executeStep, resolveStep} from '../flowRuntime';
 import {FlowEffect} from '../../conversation/types';
 
+/**
+ * 🔥 Hive context (дані з Firebase)
+ */
+type HiveQueen = {
+  status?: 'present' | 'absent';
+  breed?: string;
+  birthYear?: number;
+};
+
+type HiveContext = {
+  queen?: HiveQueen;
+};
+
+/**
+ * 🧠 Inspection session
+ */
 export type InspectionSession = {
   hiveNumber: number;
   stepIndex: number;
+
+  // 🔥 НОВЕ — контекст вулика
+  hiveContext?: HiveContext;
+
   data: {
     strength?: number;
     queen?: 'present' | 'absent';
@@ -28,11 +48,16 @@ export type ApplyAnswerResult =
 
 /**
  * Create new inspection session
+ * 🔥 тепер приймає hiveContext
  */
-export function createInspectionSession(hiveNumber: number): InspectionSession {
+export function createInspectionSession(
+  hiveNumber: number,
+  hiveContext?: HiveContext,
+): InspectionSession {
   return {
     hiveNumber,
     stepIndex: 0,
+    hiveContext, // 👈 прокинули контекст
     data: {},
   };
 }

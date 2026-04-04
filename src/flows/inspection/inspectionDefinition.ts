@@ -108,19 +108,27 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       question: 'Яка порода матки? Карніка, бакфаст чи місцева?',
 
       shouldSkip: (session) => {
-        return session.data.queen !== 'present';
+        // ❌ якщо немає матки
+        if (session.data.queen !== 'present') return true;
+
+        // ✅ якщо вже ввели в цьому flow → не skip
+        if (session.data.queenBreed) return false;
+
+        // 🔥 якщо є в Firebase → skip
+        if (session.hiveContext?.queen?.breed) return true;
+
+        return false;
       },
 
       normalize: (v) => parseQueenBreed(v),
 
-      // validate: isQueenBreed,
       validate: (v) => v !== null,
 
       retryMessage: 'Скажіть: карніка, бакфаст або місцева.',
 
       apply: (session, value) => {
         if (!isQueenBreed(value)) {
-          return session; // або кинути помилку, але validate вже це ловить
+          return session;
         }
 
         return {
@@ -154,7 +162,13 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       question: 'Якого року матка?',
 
       shouldSkip: (session) => {
-        return session.data.queen !== 'present';
+        if (session.data.queen !== 'present') return true;
+
+        if (session.data.queenYear) return false;
+
+        if (session.hiveContext?.queen?.birthYear) return true;
+
+        return false;
       },
 
       normalize: (v) => parseYear(v),
