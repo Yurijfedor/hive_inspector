@@ -134,7 +134,9 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
   }
 }
 
-export async function loadHiveContexts(uid: string): Promise<HiveContext[]> {
+export async function loadHiveContextsFromFirebase(
+  uid: string,
+): Promise<HiveContext[]> {
   console.log('🚀 START LOAD HIVES');
 
   const snap = await database().ref(`users/${uid}/hives`).once('value');

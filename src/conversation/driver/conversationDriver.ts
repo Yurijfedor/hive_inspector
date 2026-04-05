@@ -11,7 +11,7 @@ import {detectFlowIntent} from '../intents/flowIntents';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
-import {loadHiveContexts} from '../../persistence/inspectionRepository';
+import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {HiveContext} from '../../types/hive';
 
 export class ConversationDriver {
@@ -136,7 +136,8 @@ export class ConversationDriver {
 
     try {
       console.log('📦 Loading hive contexts...');
-      this.hiveContexts = await loadHiveContexts(this.userId);
+      console.log('👤 UID:', this.userId);
+      this.hiveContexts = await loadHiveContextsFromFirebase(this.userId);
       console.log('✅ Hive contexts loaded:', this.hiveContexts.length);
     } catch (e) {
       console.log('❌ Failed to load hive contexts', e);

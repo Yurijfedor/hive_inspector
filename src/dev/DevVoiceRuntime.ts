@@ -1,6 +1,7 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
 import Tts from 'react-native-tts';
 
+// import {useAuth} from '../auth/AuthProvider';
 import {EventBus} from '../conversation/driver/eventBus';
 import {ConversationDriver} from '../conversation/driver/conversationDriver';
 import {ConversationEvent} from '../conversation/driver/events';
@@ -23,7 +24,7 @@ export class DevVoiceRuntime {
 
   private persistence = new InMemoryRuntimePersistence();
 
-  private driver = new ConversationDriver(this.bus, this.persistence);
+  private driver = new ConversationDriver(this.bus, this.persistence, this.uid);
   private ttsResolve: (() => void) | null = null;
   private ttsInitialized = false;
   private initTts() {
