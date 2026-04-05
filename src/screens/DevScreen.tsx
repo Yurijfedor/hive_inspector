@@ -3,8 +3,8 @@ import {
   View,
   Text,
   Button,
-  NativeModules,
-  NativeEventEmitter,
+  // NativeModules,
+  // NativeEventEmitter,
 } from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
@@ -21,14 +21,16 @@ import {TaskRepository} from '../domain/repositories/taskRepository';
 // import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
+import {HiveContextRepository} from '../persistence/hiveContextRepository';
 
 export const DevScreen = () => {
   const {user} = useAuth();
-  const {Vosk} = NativeModules;
+  // const {Vosk} = NativeModules;
 
   const navigation = useNavigation<any>(); // 👈 ДОДАЛИ
 
-  const voskEmitter = new NativeEventEmitter(Vosk);
+  // const voskEmitter = new NativeEventEmitter(Vosk);
+
   if (!user) {
     console.log('❌ Not authenticated');
     return;
@@ -60,43 +62,14 @@ export const DevScreen = () => {
     }
   };
 
-  const testVosk = async () => {
-    console.log('🧪 TEST START');
+  const testRepoContext = async () => {
+    const repoContext = new HiveContextRepository();
 
-    // const grammar = [...baseGrammar, ...hiveNumbers];
+    await repoContext.saveAll([{hiveNumber: 1} as any]);
 
-    try {
-      await Vosk.loadModel('model');
-      console.log('MODEL LOADED');
+    const data = await repoContext.loadAll();
 
-      voskEmitter.removeAllListeners('onResult');
-      voskEmitter.removeAllListeners('onPartialResult');
-
-      voskEmitter.addListener('onResult', async (e) => {
-        console.log('RESULT RAW:', JSON.stringify(e));
-
-        const text = e?.text ?? e?.result?.text ?? '';
-
-        console.log('👤 USER:', text);
-
-        if (!text) return;
-
-        await runtime?.handleTextInput(text);
-      });
-
-      voskEmitter.addListener('onPartialResult', (e) => {
-        console.log('PARTIAL:', e.partial);
-      });
-
-      await Vosk.start({
-        sampleRate: 16000,
-        grammar: ['огляд', 'огляду', 'годівля', 'годувати', 'годування'],
-      });
-
-      console.log('🎤 LISTENING...');
-    } catch (e) {
-      console.log('❌ ERROR:', e);
-    }
+    console.log(data);
   };
 
   const testAI = async () => {
@@ -147,7 +120,7 @@ export const DevScreen = () => {
       </View>
 
       <View style={{marginTop: 20}}>
-        <Button title="Test Vosk" onPress={testVosk} />
+        <Button title="Test Repo Context" onPress={testRepoContext} />
       </View>
 
       <View style={{marginTop: 20}}>
