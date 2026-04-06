@@ -4,7 +4,7 @@ import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {HiveContext} from '../types/hive';
-import {loadHiveContexts} from '../persistence/inspectionRepository';
+import {loadHiveContextsFromFirebase} from '../persistence/inspectionRepository';
 
 export const HiveScreen = () => {
   const route = useRoute<any>();
@@ -22,7 +22,7 @@ export const HiveScreen = () => {
 
     const load = async () => {
       try {
-        const contexts = await loadHiveContexts(uid);
+        const contexts = await loadHiveContextsFromFirebase(uid);
 
         const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
 

@@ -1,6 +1,5 @@
 import {RuntimePersistence} from '../conversation/driver/runtimePersistence';
 import {RuntimeState} from '../conversation/types';
-
 import database from '@react-native-firebase/database';
 
 export class FirebaseRuntimePersistence implements RuntimePersistence {
@@ -9,22 +8,35 @@ export class FirebaseRuntimePersistence implements RuntimePersistence {
   async save(snapshot: RuntimeState) {
     console.log('☁️ FIREBASE SAVE');
 
-    await database().ref(`users/${this.uid}/runtime`).set(snapshot);
+    try {
+      await database().ref(`users/${this.uid}/runtime`).set(snapshot);
+    } catch (e) {
+      console.log('❌ FIREBASE SAVE FAILED', e);
+    }
   }
 
   async load(): Promise<RuntimeState | null> {
     console.log('☁️ FIREBASE LOAD');
 
-    const snap = await database().ref(`users/${this.uid}/runtime`).get();
+    try {
+      const snap = await database().ref(`users/${this.uid}/runtime`).get();
 
-    if (!snap.exists()) return null;
+      if (!snap.exists()) return null;
 
-    return snap.val();
+      return snap.val();
+    } catch (e) {
+      console.log('❌ FIREBASE LOAD FAILED', e);
+      return null;
+    }
   }
 
   async clear() {
     console.log('☁️ FIREBASE CLEAR');
 
-    await database().ref(`users/${this.uid}/runtime`).remove();
+    try {
+      await database().ref(`users/${this.uid}/runtime`).remove();
+    } catch (e) {
+      console.log('❌ FIREBASE CLEAR FAILED', e);
+    }
   }
 }

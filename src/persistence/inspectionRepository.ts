@@ -144,18 +144,24 @@ export async function loadHiveContextsFromFirebase(
   console.log('✅ SNAP RECEIVED');
 
   const data = snap.val();
+
   if (!data) return [];
 
   const result: HiveContext[] = [];
 
   for (const hiveNumber in data) {
     const hive = data[hiveNumber];
+
+    if (!hive) {
+      console.warn('⚠️ SKIP NULL HIVE:', hiveNumber);
+      continue;
+    }
+
     console.log('🐝 HIVE:', hiveNumber, hive);
 
-    // 🧠 last inspection
     let lastInspection = null;
 
-    if (hive.inspections) {
+    if (hive?.inspections) {
       const inspectionsArray = Object.values(
         hive.inspections,
       ) as InspectionRaw[];
@@ -176,7 +182,6 @@ export async function loadHiveContextsFromFirebase(
 
     result.push({
       hiveNumber: Number(hiveNumber),
-
       queen: hive.queen
         ? {
             status: hive.queen.status,
@@ -184,7 +189,6 @@ export async function loadHiveContextsFromFirebase(
             birthYear: hive.queen.birthYear,
           }
         : undefined,
-
       lastInspection,
 
       // 🟡 FEEDING

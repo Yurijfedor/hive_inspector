@@ -23,10 +23,8 @@ export class HybridRuntimePersistence implements RuntimePersistence {
     }
 
     try {
-      const cloud = await Promise.race([
-        this.cloud.load(),
-        new Promise<null>(resolve => setTimeout(() => resolve(null), 500)),
-      ]);
+      // ❌ БЕЗ race
+      const cloud = await this.cloud.load();
 
       if (cloud) {
         console.log('☁️ runtime restored from CLOUD');

@@ -6,6 +6,7 @@ import {
   // NativeModules,
   // NativeEventEmitter,
 } from 'react-native';
+import database from '@react-native-firebase/database';
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -21,7 +22,13 @@ import {TaskRepository} from '../domain/repositories/taskRepository';
 // import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
-import {HiveContextRepository} from '../persistence/hiveContextRepository';
+// import {HiveContextRepository} from '../persistence/hiveContextRepository';
+// import {syncHiveContexts} from '../sync/syncHiveContexts';
+// import {waitForConnection} from '../firebase/waitForConnection';
+// import {
+//   loadHiveContextsFromFirebase,
+//   loadInspections,
+// } from '../persistence/inspectionRepository';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -62,14 +69,17 @@ export const DevScreen = () => {
     }
   };
 
-  const testRepoContext = async () => {
-    const repoContext = new HiveContextRepository();
+  const testHiveSync = async () => {
+    const snap = await database().ref(`users/${userId}/hives`).once('value');
 
-    await repoContext.saveAll([{hiveNumber: 1} as any]);
+    const raw = (snap.val() ?? {}) as Record<string, any>;
 
-    const data = await repoContext.loadAll();
+    const hives = Object.entries(raw).map(([hiveNumber, hive]) => ({
+      hiveNumber: Number(hiveNumber),
+      ...hive,
+    }));
 
-    console.log(data);
+    console.log('🐝 HIVES:', hives);
   };
 
   const testAI = async () => {
@@ -120,7 +130,7 @@ export const DevScreen = () => {
       </View>
 
       <View style={{marginTop: 20}}>
-        <Button title="Test Repo Context" onPress={testRepoContext} />
+        <Button title="Test Hive Sync" onPress={testHiveSync} />
       </View>
 
       <View style={{marginTop: 20}}>

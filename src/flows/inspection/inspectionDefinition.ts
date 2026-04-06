@@ -109,10 +109,10 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       shouldSkip: (session) => {
         // ❌ якщо немає матки
-        if (session.data.queen !== 'present') return true;
+        if (session.data?.queen !== 'present') return true;
 
         // ✅ якщо вже ввели в цьому flow → не skip
-        if (session.data.queenBreed) return false;
+        if (session.data?.queenBreed) return false;
 
         // 🔥 якщо є в Firebase → skip
         if (session.hiveContext?.queen?.breed) return true;
@@ -162,9 +162,9 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       question: 'Якого року матка?',
 
       shouldSkip: (session) => {
-        if (session.data.queen !== 'present') return true;
+        if (session.data?.queen !== 'present') return true;
 
-        if (session.data.queenYear) return false;
+        if (session.data?.queenYear) return false;
 
         if (session.hiveContext?.queen?.birthYear) return true;
 

@@ -7,7 +7,6 @@ export type HiveQueen = {
 export type HiveContext = {
   hiveNumber: number;
 
-  // 🔥 НОВЕ
   queen?: HiveQueen;
 
   lastInspection: {

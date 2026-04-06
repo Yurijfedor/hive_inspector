@@ -5,7 +5,7 @@
 import {Task} from '../../types/task';
 import {
   // loadInspections,
-  loadHiveContexts,
+  loadHiveContextsFromFirebase,
 } from '../../persistence/inspectionRepository';
 import {TaskRepository} from '../../domain/repositories/taskRepository';
 import {mapLLMTasksToDomain} from './mapTasks';
@@ -46,7 +46,7 @@ export const generateTasks = async (hives: any[]): Promise<{tasks: Task[]}> => {
 
 export const generateTasksForApiary = async (uid: string) => {
   const tasks = await taskRepository.getAll();
-  const hives = await loadHiveContexts(uid);
+  const hives = await loadHiveContextsFromFirebase(uid);
 
   const hivesToSend = [];
 
@@ -77,7 +77,7 @@ export const generateTasksForApiary = async (uid: string) => {
 };
 
 export const generateTasksForHive = async (uid: string, hiveNumber: number) => {
-  const hives = await loadHiveContexts(uid);
+  const hives = await loadHiveContextsFromFirebase(uid);
 
   const hive = hives.find((h) => h.hiveNumber === hiveNumber);
 
