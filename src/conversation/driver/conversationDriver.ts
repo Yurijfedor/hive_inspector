@@ -35,6 +35,31 @@ export class ConversationDriver {
     this.persistence = persistence;
   }
 
+  private async injectHiveContext(
+    flowId: string,
+    session: any,
+    args: any[],
+  ): Promise<any> {
+    if (flowId !== 'inspection') return session;
+
+    const hiveNumber = args[0];
+    if (!hiveNumber) return session;
+
+    await this.ensureHiveContexts();
+
+    const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
+
+    const enrichedSession = {
+      ...session,
+      hiveNumber,
+      hiveContext: hive ?? null,
+    };
+
+    console.log('🐝 INJECTED HIVE CONTEXT', enrichedSession.hiveContext);
+
+    return enrichedSession;
+  }
+
   // --------------------------------------------------
   // MUTATION QUEUE
   // --------------------------------------------------
@@ -60,26 +85,7 @@ export class ConversationDriver {
 
     let session = flow.createSession(...args);
 
-    if (flowId === 'inspection') {
-      const hiveNumber = args[0];
-
-      if (hiveNumber) {
-        await this.ensureHiveContexts();
-
-        const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
-
-        session = {
-          ...session,
-          hiveContext: hive
-            ? {
-                queen: hive.queen,
-              }
-            : undefined,
-        };
-
-        console.log('🐝 INJECTED HIVE CONTEXT (REPLACE)', session.hiveContext);
-      }
-    }
+    session = await this.injectHiveContext(flowId, session, args);
 
     const instance: FlowInstance = {
       flowId,
@@ -175,29 +181,33 @@ export class ConversationDriver {
 
     // const session = flow.createSession(...args);
 
+    // let session = flow.createSession(...args);
+
+    // // 🔥 інжектимо context тільки для inspection
+    // if (flowId === 'inspection') {
+    //   const hiveNumber = args[0];
+
+    //   if (hiveNumber) {
+    //     await this.ensureHiveContexts();
+
+    //     const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
+
+    //     session = {
+    //       ...session,
+    //       hiveContext: hive
+    //         ? {
+    //             queen: hive.queen,
+    //           }
+    //         : undefined,
+    //     };
+
+    //     console.log('🐝 INJECTED HIVE CONTEXT', session.hiveContext);
+    //   }
+    // }
+
     let session = flow.createSession(...args);
 
-    // 🔥 інжектимо context тільки для inspection
-    if (flowId === 'inspection') {
-      const hiveNumber = args[0];
-
-      if (hiveNumber) {
-        await this.ensureHiveContexts();
-
-        const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
-
-        session = {
-          ...session,
-          hiveContext: hive
-            ? {
-                queen: hive.queen,
-              }
-            : undefined,
-        };
-
-        console.log('🐝 INJECTED HIVE CONTEXT', session.hiveContext);
-      }
-    }
+    session = await this.injectHiveContext(flowId, session, args);
 
     const instance: FlowInstance = {
       flowId,
