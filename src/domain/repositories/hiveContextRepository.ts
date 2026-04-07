@@ -5,14 +5,19 @@ export class HiveContextRepository {
   buildFromTasks(hiveNumber: number, tasks: Task[]): HiveContext {
     const hiveTasks = tasks.filter((t) => t.hiveNumber === hiveNumber);
 
-    // 🔧 нормалізація дати
-    const getDate = (d: number | string) =>
-      typeof d === 'string' ? new Date(d).getTime() : d;
+    // 🔧 нормалізація дати (safe)
+    const getDate = (d: number | string | undefined) => {
+      if (!d) return 0;
+      return typeof d === 'string' ? new Date(d).getTime() : d;
+    };
+
+    const sortByDateDesc = (a: Task, b: Task) =>
+      getDate(b.date) - getDate(a.date);
 
     // 🕵️ останній огляд
     const inspections = hiveTasks
       .filter((t) => t.type === 'INSPECTION')
-      .sort((a, b) => getDate(b.date) - getDate(a.date));
+      .sort(sortByDateDesc);
 
     const lastInspectionTask = inspections[0];
 
@@ -26,16 +31,24 @@ export class HiveContextRepository {
       : null;
 
     // 🟡 FEEDING
-    const feedingTasks = hiveTasks.filter((t) => t.type === 'FEEDING');
+    const feedingTasks = hiveTasks
+      .filter((t) => t.type === 'FEEDING')
+      .sort(sortByDateDesc);
 
     // 🔴 SWARM
-    const swarmTasks = hiveTasks.filter((t) => t.type === 'SWARM');
+    const swarmTasks = hiveTasks
+      .filter((t) => t.type === 'SWARM')
+      .sort(sortByDateDesc);
 
     // 🟣 DISEASE
-    const diseaseTasks = hiveTasks.filter((t) => t.type === 'DISEASE');
+    const diseaseTasks = hiveTasks
+      .filter((t) => t.type === 'DISEASE')
+      .sort(sortByDateDesc);
 
     // 🔵 SPLIT
-    const splitTasks = hiveTasks.filter((t) => t.type === 'SPLIT');
+    const splitTasks = hiveTasks
+      .filter((t) => t.type === 'SPLIT')
+      .sort(sortByDateDesc);
 
     return {
       hiveNumber,
