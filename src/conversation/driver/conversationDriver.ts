@@ -13,6 +13,7 @@ import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
 import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {HiveContext} from '../../types/hive';
+import {HiveContextRepository} from '../../persistence/hiveContextRepository';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -25,6 +26,8 @@ export class ConversationDriver {
   private mutationQueue: Promise<void> = Promise.resolve();
 
   private hiveContexts: HiveContext[] = [];
+
+  private hiveRepo = new HiveContextRepository();
 
   constructor(
     bus: EventBus<ConversationEvent>,
@@ -140,14 +143,32 @@ export class ConversationDriver {
   private async ensureHiveContexts(): Promise<void> {
     if (this.hiveContexts.length > 0) return;
 
+    console.log('📦 Loading hive contexts...');
+    console.log('👤 UID:', this.userId);
+
     try {
-      console.log('📦 Loading hive contexts...');
-      console.log('👤 UID:', this.userId);
-      this.hiveContexts = await loadHiveContextsFromFirebase(this.userId);
-      console.log('✅ Hive contexts loaded:', this.hiveContexts.length);
+      // 🟢 Firebase
+      const remote = await loadHiveContextsFromFirebase(this.userId);
+
+      console.log('✅ Firebase success:', remote.length);
+
+      this.hiveContexts = remote;
+
+      // 💾 cache
+      await this.hiveRepo.saveAll(remote);
     } catch (e) {
-      console.log('❌ Failed to load hive contexts', e);
-      this.hiveContexts = [];
+      console.log('❌ Firebase failed → fallback', e);
+
+      try {
+        const local = await this.hiveRepo.loadAll();
+
+        console.log('📦 Loaded from cache:', local.length);
+
+        this.hiveContexts = local;
+      } catch (e2) {
+        console.log('❌ Cache failed', e2);
+        this.hiveContexts = [];
+      }
     }
   }
 
@@ -178,32 +199,6 @@ export class ConversationDriver {
     if (!flow) {
       throw new Error(`Flow ${flowId} not found`);
     }
-
-    // const session = flow.createSession(...args);
-
-    // let session = flow.createSession(...args);
-
-    // // 🔥 інжектимо context тільки для inspection
-    // if (flowId === 'inspection') {
-    //   const hiveNumber = args[0];
-
-    //   if (hiveNumber) {
-    //     await this.ensureHiveContexts();
-
-    //     const hive = this.hiveContexts.find((h) => h.hiveNumber === hiveNumber);
-
-    //     session = {
-    //       ...session,
-    //       hiveContext: hive
-    //         ? {
-    //             queen: hive.queen,
-    //           }
-    //         : undefined,
-    //     };
-
-    //     console.log('🐝 INJECTED HIVE CONTEXT', session.hiveContext);
-    //   }
-    // }
 
     let session = flow.createSession(...args);
 
