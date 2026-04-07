@@ -12,7 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {auth} from '../firebase/firebase';
-import {runInspectionRuntimeTest} from '../flows/testInspection';
+// import {runInspectionRuntimeTest} from '../flows/testInspection';
 // import {baseGrammar} from '../voice/grammars/baseGrammar';
 // import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
@@ -21,7 +21,9 @@ import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 // import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
+import {syncHiveContexts} from '../sync/syncHiveContexts';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
+
 // import {HiveContextRepository} from '../persistence/hiveContextRepository';
 // import {syncHiveContexts} from '../sync/syncHiveContexts';
 // import {waitForConnection} from '../firebase/waitForConnection';
@@ -48,15 +50,12 @@ export const DevScreen = () => {
 
   const repo = new TaskRepository();
 
-  const runTest = async () => {
-    console.log('🚀 RUN TEST START');
+  const runTestSync = async () => {
+    if (!userId) return;
 
-    if (!userId) {
-      console.log('❌ NO USER');
-      return;
-    }
+    console.log('🔄 MANUAL SYNC START');
 
-    await runInspectionRuntimeTest(userId);
+    await syncHiveContexts(userId);
   };
 
   const handleSignOut = async () => {
@@ -123,7 +122,7 @@ export const DevScreen = () => {
 
       <Text style={{marginBottom: 20}}>User: {userId}</Text>
 
-      <Button title="Run Inspection Test" onPress={runTest} />
+      <Button title="🔄 Sync Hives" onPress={runTestSync} />
 
       <View style={{marginTop: 20}}>
         <Button title="SignOut" onPress={handleSignOut} />

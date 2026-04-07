@@ -11,7 +11,7 @@ import {detectFlowIntent} from '../intents/flowIntents';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
-import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
+// import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
 
@@ -143,33 +143,9 @@ export class ConversationDriver {
   private async ensureHiveContexts(): Promise<void> {
     if (this.hiveContexts.length > 0) return;
 
-    console.log('📦 Loading hive contexts...');
-    console.log('👤 UID:', this.userId);
+    console.log('📦 Loading hive contexts FROM CACHE');
 
-    try {
-      // 🟢 Firebase
-      const remote = await loadHiveContextsFromFirebase(this.userId);
-
-      console.log('✅ Firebase success:', remote.length);
-
-      this.hiveContexts = remote;
-
-      // 💾 cache
-      await this.hiveRepo.saveAll(remote);
-    } catch (e) {
-      console.log('❌ Firebase failed → fallback', e);
-
-      try {
-        const local = await this.hiveRepo.loadAll();
-
-        console.log('📦 Loaded from cache:', local.length);
-
-        this.hiveContexts = local;
-      } catch (e2) {
-        console.log('❌ Cache failed', e2);
-        this.hiveContexts = [];
-      }
-    }
+    this.hiveContexts = await this.hiveRepo.loadAll();
   }
 
   // --------------------------------------------------
