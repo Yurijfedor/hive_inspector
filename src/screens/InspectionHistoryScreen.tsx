@@ -25,6 +25,8 @@ export const InspectionHistoryScreen = () => {
     const load = async () => {
       try {
         const data = await loadInspectionsByHive(uid, hiveNumber);
+        console.log(data);
+
         setInspections(data);
       } catch (e) {
         console.log('❌ LOAD HISTORY ERROR', e);
@@ -68,7 +70,14 @@ export const InspectionHistoryScreen = () => {
 
       <Text>🐝 Сила: {item.strength}</Text>
       <Text>🍯 Мед: {item.honeyKg} кг</Text>
-      <Text>👑 Матка: {item.hasQueen ? 'є' : 'немає'}</Text>
+      <Text>
+        👑 Матка:{' '}
+        {item.queen === 'present'
+          ? 'наявна'
+          : item.queen === 'absent'
+          ? 'відсутня'
+          : 'невідомо'}
+      </Text>
     </View>
   );
 

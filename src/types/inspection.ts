@@ -6,7 +6,7 @@ export type Inspection = {
   strength: number; // 0–10 (або як у тебе)
   honeyKg: number;
 
-  hasQueen: boolean;
+  queen: 'present' | 'absent' | 'unknown';
 };
 
 export type InspectionRaw = {

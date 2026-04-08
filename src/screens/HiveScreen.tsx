@@ -23,6 +23,7 @@ export const HiveScreen = () => {
     const load = async () => {
       try {
         const contexts = await loadHiveContextsFromFirebase(uid);
+        console.log(contexts);
 
         const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
 
@@ -63,7 +64,14 @@ export const HiveScreen = () => {
         <>
           <Text>Сила: {context.lastInspection.strength}</Text>
           <Text>Мед: {context.lastInspection.honeyKg} кг</Text>
-          <Text>Матка: {context.lastInspection.hasQueen ? 'є' : 'немає'}</Text>
+          <Text>
+            Матка:{' '}
+            {context.queen?.status === 'present'
+              ? 'наявна'
+              : context.queen?.status === 'absent'
+              ? 'відсутня'
+              : 'невідомо'}
+          </Text>
         </>
       ) : (
         <Text>Немає даних</Text>

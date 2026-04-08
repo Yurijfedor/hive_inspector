@@ -90,8 +90,13 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
             {
               type: 'UPDATE_QUEEN',
               hiveNumber: session.hiveNumber,
+              payload: {status},
+            },
+            {
+              type: 'QUEEN_STATUS_UPDATED', // 🔥 ДОДАЛИ
               payload: {
-                status,
+                hiveNumber: session.hiveNumber,
+                hasQueen: status === 'present',
               },
             },
           ],

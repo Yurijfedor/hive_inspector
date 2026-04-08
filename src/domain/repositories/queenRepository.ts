@@ -3,29 +3,33 @@ import database from '@react-native-firebase/database';
 export async function updateQueen(
   uid: string,
   hiveNumber: number,
-  data: {
+  payload: Partial<{
     status: 'present' | 'absent' | 'unknown';
-    breed?: string;
-    birthYear?: number;
-  },
+    breed: string;
+    birthYear: number;
+    marked: boolean;
+  }>,
 ) {
+  if (!payload || Object.keys(payload).length === 0) {
+    return;
+  }
   const updates: Record<string, any> = {};
 
-  updates[`users/${uid}/hives/${hiveNumber}/queen/status`] = data.status;
+  updates[`users/${uid}/hives/${hiveNumber}/queen/status`] = payload.status;
 
-  if (data.breed !== undefined) {
-    updates[`users/${uid}/hives/${hiveNumber}/queen/breed`] = data.breed;
+  if (payload.breed !== undefined) {
+    updates[`users/${uid}/hives/${hiveNumber}/queen/breed`] = payload.breed;
   }
 
-  if (data.birthYear !== undefined) {
+  if (payload.birthYear !== undefined) {
     updates[`users/${uid}/hives/${hiveNumber}/queen/birthYear`] =
-      data.birthYear;
+      payload.birthYear;
   }
 
   updates[`users/${uid}/hives/${hiveNumber}/queen/updatedAt`] =
     database.ServerValue.TIMESTAMP;
 
-  if (data.status === 'present') {
+  if (payload.status === 'present') {
     updates[`users/${uid}/hives/${hiveNumber}/queen/lastSeenAt`] =
       database.ServerValue.TIMESTAMP;
   }

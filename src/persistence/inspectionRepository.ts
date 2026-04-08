@@ -19,12 +19,8 @@ export async function saveInspection(uid: string, command: InspectionCommand) {
  * Creates or updates current inspection
  */
 async function upsertInspection(uid: string, command: InspectionCommand) {
-  // const inspectionRef = database().ref(
-  //   `users/${uid}/hives/${command.hiveNumber}/currentInspection`,
-  // );
-
   const updates: Record<string, any> = {};
-
+  console.log('🔥 COMMAND:', command); // 👈 ДОДАЙ
   updates[`users/${uid}/hives/${command.hiveNumber}/meta/lastInspectionAt`] =
     database.ServerValue.TIMESTAMP;
 
@@ -82,7 +78,10 @@ async function finalizeInspection(uid: string, hiveNumber: number) {
     .push();
 
   await newRef.set({
-    ...inspection,
+    strength: inspection.strength ?? 0,
+    honeyKg: inspection.honeyKg ?? 0,
+    queen: inspection.queen ?? 'unknown', // ✅ ДОДАЛИ
+    syrupLiters: inspection.syrupLiters ?? 0,
     createdAt: Date.now(),
     source: 'voice',
   });
@@ -121,7 +120,7 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
           date: i.createdAt ?? 0,
           strength: i.strength ?? 0,
           honeyKg: i.honeyKg ?? 0,
-          hasQueen: i.queen === 'present',
+          queen: i.queen ?? 'unknown',
         });
       }
     }
@@ -180,15 +179,32 @@ export async function loadHiveContextsFromFirebase(
       }
     }
 
+    // 🔥 FIX: нормалізуємо queen з fallback
+    let queen;
+
+    // 🟢 1. основне джерело (root hive)
+    if (hive.queen) {
+      queen = {
+        status: hive.queen.status,
+        breed: hive.queen.breed,
+        birthYear: hive.queen.birthYear,
+      };
+    }
+
+    // 🟡 2. fallback з останнього огляду
+    if (!queen && lastInspection) {
+      const status: 'present' | 'absent' = lastInspection.hasQueen
+        ? 'present'
+        : 'absent';
+
+      queen = {
+        status,
+      };
+    }
+
     result.push({
       hiveNumber: Number(hiveNumber),
-      queen: hive.queen
-        ? {
-            status: hive.queen.status,
-            breed: hive.queen.breed,
-            birthYear: hive.queen.birthYear,
-          }
-        : undefined,
+      queen,
       lastInspection,
 
       // 🟡 FEEDING
@@ -211,7 +227,7 @@ export async function loadHiveContextsFromFirebase(
           }
         : undefined,
 
-      // 🟣 DISEASE (НОВЕ 🔥)
+      // 🟣 DISEASE
       disease: hive.currentDisease
         ? {
             hasDiseaseSigns: hive.currentDisease.hasDiseaseSigns,
@@ -220,7 +236,7 @@ export async function loadHiveContextsFromFirebase(
           }
         : undefined,
 
-      // 🔵 SPLIT (НОВЕ 🔥)
+      // 🔵 SPLIT
       split: hive.currentSplit
         ? {
             isSplit: hive.currentSplit.isSplit,
@@ -232,7 +248,7 @@ export async function loadHiveContextsFromFirebase(
           }
         : undefined,
 
-      // ⚫ META (як summary)
+      // ⚫ META
       meta: {
         lastInspectionAt: hive.meta?.lastInspectionAt,
         lastFeedingAt: hive.meta?.lastFeedingAt,
@@ -258,11 +274,13 @@ export async function loadInspectionsByHive(
 
     const data = snap.val();
     if (!data) return [];
+    console.log(data);
 
     const inspections: Inspection[] = [];
 
     for (const inspectionId in data) {
       const i = data[inspectionId];
+      console.log(i);
 
       inspections.push({
         id: inspectionId,
@@ -270,7 +288,7 @@ export async function loadInspectionsByHive(
         date: i.createdAt ?? 0,
         strength: i.strength ?? 0,
         honeyKg: i.honeyKg ?? 0,
-        hasQueen: i.queen === 'present',
+        queen: i.queen ?? 'unknown',
       });
     }
 
