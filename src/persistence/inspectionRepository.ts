@@ -86,7 +86,8 @@ async function finalizeInspection(uid: string, hiveNumber: number) {
   await newRef.set({
     strength: inspection.strength ?? 0,
     honeyKg: inspection.honeyKg ?? 0,
-    queen: inspection.queen ?? 'unknown', // ✅ ДОДАЛИ
+    queen: inspection.queen ?? 'unknown',
+    broodFrames: inspection.broodFrames ?? 0,
     syrupLiters: inspection.syrupLiters ?? 0,
     createdAt: Date.now(),
     source: 'voice',
