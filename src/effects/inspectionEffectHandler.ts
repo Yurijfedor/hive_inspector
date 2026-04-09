@@ -32,6 +32,7 @@ export async function handleInspectionEffect(
         hiveNumber: event.hiveNumber,
         strength: event.payload?.strength,
         honeyKg: event.payload?.honeyKg,
+        broodFrames: event.payload?.broodFrames,
         queen: event.payload?.queen,
         syrupLiters: event.payload?.syrupLiters,
       };
@@ -45,6 +46,7 @@ export async function handleInspectionEffect(
           strength: command.strength ?? null,
           honeyKg: command.honeyKg ?? null,
           queen: command.queen ?? null,
+          broodFrames: command.broodFrames ?? null,
           syrupLiters: command.syrupLiters ?? null,
         },
       };
