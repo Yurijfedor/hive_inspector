@@ -31,6 +31,13 @@ export type FlowEffect =
       };
     }
   | {
+      type: 'BROOD_RECORDED';
+      payload: {
+        hiveNumber: number;
+        broodFrames: number;
+      };
+    }
+  | {
       type: 'SAVE_INSPECTION';
       payload: {
         hiveNumber: number;

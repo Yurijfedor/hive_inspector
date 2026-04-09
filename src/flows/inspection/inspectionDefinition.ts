@@ -84,6 +84,20 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       }),
     },
 
+    createConfirmStep(
+      'CONFIRM_BROOD',
+      (session) => `${session.data.broodFrames} рамок розплоду. Правильно?`,
+      (session) => [
+        {
+          type: 'BROOD_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            broodFrames: session.data.broodFrames!,
+          },
+        },
+      ],
+    ),
+
     // -------------------------
     // QUEEN
     // -------------------------

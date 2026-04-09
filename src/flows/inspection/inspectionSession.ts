@@ -27,6 +27,7 @@ export type InspectionSession = {
 
   data: {
     strength?: number;
+    broodFrames?: number;
     queen?: 'present' | 'absent';
     queenBreed?: string;
     queenYear?: number;
