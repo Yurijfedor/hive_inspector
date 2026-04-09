@@ -61,6 +61,30 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     ),
 
     // -------------------------
+    // BROOT
+    // -------------------------
+
+    {
+      id: 'BROOD',
+
+      question: 'Скільки рамок з розплодом?',
+
+      normalize: (v) => parseNumber(String(v)),
+
+      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
+
+      retryMessage: 'Назвіть число рамок з розплодом.',
+
+      apply: (session, value) => ({
+        ...session,
+        data: {
+          ...session.data,
+          broodFrames: value as number,
+        },
+      }),
+    },
+
+    // -------------------------
     // QUEEN
     // -------------------------
     {

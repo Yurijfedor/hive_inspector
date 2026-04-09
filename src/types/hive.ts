@@ -13,6 +13,7 @@ export type HiveContext = {
     date: number;
     strength: number;
     honeyKg: number;
+    broodFrames?: number;
     hasQueen: boolean;
   } | null;
 

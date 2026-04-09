@@ -5,6 +5,7 @@ export type InspectionEffectResult =
       payload: {
         strength: number | null;
         honeyKg: number | null;
+        broodFrames?: number | null;
         queen: 'present' | 'absent' | 'unknown' | null;
         syrupLiters: number | null;
       };
