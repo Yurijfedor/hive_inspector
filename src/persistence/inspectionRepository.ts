@@ -33,6 +33,12 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
     ] = command.strength;
   }
 
+  if (command.broodFrames !== undefined) {
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/broodFrames`
+    ] = command.broodFrames;
+  }
+
   if (command.honeyKg !== undefined) {
     updates[
       `users/${uid}/hives/${command.hiveNumber}/currentInspection/honeyKg`
