@@ -37,6 +37,7 @@ export const InspectionHistoryScreen = () => {
 
     load();
   }, [uid, hiveNumber]);
+
   const prepareChartData = (inspections: Inspection[]) => {
     const sorted = [...inspections].sort((a, b) => a.date - b.date);
 
@@ -55,8 +56,13 @@ export const InspectionHistoryScreen = () => {
           color: () => '#FFC107',
           strokeWidth: 2,
         },
+        {
+          data: sorted.map((i) => i.broodFrames ?? 0), // ✅ ДОДАЛИ
+          color: () => '#9C27B0', // 🟣 фіолетовий (логічно для розплоду)
+          strokeWidth: 2,
+        },
       ],
-      legend: ['Сила', 'Мед'],
+      legend: ['Сила', 'Мед', 'Розплід'], // ✅ ДОДАЛИ
     };
   };
 
@@ -69,6 +75,7 @@ export const InspectionHistoryScreen = () => {
       </Text>
 
       <Text>🐝 Сила: {item.strength}</Text>
+      <Text>🐣 Розплід: {item.broodFrames}</Text>
       <Text>🍯 Мед: {item.honeyKg} кг</Text>
       <Text>
         👑 Матка:{' '}

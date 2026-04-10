@@ -9,7 +9,7 @@ export type InspectionEvent =
       payload: {
         strength?: number | null;
         honeyKg?: number | null;
-        broodFrames?: number;
+        broodFrames?: number | null;
         queen?: 'present' | 'absent' | 'unknown' | null;
         syrupLiters?: number | null;
       };

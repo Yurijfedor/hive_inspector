@@ -56,7 +56,7 @@ export type HiveContext = {
     hasFeeding?: boolean;
     hasDiseaseSigns?: boolean;
     hasSwarmSigns?: boolean;
-
+    lastBroodFrames?: number;
     lastStrength?: number;
   };
 };

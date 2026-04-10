@@ -16,6 +16,15 @@ export function mapFlowEffectToEvent(effect: FlowEffect): DomainEvent | null {
         },
       };
 
+    case 'BROOD_RECORDED':
+      return {
+        type: 'UPDATE_INSPECTION',
+        hiveNumber: effect.payload.hiveNumber,
+        payload: {
+          broodFrames: effect.payload.broodFrames,
+        },
+      };
+
     case 'QUEEN_STATUS_UPDATED':
       return {
         type: 'UPDATE_INSPECTION',

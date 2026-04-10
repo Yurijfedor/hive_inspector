@@ -2,6 +2,9 @@ export const inspectionStepIds = {
   STRENGTH: true,
   CONFIRM_STRENGTH: true,
 
+  BROOD: true,
+  CONFIRM_BROOD: true,
+
   QUEEN: true,
   CONFIRM_QUEEN: true,
 

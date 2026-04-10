@@ -79,8 +79,13 @@ export const TodayScreen = () => {
               color: () => '#FFC107',
               strokeWidth: 2,
             },
+            {
+              data: points.map((p) => p.avgBroodFrames ?? 0), // ✅ ДОДАЛИ
+              color: () => '#9C27B0',
+              strokeWidth: 2,
+            },
           ],
-          legend: ['Середня сила', 'Середній мед'],
+          legend: ['Середня сила', 'Середній мед', 'Середній розплід'], // ✅
         };
 
         setChartData(chart);

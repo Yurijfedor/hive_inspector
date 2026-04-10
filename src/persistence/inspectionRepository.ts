@@ -151,7 +151,10 @@ export async function loadHiveContextsFromFirebase(
 
   const data = snap.val();
 
-  if (!data) return [];
+  if (!data) {
+    console.log('⚠️ NO HIVES DATA');
+    return [];
+  }
 
   const result: HiveContext[] = [];
 
@@ -172,15 +175,23 @@ export async function loadHiveContextsFromFirebase(
         hive.inspections,
       ) as InspectionRaw[];
 
-      const last = inspectionsArray.sort(
-        (a: any, b: any) => (b.createdAt ?? 0) - (a.createdAt ?? 0),
-      )[0];
+      const last = inspectionsArray.reduce<InspectionRaw | null>(
+        (latest, current) => {
+          if (!latest) return current;
+
+          return (current.createdAt ?? 0) > (latest.createdAt ?? 0)
+            ? current
+            : latest;
+        },
+        null,
+      );
 
       if (last) {
         lastInspection = {
           date: last.createdAt ?? 0,
           strength: last.strength ?? 0,
           honeyKg: last.honeyKg ?? 0,
+          broodFrames: last.broodFrames ?? 0, // ✅ ДОДАЛИ
           hasQueen: last.queen === 'present',
         };
       }
@@ -263,6 +274,7 @@ export async function loadHiveContextsFromFirebase(
         hasSwarmSigns: hive.meta?.hasSwarmSigns,
         hasDiseaseSigns: hive.meta?.hasDiseaseSigns,
         lastStrength: hive.meta?.lastStrength,
+        lastBroodFrames: hive.meta?.lastBroodFrames,
       },
     });
   }
@@ -295,6 +307,7 @@ export async function loadInspectionsByHive(
         date: i.createdAt ?? 0,
         strength: i.strength ?? 0,
         honeyKg: i.honeyKg ?? 0,
+        broodFrames: i.broodFrames ?? 0,
         queen: i.queen ?? 'unknown',
       });
     }

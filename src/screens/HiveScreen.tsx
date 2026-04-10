@@ -63,6 +63,7 @@ export const HiveScreen = () => {
       {context?.lastInspection ? (
         <>
           <Text>Сила: {context.lastInspection.strength}</Text>
+          <Text>Розплід: {context.lastInspection.broodFrames}</Text>
           <Text>Мед: {context.lastInspection.honeyKg} кг</Text>
           <Text>
             Матка:{' '}

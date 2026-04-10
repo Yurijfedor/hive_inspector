@@ -5,7 +5,7 @@ import {InspectionEvent} from './inspectionEvents';
 export async function handleInspection(
   command: InspectionCommand,
 ): Promise<InspectionEvent> {
-  validateInspectionCommand(command, hiveNumber => {
+  validateInspectionCommand(command, (hiveNumber) => {
     return hiveNumber >= 1 && hiveNumber <= 100;
   });
 
@@ -21,6 +21,7 @@ export async function handleInspection(
     hiveNumber: command.hiveNumber,
     payload: {
       strength: command.strength ?? null,
+      broodFrames: command.broodFrames ?? null,
       honeyKg: command.honeyKg ?? null,
       queen: command.queen ?? null,
     },

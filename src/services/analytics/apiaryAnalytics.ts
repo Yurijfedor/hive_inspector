@@ -4,6 +4,7 @@ export type ApiaryPoint = {
   date: string;
   avgStrength: number;
   avgHoney: number;
+  avgBroodFrames: number;
 };
 
 const groupByHive = (inspections: Inspection[]) => {
@@ -48,6 +49,7 @@ export const buildApiaryDynamics = (
 
     let totalStrength = 0;
     let totalHoney = 0;
+    let totalBrood = 0;
     let count = 0;
 
     for (const hive in byHive) {
@@ -59,6 +61,7 @@ export const buildApiaryDynamics = (
 
       totalStrength += last.strength ?? 0;
       totalHoney += last.honeyKg ?? 0;
+      totalBrood += last.broodFrames ?? 0;
       count++;
     }
 
@@ -68,6 +71,7 @@ export const buildApiaryDynamics = (
       date: dateStr,
       avgStrength: Math.round(totalStrength / count),
       avgHoney: Math.round(totalHoney / count),
+      avgBroodFrames: Math.round(totalBrood / count),
     });
   }
 

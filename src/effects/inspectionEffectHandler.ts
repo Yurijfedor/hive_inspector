@@ -36,6 +36,7 @@ export async function handleInspectionEffect(
         queen: event.payload?.queen,
         syrupLiters: event.payload?.syrupLiters,
       };
+      console.log(command);
 
       await saveInspection(uid, command);
 
