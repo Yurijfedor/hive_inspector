@@ -26,11 +26,6 @@ export class WakeWordController {
 
     await this.stopWakeWord();
 
-    // this.bus.emit({
-    //   type: 'SYSTEM_SPEAK',
-    //   text: 'Слухаю. Скажіть номер вулика.',
-    // });
-
     await this.driver.startFlow('hive');
   }
 
