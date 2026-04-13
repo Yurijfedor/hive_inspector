@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import {
 } from '../services/analytics/apiaryAnalytics';
 import {loadInspections} from '../persistence/inspectionRepository';
 
+// 🔥 VOICE
+import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export const ApiaryScreen = () => {
@@ -35,6 +38,12 @@ export const ApiaryScreen = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<any>(null);
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
+
+  // 🔥 VOICE RUNTIME (ВАЖЛИВО — useMemo)
+  const runtime = useMemo(() => {
+    if (!uid) return null;
+    return new DevVoiceRuntime(uid);
+  }, [uid]);
 
   // 📊 SUMMARY
   const load = useCallback(async () => {
@@ -92,6 +101,17 @@ export const ApiaryScreen = () => {
   useEffect(() => {
     loadAnalytics();
   }, [loadAnalytics]);
+
+  // 🎤 START VOICE
+  const handleStartVoice = () => {
+    if (!runtime) {
+      console.log('❌ Runtime not ready');
+      return;
+    }
+
+    console.log('🎤 START VOICE FROM APIARY');
+    runtime.start();
+  };
 
   // ⏳ LOADING
   if (loading) {
@@ -152,7 +172,7 @@ export const ApiaryScreen = () => {
       </View>
 
       {/* 🎤 VOICE */}
-      <TouchableOpacity style={styles.voiceButton}>
+      <TouchableOpacity style={styles.voiceButton} onPress={handleStartVoice}>
         <Text style={styles.voiceText}>🎤 Почати огляд</Text>
       </TouchableOpacity>
 
@@ -205,7 +225,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
     backgroundColor: '#fff',
-    flexGrow: 1, // 🔥 важливо для scroll
+    flexGrow: 1,
   },
 
   title: {
