@@ -23,14 +23,7 @@ import {TaskRepository} from '../domain/repositories/taskRepository';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
 import {syncHiveContexts} from '../sync/syncHiveContexts';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
-
-// import {HiveContextRepository} from '../persistence/hiveContextRepository';
-// import {syncHiveContexts} from '../sync/syncHiveContexts';
-// import {waitForConnection} from '../firebase/waitForConnection';
-// import {
-//   loadHiveContextsFromFirebase,
-//   loadInspections,
-// } from '../persistence/inspectionRepository';
+import {getApiarySummary} from '../services/apiaryService';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -110,6 +103,11 @@ export const DevScreen = () => {
     navigation.navigate('Today');
   };
 
+  const testApiarySummary = async () => {
+    const summary = await getApiarySummary(userId);
+    console.log('🍯 APIARY SUMMARY:', summary);
+  };
+
   return (
     <View
       style={{
@@ -154,6 +152,9 @@ export const DevScreen = () => {
           title="📅 Open Tasks List"
           onPress={() => navigation.navigate('TasksList')}
         />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Button title="ApiarySummary" onPress={testApiarySummary} />
       </View>
     </View>
   );
