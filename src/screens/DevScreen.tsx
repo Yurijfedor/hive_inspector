@@ -106,6 +106,7 @@ export const DevScreen = () => {
   const testApiarySummary = async () => {
     const summary = await getApiarySummary(userId);
     console.log('🍯 APIARY SUMMARY:', summary);
+    navigation.navigate('Apiary');
   };
 
   return (

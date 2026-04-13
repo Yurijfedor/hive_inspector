@@ -9,6 +9,8 @@ import {TasksListScreen} from '../screens/TasksListScreen';
 import {TodayScreen} from '../screens/TodayScreen';
 import {HiveScreen} from '../screens/HiveScreen';
 import {InspectionHistoryScreen} from '../screens/InspectionHistoryScreen';
+import {ApiaryScreen} from '../screens/ApiaryScreen';
+import {ApiaryCategoryScreen} from '../screens/ApiaryCategoryScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -18,6 +20,8 @@ export const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Dev" component={DevScreen} />
+        <Stack.Screen name="Apiary" component={ApiaryScreen} />
+        <Stack.Screen name="ApiaryCategory" component={ApiaryCategoryScreen} />
         <Stack.Screen name="Tasks" component={TasksScreen} />
         <Stack.Screen
           name="TasksList"

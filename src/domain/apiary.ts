@@ -4,3 +4,5 @@ export interface ApiarySummary {
   needsFeedingCount: number;
   problemHivesCount: number;
 }
+
+export type ApiaryCategory = 'ALL' | 'NO_INSPECTION' | 'FEEDING' | 'PROBLEMS';

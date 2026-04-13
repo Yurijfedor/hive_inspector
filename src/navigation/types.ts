@@ -1,4 +1,5 @@
 import {Task} from '../types/task';
+import {ApiaryCategory} from '../domain/apiary';
 
 export type RootStackParamList = {
   Dev: undefined;
@@ -7,5 +8,8 @@ export type RootStackParamList = {
   };
   Hive: {
     hiveNumber: number;
+  };
+  ApiaryCategory: {
+    category: ApiaryCategory;
   };
 };
