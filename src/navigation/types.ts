@@ -12,4 +12,5 @@ export type RootStackParamList = {
   ApiaryCategory: {
     category: ApiaryCategory;
   };
+  Profile: undefined;
 };

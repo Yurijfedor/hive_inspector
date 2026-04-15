@@ -11,6 +11,7 @@ import {HiveScreen} from '../screens/HiveScreen';
 import {InspectionHistoryScreen} from '../screens/InspectionHistoryScreen';
 import {ApiaryScreen} from '../screens/ApiaryScreen';
 import {ApiaryCategoryScreen} from '../screens/ApiaryCategoryScreen';
+import {ProfileScreen} from '../screens/ProfileScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -38,6 +39,7 @@ export const AppNavigator = () => {
           name="InspectionHistory"
           component={InspectionHistoryScreen}
         />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

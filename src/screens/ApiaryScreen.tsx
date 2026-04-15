@@ -13,8 +13,8 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {
   signInWithGoogle,
-  logout,
-  switchGoogleAccount,
+  // logout,
+  // switchGoogleAccount,
 } from '../services/authService';
 
 import {RootStackParamList} from '../navigation/types';
@@ -107,24 +107,45 @@ export const ApiaryScreen = () => {
     loadAnalytics();
   }, [loadAnalytics]);
 
-  const handleGoogleLogin = async () => {
-    try {
-      const resultUser = await signInWithGoogle();
-      console.log('✅ LOGGED IN:', resultUser.uid);
-    } catch (e) {
-      console.log('❌ LOGIN FAILED', e);
-    }
-  };
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const resultUser = await signInWithGoogle();
+  //     console.log('✅ LOGGED IN:', resultUser.uid);
+  //   } catch (e) {
+  //     console.log('❌ LOGIN FAILED', e);
+  //   }
+  // };
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  // const handleLogout = async () => {
+  //   await logout();
+  // };
 
-  const handleSwitchAccount = async () => {
+  // const handleSwitchAccount = async () => {
+  //   try {
+  //     await switchGoogleAccount();
+  //   } catch (e) {
+  //     console.log('❌ SWITCH FAILED', e);
+  //   }
+  // };
+
+  const handleProfilePress = async () => {
     try {
-      await switchGoogleAccount();
+      // 👤 якщо anonymous → логінимо
+      if (user?.isAnonymous) {
+        console.log('👤 Anonymous → start Google login');
+
+        await signInWithGoogle();
+
+        // після login AuthProvider оновить user
+        // і тоді відкриємо профіль
+        navigation.navigate('Profile');
+        return;
+      }
+
+      // 🔐 якщо вже логін
+      navigation.navigate('Profile');
     } catch (e) {
-      console.log('❌ SWITCH FAILED', e);
+      console.log('❌ PROFILE PRESS ERROR', e);
     }
   };
 
@@ -158,29 +179,16 @@ export const ApiaryScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-        <Text style={styles.googleText}>🔐 Увійти через Google</Text>
+      <TouchableOpacity
+        onPress={handleProfilePress}
+        style={{position: 'absolute', right: 16, top: 16}}>
+        <Text style={{fontSize: 25}}>👤</Text>
       </TouchableOpacity>
       {/* 👤 USER INFO */}
       <View style={styles.accountBox}>
         <Text style={styles.accountText}>
           {user?.isAnonymous ? '👤 Гість' : `👤 ${user?.email}`}
         </Text>
-      </View>
-
-      {/* 🔐 AUTH ACTIONS */}
-      <View style={styles.authButtons}>
-        {!user?.isAnonymous && (
-          <TouchableOpacity
-            style={styles.switchButton}
-            onPress={handleSwitchAccount}>
-            <Text style={styles.authText}>🔄 Змінити акаунт</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.authText}>🚪 Вийти</Text>
-        </TouchableOpacity>
       </View>
       <Text style={styles.title}>🐝 Пасіка</Text>
 
@@ -363,7 +371,7 @@ const styles = StyleSheet.create({
   },
 
   googleButton: {
-    marginTop: 12,
+    marginTop: 50,
     backgroundColor: '#4285F4',
     padding: 14,
     borderRadius: 12,
@@ -375,7 +383,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   accountBox: {
-    marginTop: 16,
+    marginTop: 50,
     padding: 12,
     backgroundColor: '#f0f0f0',
     borderRadius: 10,
