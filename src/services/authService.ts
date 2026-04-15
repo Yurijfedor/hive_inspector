@@ -11,34 +11,28 @@ const auth = getAuth();
 
 export async function signInWithGoogle() {
   try {
-    // 1. Google Sign-In
     await GoogleSignin.hasPlayServices();
-
-    // ❗ НЕ завжди робимо signOut тут!
-    // тільки якщо хочемо switch account
 
     const signInResult = await GoogleSignin.signIn();
 
     console.log('GOOGLE RESULT:', signInResult);
 
-    // ❗ важлива перевірка
     if (signInResult.type !== 'success') {
       throw new Error('Google sign-in cancelled');
     }
 
     const idToken = signInResult.data?.idToken;
+    const googleUser = signInResult.data.user;
 
     if (!idToken) {
       console.log('❌ INVALID GOOGLE RESULT:', signInResult);
       throw new Error('No idToken from Google');
     }
 
-    // 2. Firebase credential
     const googleCredential = GoogleAuthProvider.credential(idToken);
-
     const currentUser = auth.currentUser;
 
-    // 🔥 3. LINK якщо anonymous
+    // 🔗 1. LINK (anonymous → Google)
     if (currentUser && currentUser.isAnonymous) {
       try {
         console.log('🔗 Linking anonymous → Google');
@@ -48,77 +42,82 @@ export async function signInWithGoogle() {
           googleCredential,
         );
 
+        // ✅ update profile ПІСЛЯ link
+        if (auth.currentUser) {
+          await auth.currentUser.updateProfile({
+            displayName: googleUser.name,
+            photoURL: googleUser.photo,
+          });
+        }
+
         console.log('✅ LINKED USER:', linkResult.user.uid);
 
         return linkResult.user;
       } catch (e: any) {
         console.log('⚠️ LINK FAILED:', e.code);
 
-        // 🔥 КЛЮЧОВИЙ ФІКС
         if (
           e.code === 'auth/email-already-in-use' ||
           e.code === 'auth/credential-already-in-use'
         ) {
           console.log('🔐 Signing in instead of linking');
 
-          const signInAnonymouslyResult = await signInWithCredential(
-            auth,
-            googleCredential,
-          );
+          const signInRes = await signInWithCredential(auth, googleCredential);
 
-          console.log(
-            '✅ SIGNED IN EXISTING USER:',
-            signInAnonymouslyResult.user.uid,
-          );
+          // ✅ update profile ПІСЛЯ signIn
+          if (auth.currentUser) {
+            await auth.currentUser.updateProfile({
+              displayName: googleUser.name,
+              photoURL: googleUser.photo,
+            });
+          }
 
-          return signInResult.user;
+          console.log('✅ SIGNED IN EXISTING USER:', signInRes.user.uid);
+
+          return signInRes.user;
         }
 
         throw e;
       }
     }
 
-    // 4. Звичайний login
+    // 🔐 2. Звичайний login
     console.log('🔐 Signing in with Google');
 
-    const result = await signInWithCredential(auth, googleCredential);
+    const signInRes = await signInWithCredential(auth, googleCredential);
 
-    console.log('✅ GOOGLE USER:', result.user.uid);
-
-    return result.user;
-  } catch (e: any) {
-    console.log('❌ Google sign-in error', e);
-
-    // 🔥 ОБРОБКА КЕЙСУ: акаунт вже існує
-    if (e.code === 'auth/credential-already-in-use') {
-      console.log('⚠️ Credential already in use → signing in');
-
-      const credential = GoogleAuthProvider.credential(e.idToken);
-      const result = await signInWithCredential(auth, credential);
-
-      return result.user;
+    // ✅ update profile ПІСЛЯ signIn
+    if (auth.currentUser) {
+      await auth.currentUser.updateProfile({
+        displayName: googleUser.name,
+        photoURL: googleUser.photo,
+      });
     }
 
+    console.log('✅ GOOGLE USER:', signInRes.user.uid);
+
+    return signInRes.user;
+  } catch (e) {
+    console.log('❌ Google sign-in error', e);
     throw e;
   }
 }
 
+// 🚪 Logout
 export async function logout() {
   try {
     const user = auth.currentUser;
 
     console.log('🚪 Logging out...');
 
-    // 🔥 1. Якщо anonymous → ВИДАЛЯЄМО
+    // 🧹 Видаляємо anonymous користувача
     if (user?.isAnonymous) {
       console.log('🧹 Deleting anonymous user');
-
-      await user.delete(); // 💥 ВАЖЛИВО
-
+      await user.delete();
       return;
     }
 
-    // 🔐 2. Якщо Google user
+    // 🔐 Google user logout
     await signOut(auth);
     await GoogleSignin.signOut();
 
@@ -128,16 +127,14 @@ export async function logout() {
   }
 }
 
-// 🔄 Switch account (форсить popup)
+// 🔄 Switch account
 export async function switchGoogleAccount() {
   try {
     console.log('🔄 Switching account...');
 
-    await GoogleSignin.signOut(); // скидає кеш Google
-    // далі запускаємо звичайний login
-    const user = await signInWithGoogle();
+    await GoogleSignin.signOut(); // тільки тут!
 
-    return user;
+    return await signInWithGoogle();
   } catch (e) {
     console.log('❌ Switch account error', e);
     throw e;

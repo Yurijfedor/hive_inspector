@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
@@ -26,7 +26,19 @@ export const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>👤 Профіль</Text>
+      <View style={styles.header}>
+        {user?.photoURL ? (
+          <Image source={{uri: user.photoURL}} style={styles.avatar} />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarText}>
+              {user?.displayName?.[0] || '?'}
+            </Text>
+          </View>
+        )}
+
+        <Text style={styles.name}>{user?.displayName || 'Користувач'}</Text>
+      </View>
 
       {/* USER INFO */}
       <View style={styles.card}>
@@ -117,6 +129,38 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: '#fff',
+    fontWeight: '600',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
+  },
+
+  avatarPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  avatarText: {
+    fontSize: 28,
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  name: {
+    fontSize: 18,
     fontWeight: '600',
   },
 });
