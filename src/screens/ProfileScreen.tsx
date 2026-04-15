@@ -55,9 +55,11 @@ export const ProfileScreen = () => {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.buttonText}>🚪 Вийти</Text>
-      </TouchableOpacity>
+      {!user?.isAnonymous && (
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.buttonText}>🚪 Вийти</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

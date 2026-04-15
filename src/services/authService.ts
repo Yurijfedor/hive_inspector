@@ -105,10 +105,22 @@ export async function signInWithGoogle() {
 
 export async function logout() {
   try {
+    const user = auth.currentUser;
+
     console.log('🚪 Logging out...');
 
-    await signOut(auth); // Firebase
-    // await GoogleSignin.signOut(); // Google (ВАЖЛИВО)
+    // 🔥 1. Якщо anonymous → ВИДАЛЯЄМО
+    if (user?.isAnonymous) {
+      console.log('🧹 Deleting anonymous user');
+
+      await user.delete(); // 💥 ВАЖЛИВО
+
+      return;
+    }
+
+    // 🔐 2. Якщо Google user
+    await signOut(auth);
+    await GoogleSignin.signOut();
 
     console.log('✅ Logged out');
   } catch (e) {
