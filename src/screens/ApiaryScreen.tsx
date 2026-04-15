@@ -11,6 +11,11 @@ import {
 import {LineChart} from 'react-native-chart-kit';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {
+  signInWithGoogle,
+  logout,
+  switchGoogleAccount,
+} from '../services/authService';
 
 import {RootStackParamList} from '../navigation/types';
 import {useAuth} from '../auth/AuthProvider';
@@ -102,6 +107,27 @@ export const ApiaryScreen = () => {
     loadAnalytics();
   }, [loadAnalytics]);
 
+  const handleGoogleLogin = async () => {
+    try {
+      const resultUser = await signInWithGoogle();
+      console.log('✅ LOGGED IN:', resultUser.uid);
+    } catch (e) {
+      console.log('❌ LOGIN FAILED', e);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      await switchGoogleAccount();
+    } catch (e) {
+      console.log('❌ SWITCH FAILED', e);
+    }
+  };
+
   // 🎤 START VOICE
   const handleStartVoice = () => {
     if (!runtime) {
@@ -132,6 +158,30 @@ export const ApiaryScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+        <Text style={styles.googleText}>🔐 Увійти через Google</Text>
+      </TouchableOpacity>
+      {/* 👤 USER INFO */}
+      <View style={styles.accountBox}>
+        <Text style={styles.accountText}>
+          {user?.isAnonymous ? '👤 Гість' : `👤 ${user?.email}`}
+        </Text>
+      </View>
+
+      {/* 🔐 AUTH ACTIONS */}
+      <View style={styles.authButtons}>
+        {!user?.isAnonymous && (
+          <TouchableOpacity
+            style={styles.switchButton}
+            onPress={handleSwitchAccount}>
+            <Text style={styles.authText}>🔄 Змінити акаунт</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.authText}>🚪 Вийти</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.title}>🐝 Пасіка</Text>
 
       {/* 📊 SUMMARY */}
@@ -310,5 +360,53 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  googleButton: {
+    marginTop: 12,
+    backgroundColor: '#4285F4',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  googleText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  accountBox: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+  },
+
+  accountText: {
+    fontSize: 14,
+    color: '#333',
+  },
+
+  authButtons: {
+    marginTop: 12,
+    gap: 8,
+  },
+
+  switchButton: {
+    backgroundColor: '#1976D2',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  logoutButton: {
+    backgroundColor: '#D32F2F',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  authText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
