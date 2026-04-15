@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Dimensions,
   ScrollView,
+  Image,
 } from 'react-native';
 import {LineChart} from 'react-native-chart-kit';
 import {useNavigation} from '@react-navigation/native';
@@ -182,7 +183,16 @@ export const ApiaryScreen = () => {
       <TouchableOpacity
         onPress={handleProfilePress}
         style={{position: 'absolute', right: 16, top: 16}}>
-        <Text style={{fontSize: 25}}>👤</Text>
+        {/* <Text style={{fontSize: 25}}>👤</Text> */}
+        {user?.photoURL ? (
+          <Image source={{uri: user.photoURL}} style={styles.profileAvatar} />
+        ) : (
+          <View style={styles.profileFallback}>
+            <Text style={styles.profileFallbackText}>
+              {user?.displayName?.[0] || '👤'}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
       {/* 👤 USER INFO */}
       <View style={styles.accountBox}>
@@ -414,6 +424,26 @@ const styles = StyleSheet.create({
   },
 
   authText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  profileAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+
+  profileFallback: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  profileFallbackText: {
     color: '#fff',
     fontWeight: '600',
   },
