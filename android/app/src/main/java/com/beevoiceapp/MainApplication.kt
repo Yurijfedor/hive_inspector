@@ -12,6 +12,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import org.reactnative.camera.RNCameraPackage
+import com.beevoiceapp.voice.VoiceServicePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,9 +20,7 @@ class MainApplication : Application(), ReactApplication {
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here, for example:
-              // add(MyReactNativePackage())
-               //add(RNCameraPackage())
+               add(VoiceServicePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

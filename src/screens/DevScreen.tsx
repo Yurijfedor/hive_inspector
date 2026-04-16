@@ -24,6 +24,7 @@ import {generateTasksForApiary} from '../services/ai/generateTasks';
 import {syncHiveContexts} from '../sync/syncHiveContexts';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
 import {getApiarySummary} from '../services/apiaryService';
+import {startVoice, stopVoice} from '../services/voiceService';
 
 export const DevScreen = () => {
   const {user} = useAuth();
@@ -156,6 +157,12 @@ export const DevScreen = () => {
       </View>
       <View style={{marginTop: 20}}>
         <Button title="ApiarySummary" onPress={testApiarySummary} />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Button title="Start Voice" onPress={startVoice} />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Button title="Stop Voice" onPress={stopVoice} />
       </View>
     </View>
   );
