@@ -22,19 +22,31 @@ class VoiceCore(
         PROCESSING
     }
 
+    @Volatile
+    private var isActive = false
+
     private var currentState: State = State.IDLE
 
     // 🔧 PUBLIC API
 
     fun start() {
-        Log.d(TAG, "VoiceCore started")
+        if (isActive) {
+            Log.d(TAG, "⚠️ Already started")
+            return
+        }
+
+        Log.d(TAG, "🔥 START CALLED")
+
+        isActive = true
         setState(State.WAKE_LISTENING)
 
         startWakeWord()
     }
 
     fun stop() {
-        Log.d(TAG, "VoiceCore stopped")
+        Log.d(TAG, "🛑 STOP CALLED")
+
+        isActive = false
 
         stopWakeWord()
         stopSpeech()
@@ -56,11 +68,12 @@ class VoiceCore(
     // 🎤 WAKE WORD
 
     private fun startWakeWord() {
+        if (!isActive) return
+
         Log.d(TAG, "Starting wake word detection")
 
-        // TODO: тут буде Porcupine init
+        // TODO: Porcupine init
 
-        // 🔥 Поки що емуляція:
         simulateWakeWord()
     }
 
@@ -70,7 +83,12 @@ class VoiceCore(
     }
 
     private fun onWakeWordDetected() {
-        Log.d(TAG, "Wake word detected")
+        if (!isActive) {
+            Log.d(TAG, "⛔ Wake ignored (inactive)")
+            return
+        }
+
+        Log.d(TAG, "🔥 Wake word detected")
 
         val map = Arguments.createMap()
         map.putString("event", "wake_word")
@@ -85,11 +103,12 @@ class VoiceCore(
     // 🗣 SPEECH
 
     private fun startSpeechRecognition() {
+        if (!isActive) return
+
         Log.d(TAG, "Starting speech recognition")
 
-        // TODO: тут буде Vosk start
+        // TODO: Vosk start
 
-        // 🔥 Поки що емуляція:
         simulateSpeech()
     }
 
@@ -99,6 +118,11 @@ class VoiceCore(
     }
 
     private fun onSpeechResult(text: String) {
+        if (!isActive) {
+            Log.d(TAG, "⛔ Speech ignored (inactive)")
+            return
+        }
+
         Log.d(TAG, "Speech result: $text")
 
         val map = Arguments.createMap()
@@ -108,28 +132,43 @@ class VoiceCore(
 
         setState(State.PROCESSING)
 
-        // після обробки повертаємось до wake word
         restartCycle()
     }
 
     private fun restartCycle() {
+        if (!isActive) return
+
         stopSpeech()
         setState(State.WAKE_LISTENING)
         startWakeWord()
     }
 
-    // 🧪 MOCK (тимчасово)
+    // 🧪 MOCK (тимчасово, але контрольований)
 
     private fun simulateWakeWord() {
         Thread {
+            Log.d(TAG, "⏳ waiting for wake word...")
             Thread.sleep(5000)
+
+            if (!isActive) {
+                Log.d(TAG, "⛔ cancelled wake word")
+                return@Thread
+            }
+
             onWakeWordDetected()
         }.start()
     }
 
     private fun simulateSpeech() {
         Thread {
+            Log.d(TAG, "⏳ listening speech...")
             Thread.sleep(3000)
+
+            if (!isActive) {
+                Log.d(TAG, "⛔ cancelled speech")
+                return@Thread
+            }
+
             onSpeechResult("вулик номер 12 сила сильна мед 5")
         }.start()
     }

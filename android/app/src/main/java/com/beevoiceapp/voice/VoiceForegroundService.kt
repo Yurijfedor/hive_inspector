@@ -63,6 +63,9 @@ class VoiceForegroundService : Service() {
             voiceCore.stop()
             isRunning = false
         }
+
+        stopForeground(true)
+        stopSelf()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
