@@ -27,6 +27,8 @@ class VoiceCore(
 
     private var currentState: State = State.IDLE
 
+    private var wakeWordManager: WakeWordManager? = null
+
     // 🔧 PUBLIC API
 
     fun start() {
@@ -38,8 +40,12 @@ class VoiceCore(
         Log.d(TAG, "🔥 START CALLED")
 
         isActive = true
-        setState(State.WAKE_LISTENING)
 
+        wakeWordManager = WakeWordManager(context) {
+            onWakeWordDetected()
+        }
+
+        setState(State.WAKE_LISTENING)
         startWakeWord()
     }
 
@@ -70,16 +76,15 @@ class VoiceCore(
     private fun startWakeWord() {
         if (!isActive) return
 
-        Log.d(TAG, "Starting wake word detection")
+        Log.d(TAG, "🎧 Starting wake word detection")
 
-        // TODO: Porcupine init
-
-        simulateWakeWord()
+        wakeWordManager?.start()
     }
 
     private fun stopWakeWord() {
-        Log.d(TAG, "Stopping wake word detection")
-        // TODO: stop Porcupine
+        Log.d(TAG, "🛑 Stopping wake word detection")
+
+        wakeWordManager?.stop()
     }
 
     private fun onWakeWordDetected() {
@@ -95,8 +100,9 @@ class VoiceCore(
 
         emitEvent("onWakeWord", map)
 
-        setState(State.SPEECH_LISTENING)
+        stopWakeWord() // ⬅️ важливо: зупиняємо Porcupine
 
+        setState(State.SPEECH_LISTENING)
         startSpeechRecognition()
     }
 
@@ -105,15 +111,15 @@ class VoiceCore(
     private fun startSpeechRecognition() {
         if (!isActive) return
 
-        Log.d(TAG, "Starting speech recognition")
+        Log.d(TAG, "🎤 Starting speech recognition")
 
         // TODO: Vosk start
 
-        simulateSpeech()
+        simulateSpeech() // ⬅️ поки залишаємо mock
     }
 
     private fun stopSpeech() {
-        Log.d(TAG, "Stopping speech recognition")
+        Log.d(TAG, "🛑 Stopping speech recognition")
         // TODO: stop Vosk
     }
 
@@ -123,7 +129,7 @@ class VoiceCore(
             return
         }
 
-        Log.d(TAG, "Speech result: $text")
+        Log.d(TAG, "🧠 Speech result: $text")
 
         val map = Arguments.createMap()
         map.putString("text", text)
@@ -139,25 +145,12 @@ class VoiceCore(
         if (!isActive) return
 
         stopSpeech()
+
         setState(State.WAKE_LISTENING)
         startWakeWord()
     }
 
-    // 🧪 MOCK (тимчасово, але контрольований)
-
-    private fun simulateWakeWord() {
-        Thread {
-            Log.d(TAG, "⏳ waiting for wake word...")
-            Thread.sleep(5000)
-
-            if (!isActive) {
-                Log.d(TAG, "⛔ cancelled wake word")
-                return@Thread
-            }
-
-            onWakeWordDetected()
-        }.start()
-    }
+    // 🧪 MOCK (тимчасово тільки для speech)
 
     private fun simulateSpeech() {
         Thread {
