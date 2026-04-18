@@ -14,7 +14,6 @@ class VoiceCore(
         private const val TAG = "VoiceCore"
     }
 
-    // 🔄 STATES
     enum class State {
         IDLE,
         WAKE_LISTENING,
@@ -28,6 +27,7 @@ class VoiceCore(
     private var currentState: State = State.IDLE
 
     private var wakeWordManager: WakeWordManager? = null
+    private var speechManager: SpeechManager? = null
 
     // 🔧 PUBLIC API
 
@@ -60,7 +60,7 @@ class VoiceCore(
         setState(State.IDLE)
     }
 
-    // 🧠 STATE MANAGEMENT
+    // 🧠 STATE
 
     private fun setState(newState: State) {
         currentState = newState
@@ -84,43 +84,58 @@ class VoiceCore(
     private fun stopWakeWord() {
         Log.d(TAG, "🛑 Stopping wake word detection")
 
-        wakeWordManager?.stop()
+        wakeWordManager?.stop() // ⚠️ ВАЖЛИВО: всередині має бути delete()
     }
 
     private fun onWakeWordDetected() {
-        if (!isActive) {
-            Log.d(TAG, "⛔ Wake ignored (inactive)")
-            return
-        }
+        if (!isActive) return
 
         Log.d(TAG, "🔥 Wake word detected")
 
-        val map = Arguments.createMap()
-        map.putString("event", "wake_word")
+        emitEvent("onWakeWord", Arguments.createMap())
 
-        emitEvent("onWakeWord", map)
+        // 1️⃣ Повністю звільняємо мікрофон
+        stopWakeWord()
+        wakeWordManager = null // 🔥 КРИТИЧНО
 
-        stopWakeWord() // ⬅️ важливо: зупиняємо Porcupine
+        // 2️⃣ Даємо Android час
+        Thread {
+            try {
+                Thread.sleep(800) // 🔥 БУЛО 500 → тепер 800 стабільніше
+            } catch (e: Exception) {}
 
-        setState(State.SPEECH_LISTENING)
-        startSpeechRecognition()
+            if (!isActive) return@Thread
+
+            Log.d(TAG, "🎯 Starting Vosk after mic release")
+
+            setState(State.SPEECH_LISTENING)
+            startSpeechRecognition()
+        }.start()
     }
 
-    // 🗣 SPEECH
+    // 🗣 SPEECH (VOSK)
 
     private fun startSpeechRecognition() {
         if (!isActive) return
 
         Log.d(TAG, "🎤 Starting speech recognition")
 
-        // TODO: Vosk start
+        // safety reset
+        speechManager?.stop()
+        speechManager = null
 
-        simulateSpeech() // ⬅️ поки залишаємо mock
+        speechManager = SpeechManager(context) { text ->
+            onSpeechResult(text)
+        }
+
+        speechManager?.start()
     }
 
     private fun stopSpeech() {
         Log.d(TAG, "🛑 Stopping speech recognition")
-        // TODO: stop Vosk
+
+        speechManager?.stop()
+        speechManager = null
     }
 
     private fun onSpeechResult(text: String) {
@@ -146,23 +161,12 @@ class VoiceCore(
 
         stopSpeech()
 
+        // 🔥 ВАЖЛИВО: створюємо новий WakeWordManager
+        wakeWordManager = WakeWordManager(context) {
+            onWakeWordDetected()
+        }
+
         setState(State.WAKE_LISTENING)
         startWakeWord()
-    }
-
-    // 🧪 MOCK (тимчасово тільки для speech)
-
-    private fun simulateSpeech() {
-        Thread {
-            Log.d(TAG, "⏳ listening speech...")
-            Thread.sleep(3000)
-
-            if (!isActive) {
-                Log.d(TAG, "⛔ cancelled speech")
-                return@Thread
-            }
-
-            onSpeechResult("вулик номер 12 сила сильна мед 5")
-        }.start()
     }
 }
