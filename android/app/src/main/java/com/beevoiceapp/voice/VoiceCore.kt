@@ -31,24 +31,36 @@ class VoiceCore(
 
     // 🔧 PUBLIC API
 
-    fun start() {
-        if (isActive) {
-            Log.d(TAG, "⚠️ Already started")
-            return
-        }
+   // fun start() {
+       // if (isActive) {
+           // Log.d(TAG, "⚠️ Already started")
+            //return
+        //}
 
-        Log.d(TAG, "🔥 START CALLED")
+        //Log.d(TAG, "🔥 START CALLED")
+
+        //isActive = true
+
+        //wakeWordManager = WakeWordManager(context) {
+            //onWakeWordDetected()
+        //}
+
+        //setState(State.WAKE_LISTENING)
+        //startWakeWord()
+    //}
+
+    fun start() {
+        if (isActive) return
+
+        Log.d(TAG, "🔥 START TEST VOSK ONLY")
 
         isActive = true
 
-        wakeWordManager = WakeWordManager(context) {
-            onWakeWordDetected()
-        }
+        setState(State.SPEECH_LISTENING)
 
-        setState(State.WAKE_LISTENING)
-        startWakeWord()
+        startSpeechRecognition()
     }
-
+    
     fun stop() {
         Log.d(TAG, "🛑 STOP CALLED")
 
@@ -161,7 +173,7 @@ class VoiceCore(
 
         stopSpeech()
 
-        // 🔥 ВАЖЛИВО: створюємо новий WakeWordManager
+        
         wakeWordManager = WakeWordManager(context) {
             onWakeWordDetected()
         }

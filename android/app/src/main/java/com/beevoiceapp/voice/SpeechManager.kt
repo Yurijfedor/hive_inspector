@@ -1,97 +1,122 @@
 package com.beevoiceapp.voice
 
 import android.content.Context
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.util.Log
 import org.vosk.Model
 import org.vosk.Recognizer
-import org.vosk.android.RecognitionListener
-import org.vosk.android.SpeechService
+import java.io.File
 
 class SpeechManager(
     private val context: Context,
-    private val onFinalText: (String) -> Unit
-) : RecognitionListener {
+    private val onResult: (String) -> Unit
+) {
 
     companion object {
         private const val TAG = "SpeechManager"
+        private const val SAMPLE_RATE = 16000
     }
 
     private var model: Model? = null
-    private var speechService: SpeechService? = null
+    private var recognizer: Recognizer? = null
+    private var audioRecord: AudioRecord? = null
     private var isListening = false
 
     fun start() {
         if (isListening) return
 
         try {
-            Log.d(TAG, "📦 Loading Vosk model...")
+            Log.d(TAG, "📦 Preparing Vosk model")
 
-            model = Model("model")
+            // 🔥 1. Правильний шлях до моделі
+            val modelPath = File(context.filesDir, "model")
 
-            val recognizer = Recognizer(model, 16000.0f)
+            // 🔥 2. Копіюємо з assets якщо ще не копіювали
+            if (!modelPath.exists()) {
+                Log.d(TAG, "📦 Copying model from assets...")
+                AssetHelper.copyAssetFolder(
+                    context,
+                    "model",
+                    modelPath.absolutePath
+                )
+            }
 
-            speechService = SpeechService(recognizer, 16000.0f)
-            speechService?.startListening(this)
+            // 🔥 3. Ініціалізація через filesDir
+            model = Model(modelPath.absolutePath)
+            recognizer = Recognizer(model, SAMPLE_RATE.toFloat())
 
+            val bufferSize = AudioRecord.getMinBufferSize(
+                SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+
+            audioRecord = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSize
+            )
+
+            audioRecord?.startRecording()
             isListening = true
 
-            Log.d(TAG, "🎤 Vosk started")
+            Thread {
+                val buffer = ByteArray(bufferSize)
+
+                Log.d(TAG, "🎤 Vosk listening (AudioRecord)")
+
+                while (isListening) {
+                    val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
+
+                    if (read > 0) {
+                        val isFinal =
+                            recognizer?.acceptWaveForm(buffer, read) ?: false
+
+                        if (isFinal) {
+                            val result = recognizer?.result
+                            val text = extractText(result)
+
+                            if (text.isNotBlank()) {
+                                Log.d(TAG, "✅ Final: $text")
+                                stop()
+                                onResult(text)
+                                break
+                            }
+                        }
+                    }
+                }
+            }.start()
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Failed to init Vosk", e)
+            Log.e(TAG, "❌ Error starting Vosk", e)
         }
     }
 
     fun stop() {
-        if (!isListening) return
+        isListening = false
 
-        Log.d(TAG, "🛑 Stopping Vosk")
+        try {
+            audioRecord?.stop()
+        } catch (_: Exception) {}
 
-        speechService?.stop()
-        speechService?.shutdown()
-        speechService = null
+        audioRecord?.release()
+        audioRecord = null
+
+        recognizer?.close()
+        recognizer = null
 
         model?.close()
         model = null
 
-        isListening = false
-    }
-
-    // 🎧 CALLBACKS
-
-    override fun onPartialResult(hypothesis: String?) {
-        Log.d(TAG, "🟡 Partial: $hypothesis")
-    }
-
-    override fun onResult(hypothesis: String?) {
-        Log.d(TAG, "🔵 Result: $hypothesis")
-    }
-
-    override fun onFinalResult(hypothesis: String?) {
-        val text = extractText(hypothesis)
-
-        if (text.isNotBlank()) {
-            Log.d(TAG, "✅ Final result: $text")
-
-            stop() // 👈 як у твоєму TS (v.stop())
-
-            onFinalText(text)
-        }
-    }
-
-    override fun onError(e: Exception?) {
-        Log.e(TAG, "❌ Error", e)
-        stop()
-    }
-
-    override fun onTimeout() {
-        Log.d(TAG, "⏱ Timeout")
-        stop()
+        Log.d(TAG, "🛑 Vosk stopped")
     }
 
     private fun extractText(json: String?): String {
         if (json == null) return ""
-
         val regex = """"text"\s*:\s*"(.+?)"""".toRegex()
         return regex.find(json)?.groupValues?.get(1) ?: ""
     }
