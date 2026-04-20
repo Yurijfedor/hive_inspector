@@ -30,6 +30,7 @@ import {loadInspections} from '../persistence/inspectionRepository';
 
 // 🔥 VOICE
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
+import {enableFieldMode} from '../native/brightness';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -158,6 +159,7 @@ export const ApiaryScreen = () => {
     }
 
     console.log('🎤 START VOICE FROM APIARY');
+    enableFieldMode();
     runtime.start();
   };
 

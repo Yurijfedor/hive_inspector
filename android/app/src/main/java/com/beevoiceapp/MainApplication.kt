@@ -13,6 +13,8 @@ import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import org.reactnative.camera.RNCameraPackage
 import com.beevoiceapp.voice.VoiceServicePackage
+import com.beevoiceapp.brightness.BrightnessPackage
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -21,6 +23,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
                add(VoiceServicePackage())
+               add(BrightnessPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
