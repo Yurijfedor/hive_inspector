@@ -31,6 +31,7 @@ import {loadInspections} from '../persistence/inspectionRepository';
 // 🔥 VOICE
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {enableFieldMode} from '../native/brightness';
+import {FieldModeOverlay} from '../FieldModeOverlay';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -45,6 +46,7 @@ export const ApiaryScreen = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<any>(null);
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
+  const [fieldMode, setFieldMode] = useState(false);
 
   // 🔥 VOICE RUNTIME (ВАЖЛИВО — useMemo)
   const runtime = useMemo(() => {
@@ -160,6 +162,7 @@ export const ApiaryScreen = () => {
 
     console.log('🎤 START VOICE FROM APIARY');
     enableFieldMode();
+    setFieldMode(true);
     runtime.start();
   };
 
@@ -181,103 +184,108 @@ export const ApiaryScreen = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity
-        onPress={handleProfilePress}
-        style={{position: 'absolute', right: 16, top: 16}}>
-        {/* <Text style={{fontSize: 25}}>👤</Text> */}
-        {user?.photoURL ? (
-          <Image source={{uri: user.photoURL}} style={styles.profileAvatar} />
-        ) : (
-          <View style={styles.profileFallback}>
-            <Text style={styles.profileFallbackText}>
-              {user?.displayName?.[0] || '👤'}
-            </Text>
-          </View>
+    <View style={{flex: 1}}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <TouchableOpacity
+          onPress={handleProfilePress}
+          style={{position: 'absolute', right: 16, top: 16}}>
+          {user?.photoURL ? (
+            <Image source={{uri: user.photoURL}} style={styles.profileAvatar} />
+          ) : (
+            <View style={styles.profileFallback}>
+              <Text style={styles.profileFallbackText}>
+                {user?.displayName?.[0] || '👤'}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.accountBox}>
+          <Text style={styles.accountText}>
+            {user?.isAnonymous ? '👤 Гість' : `👤 ${user?.email}`}
+          </Text>
+        </View>
+
+        <Text style={styles.title}>🐝 Пасіка</Text>
+
+        {/* 📊 SUMMARY */}
+        <View style={styles.grid}>
+          <TouchableOpacity
+            style={styles.cardWrapper}
+            onPress={() =>
+              navigation.navigate('ApiaryCategory', {category: 'ALL'})
+            }>
+            <SummaryCard label="Вулики" value={summary.totalHives} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cardWrapper}
+            onPress={() =>
+              navigation.navigate('ApiaryCategory', {
+                category: 'NO_INSPECTION',
+              })
+            }>
+            <SummaryCard label="Без огляду" value={summary.noInspectionCount} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cardWrapper}
+            onPress={() =>
+              navigation.navigate('ApiaryCategory', {category: 'FEEDING'})
+            }>
+            <SummaryCard label="Підгодівля" value={summary.needsFeedingCount} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cardWrapper}
+            onPress={() =>
+              navigation.navigate('ApiaryCategory', {category: 'PROBLEMS'})
+            }>
+            <SummaryCard label="Проблеми" value={summary.problemHivesCount} />
+          </TouchableOpacity>
+        </View>
+
+        {/* 🎤 VOICE */}
+        <TouchableOpacity style={styles.voiceButton} onPress={handleStartVoice}>
+          <Text style={styles.voiceText}>🎤 Почати огляд</Text>
+        </TouchableOpacity>
+
+        {/* 🟢 STATUS */}
+        <View
+          style={[
+            styles.statusBox,
+            status === 'good' && styles.statusGood,
+            status === 'warning' && styles.statusWarning,
+            status === 'critical' && styles.statusCritical,
+          ]}>
+          <Text style={styles.statusText}>
+            {status === 'good' && '🟢 Пасіка в хорошому стані'}
+            {status === 'warning' && '🟡 Потрібна увага'}
+            {status === 'critical' && '🔴 Критичний стан'}
+          </Text>
+        </View>
+
+        {/* 📊 CHART */}
+        {chartData && (
+          <LineChart
+            data={chartData}
+            width={screenWidth - 32}
+            height={220}
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+            }}
+            bezier
+            style={styles.chart}
+          />
         )}
-      </TouchableOpacity>
-      {/* 👤 USER INFO */}
-      <View style={styles.accountBox}>
-        <Text style={styles.accountText}>
-          {user?.isAnonymous ? '👤 Гість' : `👤 ${user?.email}`}
-        </Text>
-      </View>
-      <Text style={styles.title}>🐝 Пасіка</Text>
+      </ScrollView>
 
-      {/* 📊 SUMMARY */}
-      <View style={styles.grid}>
-        <TouchableOpacity
-          style={styles.cardWrapper}
-          onPress={() =>
-            navigation.navigate('ApiaryCategory', {category: 'ALL'})
-          }>
-          <SummaryCard label="Вулики" value={summary.totalHives} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cardWrapper}
-          onPress={() =>
-            navigation.navigate('ApiaryCategory', {
-              category: 'NO_INSPECTION',
-            })
-          }>
-          <SummaryCard label="Без огляду" value={summary.noInspectionCount} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cardWrapper}
-          onPress={() =>
-            navigation.navigate('ApiaryCategory', {category: 'FEEDING'})
-          }>
-          <SummaryCard label="Підгодівля" value={summary.needsFeedingCount} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cardWrapper}
-          onPress={() =>
-            navigation.navigate('ApiaryCategory', {category: 'PROBLEMS'})
-          }>
-          <SummaryCard label="Проблеми" value={summary.problemHivesCount} />
-        </TouchableOpacity>
-      </View>
-
-      {/* 🎤 VOICE */}
-      <TouchableOpacity style={styles.voiceButton} onPress={handleStartVoice}>
-        <Text style={styles.voiceText}>🎤 Почати огляд</Text>
-      </TouchableOpacity>
-
-      {/* 🟢 STATUS */}
-      <View
-        style={[
-          styles.statusBox,
-          status === 'good' && styles.statusGood,
-          status === 'warning' && styles.statusWarning,
-          status === 'critical' && styles.statusCritical,
-        ]}>
-        <Text style={styles.statusText}>
-          {status === 'good' && '🟢 Пасіка в хорошому стані'}
-          {status === 'warning' && '🟡 Потрібна увага'}
-          {status === 'critical' && '🔴 Критичний стан'}
-        </Text>
-      </View>
-
-      {/* 📊 CHART */}
-      {chartData && (
-        <LineChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={{
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-          }}
-          bezier
-          style={styles.chart}
-        />
-      )}
-    </ScrollView>
+      {/* 🔒 OVERLAY — ВАЖЛИВО: ПІСЛЯ ScrollView */}
+      {fieldMode && <FieldModeOverlay />}
+    </View>
   );
 };
 
