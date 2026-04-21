@@ -12,11 +12,7 @@ import {
 import {LineChart} from 'react-native-chart-kit';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {
-  signInWithGoogle,
-  // logout,
-  // switchGoogleAccount,
-} from '../services/authService';
+import {signInWithGoogle} from '../services/authService';
 
 import {RootStackParamList} from '../navigation/types';
 import {useAuth} from '../auth/AuthProvider';
@@ -30,7 +26,7 @@ import {loadInspections} from '../persistence/inspectionRepository';
 
 // 🔥 VOICE
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-import {enableFieldMode} from '../native/brightness';
+import {enableFieldMode, disableFieldMode} from '../native/brightness';
 import {FieldModeOverlay} from '../FieldModeOverlay';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -48,13 +44,33 @@ export const ApiaryScreen = () => {
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
   const [fieldMode, setFieldMode] = useState(false);
 
-  // 🔥 VOICE RUNTIME (ВАЖЛИВО — useMemo)
+  // 🔥 runtime
   const runtime = useMemo(() => {
     if (!uid) return null;
     return new DevVoiceRuntime(uid);
   }, [uid]);
 
+  // --------------------------------------------------
+  // 🔥 SYNC WITH RUNTIME STOP
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (!runtime) return;
+
+    const unsubscribe = runtime.onStop(() => {
+      console.log('🧩 UI STOP FIELD MODE');
+
+      disableFieldMode();
+      setFieldMode(false);
+    });
+
+    return unsubscribe;
+  }, [runtime]);
+
+  // --------------------------------------------------
   // 📊 SUMMARY
+  // --------------------------------------------------
+
   const load = useCallback(async () => {
     if (!uid) return;
 
@@ -73,7 +89,10 @@ export const ApiaryScreen = () => {
     load();
   }, [load]);
 
+  // --------------------------------------------------
   // 📈 ANALYTICS
+  // --------------------------------------------------
+
   const loadAnalytics = useCallback(async () => {
     if (!uid) return;
 
@@ -111,62 +130,66 @@ export const ApiaryScreen = () => {
     loadAnalytics();
   }, [loadAnalytics]);
 
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const resultUser = await signInWithGoogle();
-  //     console.log('✅ LOGGED IN:', resultUser.uid);
-  //   } catch (e) {
-  //     console.log('❌ LOGIN FAILED', e);
-  //   }
-  // };
-
-  // const handleLogout = async () => {
-  //   await logout();
-  // };
-
-  // const handleSwitchAccount = async () => {
-  //   try {
-  //     await switchGoogleAccount();
-  //   } catch (e) {
-  //     console.log('❌ SWITCH FAILED', e);
-  //   }
-  // };
+  // --------------------------------------------------
+  // PROFILE
+  // --------------------------------------------------
 
   const handleProfilePress = async () => {
     try {
-      // 👤 якщо anonymous → логінимо
       if (user?.isAnonymous) {
         console.log('👤 Anonymous → start Google login');
 
         await signInWithGoogle();
-
-        // після login AuthProvider оновить user
-        // і тоді відкриємо профіль
         navigation.navigate('Profile');
         return;
       }
 
-      // 🔐 якщо вже логін
       navigation.navigate('Profile');
     } catch (e) {
       console.log('❌ PROFILE PRESS ERROR', e);
     }
   };
 
+  // --------------------------------------------------
   // 🎤 START VOICE
+  // --------------------------------------------------
+
   const handleStartVoice = () => {
     if (!runtime) {
       console.log('❌ Runtime not ready');
       return;
     }
 
+    if (fieldMode) {
+      console.log('⚠️ Already in field mode');
+      return;
+    }
+
     console.log('🎤 START VOICE FROM APIARY');
+
     enableFieldMode();
     setFieldMode(true);
+
     runtime.start();
   };
 
-  // ⏳ LOADING
+  // --------------------------------------------------
+  // CLEANUP (ВАЖЛИВО)
+  // --------------------------------------------------
+
+  useEffect(() => {
+    return () => {
+      console.log('🧹 ApiaryScreen unmount');
+
+      disableFieldMode();
+      setFieldMode(false);
+    };
+  }, []);
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -208,7 +231,6 @@ export const ApiaryScreen = () => {
 
         <Text style={styles.title}>🐝 Пасіка</Text>
 
-        {/* 📊 SUMMARY */}
         <View style={styles.grid}>
           <TouchableOpacity
             style={styles.cardWrapper}
@@ -245,12 +267,10 @@ export const ApiaryScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 🎤 VOICE */}
         <TouchableOpacity style={styles.voiceButton} onPress={handleStartVoice}>
           <Text style={styles.voiceText}>🎤 Почати огляд</Text>
         </TouchableOpacity>
 
-        {/* 🟢 STATUS */}
         <View
           style={[
             styles.statusBox,
@@ -265,7 +285,6 @@ export const ApiaryScreen = () => {
           </Text>
         </View>
 
-        {/* 📊 CHART */}
         {chartData && (
           <LineChart
             data={chartData}
@@ -283,7 +302,6 @@ export const ApiaryScreen = () => {
         )}
       </ScrollView>
 
-      {/* 🔒 OVERLAY — ВАЖЛИВО: ПІСЛЯ ScrollView */}
       {fieldMode && <FieldModeOverlay />}
     </View>
   );

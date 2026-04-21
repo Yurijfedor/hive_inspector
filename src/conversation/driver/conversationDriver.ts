@@ -258,14 +258,36 @@ export class ConversationDriver {
   async handleExternalInput(value: unknown): Promise<void> {
     return this.enqueueMutation(async () => {
       const text = String(value).trim();
-      const active = this.getActiveInstance();
 
       // -------------------------
-      // CONTROL INTENT
+      // 🔥 CONTROL INTENT (ПЕРШИЙ БЛОК!)
       // -------------------------
 
       const control = detectControlIntent(text);
 
+      // 🔴 ПОВНИЙ STOP
+      if (control === 'STOP_INSPECTION') {
+        console.log('🛑 GLOBAL STOP INSPECTION');
+
+        // очищаємо стан
+        this.state = {mode: 'IDLE'};
+        await this.persistence.clear();
+
+        // повідомляємо користувача
+        this.bus.emit({
+          type: 'SYSTEM_SPEAK',
+          text: 'Огляд завершено',
+        });
+
+        // 🔥 головне — сигнал runtime
+        this.bus.emit({type: 'STOP_INSPECTION'});
+
+        return;
+      }
+
+      const active = this.getActiveInstance();
+
+      // 🟡 звичайний cancel (тільки flow)
       if (control === 'CANCEL' && active) {
         await this.finishActiveFlow();
         return;
@@ -281,7 +303,7 @@ export class ConversationDriver {
       }
 
       // -------------------------
-      // DOMAIN INTERRUPT (🔥 НОВЕ)
+      // DOMAIN INTERRUPT
       // -------------------------
 
       const domainIntent = detectDomainIntent(text);
@@ -301,7 +323,6 @@ export class ConversationDriver {
 
         if (!targetFlowId) return;
 
-        // 👉 не запускати той самий flow повторно
         if (active?.flowId === targetFlowId) {
           this.bus.emit({
             type: 'SYSTEM_SPEAK',
@@ -316,7 +337,6 @@ export class ConversationDriver {
 
         if (hiveNumber) {
           console.log('🔥 DOMAIN INTERRUPT → START FLOW:', targetFlowId);
-
           await this.pushFlow(targetFlowId, hiveNumber);
         } else {
           this.bus.emit({
@@ -327,7 +347,7 @@ export class ConversationDriver {
           this.bus.emit({type: 'START_LISTENING'});
         }
 
-        return; // ❗ КРИТИЧНО — не йдемо далі
+        return;
       }
 
       // -------------------------
@@ -374,15 +394,11 @@ export class ConversationDriver {
       const flow = getFlow(active.flowId);
       if (!flow) return;
 
-      // const step = flow.steps[active.session.stepIndex];
-
       const resolved = resolveStep(flow, active.session);
-
       if (!resolved) return;
 
       const {step, index} = resolved;
 
-      // 🔥 критично
       active.session.stepIndex = index;
 
       const result = executeStep(step, active.session, text);
@@ -392,18 +408,12 @@ export class ConversationDriver {
         active.session = result.session;
         active.session.stepIndex++;
 
-        // -------------------------
-        // 🔥 ОБРОБКА runtimeEffects (ВАЖЛИВО)
-        // -------------------------
-
         const runtimeEffects = result.runtimeEffects ?? [];
 
         for (const effect of runtimeEffects) {
           console.log('🔥 RUNTIME EFFECT:', effect);
 
           if (effect.type === 'START_FLOW') {
-            console.log('🔥 STARTING SWARM FLOW');
-
             await this.pushFlow(effect.flowId, ...(effect.args ?? []));
             return;
           }
@@ -417,15 +427,11 @@ export class ConversationDriver {
           }
         }
 
-        // const flow = getFlow(active.flowId);
-
         if (active.session.stepIndex >= flow.steps.length) {
-          if (result.effects && result.effects.length) {
+          if (result.effects?.length) {
             for (const effect of result.effects) {
-              this.bus.emit({
-                type: 'FLOW_EFFECT',
-                effect,
-              });
+              this.bus.emit({type: 'FLOW_EFFECT', effect});
+
               const domainEvent = mapFlowEffectToEvent(effect);
               if (domainEvent) {
                 this.bus.emit({
@@ -435,9 +441,6 @@ export class ConversationDriver {
               }
             }
           }
-          console.log('STEP RESULT:', result);
-
-          // якщо завершився доменний flow — завершуємо всю розмову
 
           const hasReplaceFlow = (result.runtimeEffects ?? []).some(
             (e) => e.type === 'REPLACE_FLOW',
@@ -453,20 +456,17 @@ export class ConversationDriver {
             });
 
             this.bus.emit({type: 'CONVERSATION_FINISHED'});
-
             return;
           }
-          await this.finishActiveFlow();
 
+          await this.finishActiveFlow();
           return;
         }
 
-        if (result.effects && result.effects.length) {
+        if (result.effects?.length) {
           for (const effect of result.effects) {
-            this.bus.emit({
-              type: 'FLOW_EFFECT',
-              effect,
-            });
+            this.bus.emit({type: 'FLOW_EFFECT', effect});
+
             const domainEvent = mapFlowEffectToEvent(effect);
             if (domainEvent) {
               this.bus.emit({

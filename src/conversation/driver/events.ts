@@ -16,4 +16,5 @@ export type ConversationEvent =
   | {
       type: 'DOMAIN_EVENT';
       event: DomainEvent;
-    };
+    }
+  | {type: 'STOP_INSPECTION'};

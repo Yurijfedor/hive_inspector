@@ -1,19 +1,37 @@
-export type ControlIntent = 'PAUSE' | 'RESUME' | 'CANCEL' | 'NONE';
+export type ControlIntent =
+  | 'PAUSE'
+  | 'RESUME'
+  | 'CANCEL'
+  | 'STOP_INSPECTION'
+  | 'NONE';
 
 const pauseWords = ['стоп', 'зупини', 'чекай'];
 const resumeWords = ['продовж', 'далі', 'можна'];
 const cancelWords = ['скасувати', 'завершити', 'закінчити'];
 
-function matches(text: string, words: string[]) {
-  return words.some(word => text.includes(word));
+// 🔥 fuzzy слова
+const stopKeywords = ['огляд'];
+const stopVerbs = ['заверш', 'закінч', 'стоп', 'припини', 'верш'];
+
+function includesAny(text: string, words: string[]) {
+  return words.some((word) => text.includes(word));
+}
+
+function isStopInspection(text: string) {
+  return includesAny(text, stopVerbs) && includesAny(text, stopKeywords);
 }
 
 export function detectControlIntent(text: string): ControlIntent {
   const normalized = text.toLowerCase().trim();
 
-  if (matches(normalized, pauseWords)) return 'PAUSE';
-  if (matches(normalized, resumeWords)) return 'RESUME';
-  if (matches(normalized, cancelWords)) return 'CANCEL';
+  // 🔴 FUZZY STOP
+  if (isStopInspection(normalized)) {
+    return 'STOP_INSPECTION';
+  }
+
+  if (includesAny(normalized, pauseWords)) return 'PAUSE';
+  if (includesAny(normalized, resumeWords)) return 'RESUME';
+  if (includesAny(normalized, cancelWords)) return 'CANCEL';
 
   return 'NONE';
 }

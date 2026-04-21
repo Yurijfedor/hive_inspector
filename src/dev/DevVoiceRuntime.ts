@@ -1,7 +1,6 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
 import Tts from 'react-native-tts';
 
-// import {useAuth} from '../auth/AuthProvider';
 import {EventBus} from '../conversation/driver/eventBus';
 import {ConversationDriver} from '../conversation/driver/conversationDriver';
 import {ConversationEvent} from '../conversation/driver/events';
@@ -21,32 +20,29 @@ export class DevVoiceRuntime {
   private voskEmitter = new NativeEventEmitter(Vosk);
 
   private bus = new EventBus<ConversationEvent>();
-
   private persistence = new InMemoryRuntimePersistence();
-
   private driver = new ConversationDriver(this.bus, this.persistence, this.uid);
+
+  private porcupine = new PorcupineEngine();
+
+  private speaking = false;
+  private stopped = false;
+  private modelLoaded = false;
+
+  // 🔥 захист від self listening
+  private blockListeningUntil = 0;
+
   private ttsResolve: (() => void) | null = null;
   private ttsInitialized = false;
-  private initTts() {
-    if (this.ttsInitialized) return;
 
-    this.ttsInitialized = true;
+  private onStopCallback: (() => void) | null = null;
 
-    Tts.addEventListener('tts-finish', () => {
-      if (this.ttsResolve) {
-        this.ttsResolve();
-        this.ttsResolve = null;
-      }
-    });
-
-    Tts.addEventListener('tts-cancel', () => {
-      if (this.ttsResolve) {
-        this.ttsResolve();
-        this.ttsResolve = null;
-      }
-    });
+  public onStop(cb: () => void) {
+    this.onStopCallback = cb;
+    return () => {
+      this.onStopCallback = null;
+    };
   }
-  private porcupine = new PorcupineEngine();
 
   private wakeController = new WakeWordController(
     this.driver,
@@ -55,12 +51,72 @@ export class DevVoiceRuntime {
     () => this.stopPorcupine(),
   );
 
-  private speaking = false;
+  // --------------------------------------------------
+  // INIT TTS
+  // --------------------------------------------------
+
+  private initTts() {
+    if (this.ttsInitialized) return;
+
+    this.ttsInitialized = true;
+
+    Tts.removeAllListeners('tts-finish');
+    Tts.removeAllListeners('tts-cancel');
+
+    Tts.addEventListener('tts-finish', () => {
+      this.ttsResolve?.();
+      this.ttsResolve = null;
+    });
+
+    Tts.addEventListener('tts-cancel', () => {
+      this.ttsResolve?.();
+      this.ttsResolve = null;
+    });
+  }
+
+  // --------------------------------------------------
+  // SAFE SPEAK
+  // --------------------------------------------------
+
+  private speak(text: string): Promise<void> {
+    this.initTts();
+
+    return new Promise((resolve) => {
+      let resolved = false;
+
+      this.ttsResolve = () => {
+        if (resolved) return;
+        resolved = true;
+        resolve();
+      };
+
+      Tts.speak(text);
+
+      // 🔥 fallback
+      setTimeout(() => {
+        if (!resolved) {
+          console.log('⚠️ TTS fallback resolve');
+          resolved = true;
+          resolve();
+        }
+      }, 2500);
+    });
+  }
+
+  // --------------------------------------------------
+  // START
+  // --------------------------------------------------
 
   async start() {
     console.log('🚀 DEV VOICE RUNTIME START');
 
-    await Vosk.loadModel('model');
+    await this.reset();
+
+    if (!this.modelLoaded) {
+      console.log('📦 LOAD VOSK MODEL');
+      await Vosk.loadModel('model');
+      this.modelLoaded = true;
+    }
 
     this.bindDriverEvents();
     this.bindVoskEvents();
@@ -71,10 +127,46 @@ export class DevVoiceRuntime {
   }
 
   // --------------------------------------------------
+  // RESET
+  // --------------------------------------------------
+
+  private async reset() {
+    console.log('♻️ RESET RUNTIME');
+
+    try {
+      await Vosk.stop();
+    } catch {}
+
+    try {
+      await this.stopPorcupine();
+    } catch {}
+
+    this.voskEmitter.removeAllListeners('onResult');
+    this.voskEmitter.removeAllListeners('onPartialResult');
+
+    this.bus = new EventBus<ConversationEvent>();
+    this.persistence = new InMemoryRuntimePersistence();
+    this.driver = new ConversationDriver(this.bus, this.persistence, this.uid);
+
+    this.porcupine = new PorcupineEngine();
+
+    this.wakeController = new WakeWordController(
+      this.driver,
+      this.bus,
+      () => this.startPorcupine(),
+      () => this.stopPorcupine(),
+    );
+
+    this.stopped = false;
+  }
+
+  // --------------------------------------------------
   // PORCUPINE
   // --------------------------------------------------
 
   private async startPorcupine() {
+    if (this.stopped) return;
+
     await this.porcupine.start(() => {
       this.wakeController.onWakeWord();
     });
@@ -85,78 +177,49 @@ export class DevVoiceRuntime {
   }
 
   // --------------------------------------------------
-  // 🔊 TTS (через events — ПРАВИЛЬНО)
-  // --------------------------------------------------
-
-  private speak(text: string): Promise<void> {
-    this.initTts();
-
-    return new Promise((resolve) => {
-      this.ttsResolve = resolve;
-      Tts.speak(text);
-    });
-  }
-
-  // --------------------------------------------------
   // DRIVER EVENTS
   // --------------------------------------------------
 
   private bindDriverEvents() {
-    // -------------------------
-    // SYSTEM SPEAK (🔥 ГОЛОВНЕ)
-    // -------------------------
-
     this.bus.on('SYSTEM_SPEAK', async (e) => {
-      if (this.speaking) return;
+      if (this.speaking || this.stopped) return;
 
       this.speaking = true;
 
       console.log('🗣 SYSTEM:', e.text);
 
-      // ❗ гарантуємо що мікрофон вимкнений
+      // 🔥 блокуємо self listening
+      this.blockListeningUntil = Date.now() + 3000;
+
       try {
         await Vosk.stop();
       } catch {}
 
       await this.stopPorcupine();
 
-      // 🔊 говоримо
       await this.speak(e.text);
 
       this.speaking = false;
 
-      // 🎤 тільки після цього слухаємо
-      this.bus.emit({
-        type: 'START_LISTENING',
-      });
-    });
+      if (this.stopped) return;
 
-    // -------------------------
-    // START LISTENING
-    // -------------------------
-
-    this.bus.on('START_LISTENING', async () => {
-      if (this.speaking) {
-        console.log('⛔ SKIP LISTENING (still speaking)');
-        return;
+      const wait = Math.max(0, this.blockListeningUntil - Date.now());
+      if (wait > 0) {
+        await new Promise((r) => setTimeout(r, wait));
       }
 
-      console.log('🎤 VOSK START');
+      console.log('🎤 VOSK START (safe)');
 
       try {
-        await Vosk.stop();
-      } catch {}
-
-      await Vosk.start({
-        sampleRate: 16000,
-      });
+        await Vosk.start({sampleRate: 16000});
+      } catch (e) {
+        console.log('❌ VOSK START FAILED', e);
+      }
     });
 
-    // -------------------------
-    // CONVERSATION FINISHED
-    // -------------------------
-
     this.bus.on('CONVERSATION_FINISHED', async () => {
+      if (this.stopped) return;
+
       console.log('🏁 CONVERSATION FINISHED');
 
       try {
@@ -166,22 +229,27 @@ export class DevVoiceRuntime {
       await this.wakeController.onConversationFinished();
     });
 
-    // -------------------------
-    // DEBUG
-    // -------------------------
+    this.bus.on('STOP_INSPECTION', async () => {
+      console.log('🛑 FULL STOP INSPECTION');
 
-    this.bus.on('FLOW_EFFECT', (e) => {
-      console.log('⚙️ FLOW EFFECT:', e.effect);
+      this.stopped = true;
+
+      try {
+        await Vosk.stop();
+      } catch {}
+
+      await this.stopPorcupine();
+
+      await new Promise((r) => setTimeout(r, 190));
+
+      await this.speak('Огляд завершено');
+
+      this.onStopCallback?.();
     });
-
-    // -------------------------
-    // DOMAIN EVENTS
-    // -------------------------
 
     this.bus.on('DOMAIN_EVENT', async (e) => {
       try {
         console.log('📦 DOMAIN EVENT:', e.event);
-
         await handleDomainEvent(this.uid, e.event);
       } catch (err) {
         console.error('❌ DOMAIN HANDLER ERROR', err);
@@ -194,10 +262,14 @@ export class DevVoiceRuntime {
   // --------------------------------------------------
 
   private bindVoskEvents() {
-    this.voskEmitter.removeAllListeners('onResult');
-    this.voskEmitter.removeAllListeners('onPartialResult');
-
     this.voskEmitter.addListener('onResult', async (e) => {
+      if (this.stopped) return;
+
+      if (Date.now() < this.blockListeningUntil) {
+        console.log('⛔ IGNORE SELF AUDIO');
+        return;
+      }
+
       console.log('RESULT RAW:', JSON.stringify(e));
 
       const text = typeof e === 'string' ? e : e?.text ?? e?.result?.text ?? '';
@@ -212,12 +284,19 @@ export class DevVoiceRuntime {
     });
 
     this.voskEmitter.addListener('onPartialResult', (e) => {
+      if (this.stopped) return;
+
+      if (Date.now() < this.blockListeningUntil) return;
+
       console.log('PARTIAL RAW:', JSON.stringify(e));
     });
   }
+
+  // --------------------------------------------------
+
   public async handleTextInput(text: string) {
-    if (!this.driver) {
-      console.log('❌ DRIVER NOT READY');
+    if (!this.driver || this.stopped) {
+      console.log('❌ DRIVER NOT READY OR STOPPED');
       return;
     }
 
