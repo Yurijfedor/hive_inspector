@@ -38,9 +38,14 @@ export const HiveScreen = () => {
     load();
   }, [hiveNumber, uid]);
 
-  // 🧪 Тест історії (поки що лог)
   const handleOpenHistory = () => {
     navigation.navigate('InspectionHistory', {
+      hiveNumber,
+    });
+  };
+
+  const handleManualInspection = () => {
+    navigation.navigate('ManualInspection', {
       hiveNumber,
     });
   };
@@ -56,6 +61,10 @@ export const HiveScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
+
+      <TouchableOpacity style={styles.button} onPress={handleManualInspection}>
+        <Text style={styles.buttonText}>📝 Ручний огляд</Text>
+      </TouchableOpacity>
 
       {/* 🧠 Стан */}
       <Text style={styles.section}>Стан</Text>

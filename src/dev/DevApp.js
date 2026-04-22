@@ -4,12 +4,16 @@ import {SyncGate} from '../app/SyncGate';
 
 import {AppNavigator} from '../navigation/AppNavigator';
 
+import {ConversationProvider} from '../conversation/ConversationProvider';
+
 export default function DevApp() {
   return (
     <AuthProvider>
-      <SyncGate>
-        <AppNavigator />
-      </SyncGate>
+      <ConversationProvider>
+        <SyncGate>
+          <AppNavigator />
+        </SyncGate>
+      </ConversationProvider>
     </AuthProvider>
   );
 }
