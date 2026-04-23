@@ -3,23 +3,34 @@ import {ConversationDriver} from './driver/conversationDriver';
 import {EventBus} from './driver/eventBus';
 import {ConversationEvent} from './driver/events';
 import {LocalRuntimePersistence} from '../runtime/LocalRuntimePersistence';
+import {useAuth} from '../auth/AuthProvider';
 
 const ConversationContext = createContext<ConversationDriver | null>(null);
 
 type Props = {
   children: ReactNode;
-  userId: string;
 };
 
-export function ConversationProvider({children, userId}: Props) {
+export function ConversationProvider({children}: Props) {
+  const {user} = useAuth();
+
   const driver = useMemo(() => {
-    console.log('🧠 CREATE DRIVER');
+    if (!user?.uid) {
+      console.log('⏳ WAITING FOR USER...');
+      return null;
+    }
+
+    console.log('🧠 CREATE DRIVER for UID:', user.uid);
 
     const bus = new EventBus<ConversationEvent>();
     const persistence = new LocalRuntimePersistence();
 
-    return new ConversationDriver(bus, persistence, userId);
-  }, [userId]);
+    return new ConversationDriver(bus, persistence, user.uid);
+  }, [user?.uid]);
+
+  if (!driver) {
+    return null; // або Loader
+  }
 
   return (
     <ConversationContext.Provider value={driver}>
@@ -30,8 +41,6 @@ export function ConversationProvider({children, userId}: Props) {
 
 export function useConversation() {
   const ctx = useContext(ConversationContext);
-
-  console.log('📦 CONTEXT VALUE:', ctx);
 
   if (!ctx) {
     throw new Error('ConversationProvider missing');
