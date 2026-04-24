@@ -14,6 +14,9 @@ import {useRoute} from '@react-navigation/native';
 import {useConversation} from '../conversation/ConversationProvider';
 import {runInspectionBatch} from '../features/manualInput/runInspectionBatch';
 
+// 🔥 НОВЕ
+import {runFlowFromManual} from '../adapters/manual/runFlowFromManual';
+
 type Tab = 'main' | 'swarm' | 'disease' | 'split';
 
 export const ManualInspectionScreen = () => {
@@ -24,36 +27,85 @@ export const ManualInspectionScreen = () => {
 
   const [activeTab, setActiveTab] = useState<Tab>('main');
 
+  // 🔥 ВАЖЛИВО: розбили на flow-структуру
   const [form, setForm] = useState({
-    strength: '10',
-    broodFrames: '5',
-    honeyKg: '20',
-    queen: true,
-    queenBreed: 'карніка',
-    queenYear: '2024',
+    inspection: {
+      strength: '10',
+      broodFrames: '5',
+      honeyKg: '20',
+      queen: true,
+      queenBreed: 'карніка',
+      queenYear: '2024',
+    },
 
-    // 🔸 майбутні поля
-    swarm: false,
-    disease: '',
-    split: false,
+    swarm: {
+      queenEmergence: false,
+      sealedCells: false,
+      openCells: false,
+      eggsInCells: false,
+    },
+
+    disease: {
+      diarrhea: false,
+      deformedWings: false,
+      mitesVisible: false,
+      weakBrood: false,
+    },
+
+    split: {
+      isSplit: false,
+      usedForSplits: false,
+      broodFrames: '0',
+      foodFrames: '0',
+    },
   });
 
-  const handleChange = (key: string, value: any) => {
-    setForm((prev) => ({...prev, [key]: value}));
+  const handleChange = (section: string, key: string, value: any) => {
+    setForm((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section as keyof typeof prev],
+        [key]: value,
+      },
+    }));
   };
 
   const handleSave = async () => {
     console.log('🔥 CLICK SAVE');
 
     try {
+      // -------------------------
+      // 🟢 INSPECTION (залишаємо як є)
+      // -------------------------
       await runInspectionBatch(driver, hiveNumber, {
-        strength: Number(form.strength),
-        broodFrames: Number(form.broodFrames),
-        honeyKg: Number(form.honeyKg),
-        queen: form.queen ? 'так' : 'ні',
-        queenBreed: form.queenBreed,
-        queenYear: Number(form.queenYear),
+        strength: Number(form.inspection.strength),
+        broodFrames: Number(form.inspection.broodFrames),
+        honeyKg: Number(form.inspection.honeyKg),
+        queen: form.inspection.queen ? 'так' : 'ні',
+        queenBreed: form.inspection.queenBreed,
+        queenYear: Number(form.inspection.queenYear),
       });
+
+      // -------------------------
+      // 🟡 SWARM
+      // -------------------------
+      await runFlowFromManual(driver, 'swarm', hiveNumber, form.swarm);
+
+      // -------------------------
+      // 🟡 DISEASE
+      // -------------------------
+      await runFlowFromManual(driver, 'disease', hiveNumber, form.disease);
+
+      // -------------------------
+      // 🟡 SPLIT
+      // -------------------------
+      await runFlowFromManual(driver, 'split', hiveNumber, {
+        ...form.split,
+        broodFrames: Number(form.split.broodFrames),
+        foodFrames: Number(form.split.foodFrames),
+      });
+
+      console.log('✅ ALL FLOWS COMPLETED');
     } catch (e) {
       console.log('❌ SAVE ERROR', e);
     }
@@ -68,24 +120,24 @@ export const ManualInspectionScreen = () => {
 
             <Text>Сила</Text>
             <TextInput
-              value={form.strength}
-              onChangeText={(v) => handleChange('strength', v)}
+              value={form.inspection.strength}
+              onChangeText={(v) => handleChange('inspection', 'strength', v)}
               keyboardType="numeric"
               style={styles.input}
             />
 
             <Text>Розплід</Text>
             <TextInput
-              value={form.broodFrames}
-              onChangeText={(v) => handleChange('broodFrames', v)}
+              value={form.inspection.broodFrames}
+              onChangeText={(v) => handleChange('inspection', 'broodFrames', v)}
               keyboardType="numeric"
               style={styles.input}
             />
 
             <Text>Мед</Text>
             <TextInput
-              value={form.honeyKg}
-              onChangeText={(v) => handleChange('honeyKg', v)}
+              value={form.inspection.honeyKg}
+              onChangeText={(v) => handleChange('inspection', 'honeyKg', v)}
               keyboardType="numeric"
               style={styles.input}
             />
@@ -95,29 +147,10 @@ export const ManualInspectionScreen = () => {
             <View style={styles.row}>
               <Text>Є матка</Text>
               <Switch
-                value={form.queen}
-                onValueChange={(v) => handleChange('queen', v)}
+                value={form.inspection.queen}
+                onValueChange={(v) => handleChange('inspection', 'queen', v)}
               />
             </View>
-
-            {form.queen && (
-              <>
-                <Text>Порода</Text>
-                <TextInput
-                  value={form.queenBreed}
-                  onChangeText={(v) => handleChange('queenBreed', v)}
-                  style={styles.input}
-                />
-
-                <Text>Рік</Text>
-                <TextInput
-                  value={form.queenYear}
-                  onChangeText={(v) => handleChange('queenYear', v)}
-                  keyboardType="numeric"
-                  style={styles.input}
-                />
-              </>
-            )}
           </>
         );
 
@@ -126,13 +159,31 @@ export const ManualInspectionScreen = () => {
           <>
             <Text style={styles.section}>Роїння</Text>
 
-            <View style={styles.row}>
-              <Text>Було роїння</Text>
-              <Switch
-                value={form.swarm}
-                onValueChange={(v) => handleChange('swarm', v)}
-              />
-            </View>
+            <SwitchRow
+              label="Вихід маток"
+              value={form.swarm.queenEmergence}
+              onChange={(v: string) =>
+                handleChange('swarm', 'queenEmergence', v)
+              }
+            />
+
+            <SwitchRow
+              label="Печатні маточники"
+              value={form.swarm.sealedCells}
+              onChange={(v: string) => handleChange('swarm', 'sealedCells', v)}
+            />
+
+            <SwitchRow
+              label="Відкриті маточники"
+              value={form.swarm.openCells}
+              onChange={(v: string) => handleChange('swarm', 'openCells', v)}
+            />
+
+            <SwitchRow
+              label="Яйця в маточниках"
+              value={form.swarm.eggsInCells}
+              onChange={(v: string) => handleChange('swarm', 'eggsInCells', v)}
+            />
           </>
         );
 
@@ -141,11 +192,32 @@ export const ManualInspectionScreen = () => {
           <>
             <Text style={styles.section}>Хвороби</Text>
 
-            <Text>Опис</Text>
-            <TextInput
-              value={form.disease}
-              onChangeText={(v) => handleChange('disease', v)}
-              style={styles.input}
+            <SwitchRow
+              label="Понос"
+              value={form.disease.diarrhea}
+              onChange={(v: string) => handleChange('disease', 'diarrhea', v)}
+            />
+
+            <SwitchRow
+              label="Деформовані крила"
+              value={form.disease.deformedWings}
+              onChange={(v: string) =>
+                handleChange('disease', 'deformedWings', v)
+              }
+            />
+
+            <SwitchRow
+              label="Кліщі"
+              value={form.disease.mitesVisible}
+              onChange={(v: string) =>
+                handleChange('disease', 'mitesVisible', v)
+              }
+            />
+
+            <SwitchRow
+              label="Проблемний розплід"
+              value={form.disease.weakBrood}
+              onChange={(v: string) => handleChange('disease', 'weakBrood', v)}
             />
           </>
         );
@@ -155,13 +227,39 @@ export const ManualInspectionScreen = () => {
           <>
             <Text style={styles.section}>Відводки</Text>
 
-            <View style={styles.row}>
-              <Text>Зроблено відводок</Text>
-              <Switch
-                value={form.split}
-                onValueChange={(v) => handleChange('split', v)}
-              />
-            </View>
+            <SwitchRow
+              label="Це відводок"
+              value={form.split.isSplit}
+              onChange={(v: string) => handleChange('split', 'isSplit', v)}
+            />
+
+            <SwitchRow
+              label="Використати для відводків"
+              value={form.split.usedForSplits}
+              onChange={(v: string) =>
+                handleChange('split', 'usedForSplits', v)
+              }
+            />
+
+            <Text>Рамки розплоду</Text>
+            <TextInput
+              value={form.split.broodFrames}
+              onChangeText={(v: string) =>
+                handleChange('split', 'broodFrames', v)
+              }
+              keyboardType="numeric"
+              style={styles.input}
+            />
+
+            <Text>Кормові рамки</Text>
+            <TextInput
+              value={form.split.foodFrames}
+              onChangeText={(v: string) =>
+                handleChange('split', 'foodFrames', v)
+              }
+              keyboardType="numeric"
+              style={styles.input}
+            />
           </>
         );
     }
@@ -169,7 +267,6 @@ export const ManualInspectionScreen = () => {
 
   return (
     <View style={{flex: 1}}>
-      {/* 🔵 Tabs */}
       <View style={styles.tabs}>
         <TabButton
           label="Огляд"
@@ -206,6 +303,14 @@ export const ManualInspectionScreen = () => {
   );
 };
 
+// 🔥 маленький helper
+const SwitchRow = ({label, value, onChange}: any) => (
+  <View style={styles.row}>
+    <Text>{label}</Text>
+    <Switch value={value} onValueChange={onChange} />
+  </View>
+);
+
 const TabButton = ({label, active, onPress}: any) => (
   <TouchableOpacity
     onPress={onPress}
@@ -215,15 +320,8 @@ const TabButton = ({label, active, onPress}: any) => (
 );
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  section: {
-    fontSize: 16,
-    marginVertical: 10,
-  },
+  title: {fontSize: 20, fontWeight: 'bold', marginBottom: 12},
+  section: {fontSize: 16, marginVertical: 10},
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -244,11 +342,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ddd',
   },
-  tab: {
-    padding: 8,
-  },
-  tabActive: {
-    backgroundColor: '#333',
-    borderRadius: 6,
-  },
+  tab: {padding: 8},
+  tabActive: {backgroundColor: '#333', borderRadius: 6},
 });
