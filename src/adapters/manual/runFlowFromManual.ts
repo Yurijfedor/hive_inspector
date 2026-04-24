@@ -1,3 +1,6 @@
+import {ConversationDriver} from '../../conversation/driver/conversationDriver';
+import {mapManualToFlowInput} from './manualInputAdapter';
+
 export async function runFlowFromManual(
   driver: ConversationDriver,
   flowId: string,
