@@ -16,35 +16,71 @@ export const runManualBatch = async (
 const buildEvents = (hiveNumber: number, data: any) => {
   const events: any[] = [];
 
+  // -------------------------
+  // INSPECTION
+  // -------------------------
+
   if (data.inspection) {
     events.push({
-      type: 'INSPECTION_RECORDED',
+      type: 'UPDATE_INSPECTION',
       hiveNumber,
       payload: data.inspection,
     });
+
+    events.push({
+      type: 'STOP_INSPECTION',
+      hiveNumber,
+    });
   }
+
+  // -------------------------
+  // SWARM
+  // -------------------------
 
   if (data.swarm) {
     events.push({
-      type: 'SWARM_RECORDED',
+      type: 'UPDATE_SWARM',
       hiveNumber,
       payload: data.swarm,
     });
-  }
 
-  if (data.disease) {
     events.push({
-      type: 'DISEASE_RECORDED',
+      type: 'STOP_SWARM',
       hiveNumber,
-      payload: data.disease,
     });
   }
 
+  // -------------------------
+  // DISEASE
+  // -------------------------
+
+  if (data.disease) {
+    events.push({
+      type: 'UPDATE_DISEASE',
+      hiveNumber,
+      payload: data.disease,
+    });
+
+    events.push({
+      type: 'STOP_DISEASE',
+      hiveNumber,
+    });
+  }
+
+  // -------------------------
+  // SPLIT
+  // -------------------------
+
   if (data.split) {
     events.push({
-      type: 'SPLIT_RECORDED',
+      type: 'UPDATE_SPLIT',
       hiveNumber,
       payload: data.split,
+    });
+
+    events.push({
+      type: 'STOP_SPLIT',
+      hiveNumber,
     });
   }
 
