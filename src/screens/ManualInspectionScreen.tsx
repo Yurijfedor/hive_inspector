@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 
-import {useConversation} from '../conversation/ConversationProvider';
+// import {useConversation} from '../conversation/ConversationProvider';
 
 // ❗ НОВЕ
 import {runManualBatch} from '../application/runManualBatch';
@@ -23,7 +23,7 @@ export const ManualInspectionScreen = () => {
   const route = useRoute<any>();
   const {hiveNumber} = route.params;
 
-  const driver = useConversation();
+  // const driver = useConversation();
 
   const [activeTab, setActiveTab] = useState<Tab>('main');
 
@@ -84,7 +84,7 @@ export const ManualInspectionScreen = () => {
       console.log('🧾 NORMALIZED FORM', normalized);
 
       // 2. прямий виклик domain (без flow)
-      await runManualBatch(driver, hiveNumber, normalized);
+      await runManualBatch(hiveNumber, normalized);
 
       console.log('✅ ALL DATA SAVED');
     } catch (e) {

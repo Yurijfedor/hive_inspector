@@ -1,37 +1,48 @@
-import {buildInspectionCommand} from '../domain/commands/buildInspectionCommand';
-import {buildSwarmCommand} from '../domain/commands/buildSwarmCommand';
-import {buildDiseaseCommand} from '../domain/commands/buildDiseaseCommand';
-import {buildSplitCommand} from '../domain/commands/buildSplitCommand';
+import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
-export async function runManualBatch(
-  driver: any,
-  hiveNumber: number,
-  form: any,
-) {
-  const events = [];
+export const runManualBatch = async (hiveNumber: number, data: any) => {
+  const events = buildEvents(hiveNumber, data);
 
-  // 🟢 inspection
-  if (form.inspection) {
-    events.push(buildInspectionCommand(hiveNumber, form.inspection));
-  }
-
-  // 🟡 swarm
-  if (form.swarm) {
-    events.push(buildSwarmCommand(hiveNumber, form.swarm));
-  }
-
-  // 🟡 disease
-  if (form.disease) {
-    events.push(buildDiseaseCommand(hiveNumber, form.disease));
-  }
-
-  // 🟡 split
-  if (form.split) {
-    events.push(buildSplitCommand(hiveNumber, form.split));
-  }
-
-  // 🔥 головне — без flow engine
   for (const event of events) {
-    await driver.handleDomainEvent(event);
+    await handleDomainEvent(event);
   }
-}
+};
+
+// 🔥 тимчасово тут (потім винесемо)
+const buildEvents = (hiveNumber: number, data: any) => {
+  const events: any[] = [];
+
+  if (data.inspection) {
+    events.push({
+      type: 'INSPECTION_RECORDED',
+      hiveNumber,
+      payload: data.inspection,
+    });
+  }
+
+  if (data.swarm) {
+    events.push({
+      type: 'SWARM_RECORDED',
+      hiveNumber,
+      payload: data.swarm,
+    });
+  }
+
+  if (data.disease) {
+    events.push({
+      type: 'DISEASE_RECORDED',
+      hiveNumber,
+      payload: data.disease,
+    });
+  }
+
+  if (data.split) {
+    events.push({
+      type: 'SPLIT_RECORDED',
+      hiveNumber,
+      payload: data.split,
+    });
+  }
+
+  return events;
+};
