@@ -7,8 +7,13 @@ import {HiveContext} from '../types/hive';
 export async function saveInspection(uid: string, command: InspectionCommand) {
   console.log('🔥 AUTH USER UID:', auth().currentUser?.uid);
   console.log('🔥 UID PARAM:', uid);
+
   if (command.stop) {
-    await finalizeInspection(uid, command.hiveNumber);
+    await finalizeInspection(
+      uid,
+      command.hiveNumber,
+      command.source, // ✅ ПРОКИДАЄМО SOURCE
+    );
     return;
   }
 
@@ -57,6 +62,12 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
     ] = command.syrupLiters;
   }
 
+  if (command.source !== undefined) {
+    updates[
+      `users/${uid}/hives/${command.hiveNumber}/currentInspection/source`
+    ] = command.source;
+  }
+
   updates[
     `users/${uid}/hives/${command.hiveNumber}/currentInspection/updatedAt`
   ] = database.ServerValue.TIMESTAMP;
@@ -67,7 +78,11 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
 /**
  * Finalizes inspection
  */
-async function finalizeInspection(uid: string, hiveNumber: number) {
+async function finalizeInspection(
+  uid: string,
+  hiveNumber: number,
+  source: 'voice' | 'manual' = 'voice', // ✅ ДОДАЛИ
+) {
   const currentRef = database().ref(
     `users/${uid}/hives/${hiveNumber}/currentInspection`,
   );
@@ -78,7 +93,8 @@ async function finalizeInspection(uid: string, hiveNumber: number) {
 
   const inspection = snapshot.val();
 
-  // 1. create inspection
+  const finalSource = source ?? inspection.source ?? 'voice';
+
   const newRef = database()
     .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
     .push();
@@ -90,15 +106,13 @@ async function finalizeInspection(uid: string, hiveNumber: number) {
     broodFrames: inspection.broodFrames ?? 0,
     syrupLiters: inspection.syrupLiters ?? 0,
     createdAt: Date.now(),
-    source: 'voice',
+    finalSource,
   });
 
-  // 2. update meta
   await database().ref(`users/${uid}/hives/${hiveNumber}/meta`).update({
     inspectionClosedAt: Date.now(),
   });
 
-  // 3. remove currentInspection
   await currentRef.remove();
 
   console.log('✅ FINALIZED OK');
@@ -128,6 +142,7 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
           strength: i.strength ?? 0,
           honeyKg: i.honeyKg ?? 0,
           queen: i.queen ?? 'unknown',
+          source: i.source ?? 'voice',
         });
       }
     }
@@ -309,6 +324,7 @@ export async function loadInspectionsByHive(
         honeyKg: i.honeyKg ?? 0,
         broodFrames: i.broodFrames ?? 0,
         queen: i.queen ?? 'unknown',
+        source: i.source ?? 'voice',
       });
     }
 

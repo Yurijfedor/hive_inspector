@@ -25,11 +25,17 @@ const buildEvents = (hiveNumber: number, data: any) => {
       type: 'UPDATE_INSPECTION',
       hiveNumber,
       payload: data.inspection,
+      context: {
+        source: 'manual',
+      },
     });
 
     events.push({
       type: 'STOP_INSPECTION',
       hiveNumber,
+      context: {
+        source: 'manual',
+      },
     });
   }
 

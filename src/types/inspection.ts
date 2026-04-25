@@ -7,6 +7,7 @@ export type Inspection = {
   honeyKg: number;
   broodFrames?: number;
   queen: 'present' | 'absent' | 'unknown';
+  source: 'voice' | 'manual' | 'ai';
 };
 
 export type InspectionRaw = {
@@ -15,4 +16,5 @@ export type InspectionRaw = {
   honeyKg?: number;
   broodFrames?: number;
   queen?: 'present' | 'absent';
+  source: 'voice' | 'manual' | 'ai';
 };

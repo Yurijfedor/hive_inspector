@@ -22,4 +22,6 @@ export const InspectionSchema = z.object({
   stop: z.boolean().nullable().optional(),
 });
 
-export type InspectionCommand = z.infer<typeof InspectionSchema>;
+export type InspectionCommand = z.infer<typeof InspectionSchema> & {
+  source?: 'voice' | 'manual';
+};

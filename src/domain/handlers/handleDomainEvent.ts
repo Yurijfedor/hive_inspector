@@ -6,8 +6,12 @@ import {handleDiseaseEffect} from './diseaseEffectHandler';
 import {handleSplitEffect} from './splitEffectHandler';
 import {handleTaskEffect} from './taskEffectHandler';
 import {handleQueenEffect} from './queenEffectHandler';
+import {ExecutionContext} from '../types/commandContext';
 
-export async function handleDomainEvent(uid: string, event: DomainEvent) {
+export async function handleDomainEvent(
+  uid: string,
+  event: DomainEvent & {context?: ExecutionContext},
+) {
   switch (event.type) {
     // -------------------------
     // INSPECTION

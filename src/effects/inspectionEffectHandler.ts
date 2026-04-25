@@ -9,11 +9,14 @@ export async function handleInspectionEffect(
   uid: string,
   event: InspectionEvent,
 ): Promise<InspectionEffectResult> {
+  const source = event.context?.source ?? 'voice'; // 👈 ГОЛОВНЕ
+
   switch (event.type) {
     case 'STOP_INSPECTION':
       await saveInspection(uid, {
         hiveNumber: event.hiveNumber,
         stop: true,
+        source,
       });
 
       // 🔥 закриваємо старі inspection tasks
@@ -35,8 +38,10 @@ export async function handleInspectionEffect(
         broodFrames: event.payload?.broodFrames,
         queen: event.payload?.queen,
         syrupLiters: event.payload?.syrupLiters,
+        source, // 👈 ДОДАЛИ
       };
-      console.log(command);
+
+      console.log('🔥 EFFECT COMMAND', command);
 
       await saveInspection(uid, command);
 
