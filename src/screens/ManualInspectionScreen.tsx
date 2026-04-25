@@ -12,10 +12,10 @@ import {
 import {useRoute} from '@react-navigation/native';
 
 import {useConversation} from '../conversation/ConversationProvider';
-import {runInspectionBatch} from '../features/manualInput/runInspectionBatch';
 
-// 🔥 НОВЕ
-import {runFlowFromManual} from '../adapters/manual/runFlowFromManual';
+// ❗ НОВЕ
+import {runManualBatch} from '../application/runManualBatch';
+import {normalizeManualForm} from '../features/manualInput/mappers/normalizeManualForm';
 
 type Tab = 'main' | 'swarm' | 'disease' | 'split';
 
@@ -27,7 +27,6 @@ export const ManualInspectionScreen = () => {
 
   const [activeTab, setActiveTab] = useState<Tab>('main');
 
-  // 🔥 ВАЖЛИВО: розбили на flow-структуру
   const [form, setForm] = useState({
     inspection: {
       strength: '10',
@@ -60,52 +59,34 @@ export const ManualInspectionScreen = () => {
     },
   });
 
-  const handleChange = (section: string, key: string, value: any) => {
+  const handleChange = (
+    section: keyof typeof form,
+    key: string,
+    value: any,
+  ) => {
     setForm((prev) => ({
       ...prev,
       [section]: {
-        ...prev[section as keyof typeof prev],
+        ...prev[section],
         [key]: value,
       },
     }));
   };
 
+  // 🔥 ПОВНІСТЮ НОВА ЛОГІКА
   const handleSave = async () => {
     console.log('🔥 CLICK SAVE');
 
     try {
-      // -------------------------
-      // 🟢 INSPECTION (залишаємо як є)
-      // -------------------------
-      await runInspectionBatch(driver, hiveNumber, {
-        strength: Number(form.inspection.strength),
-        broodFrames: Number(form.inspection.broodFrames),
-        honeyKg: Number(form.inspection.honeyKg),
-        queen: form.inspection.queen ? 'так' : 'ні',
-        queenBreed: form.inspection.queenBreed,
-        queenYear: Number(form.inspection.queenYear),
-      });
+      // 1. нормалізація (boolean → "так/ні", string → number)
+      const normalized = normalizeManualForm(form);
 
-      // -------------------------
-      // 🟡 SWARM
-      // -------------------------
-      await runFlowFromManual(driver, 'swarm', hiveNumber, form.swarm);
+      console.log('🧾 NORMALIZED FORM', normalized);
 
-      // -------------------------
-      // 🟡 DISEASE
-      // -------------------------
-      await runFlowFromManual(driver, 'disease', hiveNumber, form.disease);
+      // 2. прямий виклик domain (без flow)
+      await runManualBatch(driver, hiveNumber, normalized);
 
-      // -------------------------
-      // 🟡 SPLIT
-      // -------------------------
-      await runFlowFromManual(driver, 'split', hiveNumber, {
-        ...form.split,
-        broodFrames: Number(form.split.broodFrames),
-        foodFrames: Number(form.split.foodFrames),
-      });
-
-      console.log('✅ ALL FLOWS COMPLETED');
+      console.log('✅ ALL DATA SAVED');
     } catch (e) {
       console.log('❌ SAVE ERROR', e);
     }
@@ -121,7 +102,9 @@ export const ManualInspectionScreen = () => {
             <Text>Сила</Text>
             <TextInput
               value={form.inspection.strength}
-              onChangeText={(v) => handleChange('inspection', 'strength', v)}
+              onChangeText={(v: string) =>
+                handleChange('inspection', 'strength', v)
+              }
               keyboardType="numeric"
               style={styles.input}
             />
@@ -129,7 +112,9 @@ export const ManualInspectionScreen = () => {
             <Text>Розплід</Text>
             <TextInput
               value={form.inspection.broodFrames}
-              onChangeText={(v) => handleChange('inspection', 'broodFrames', v)}
+              onChangeText={(v: string) =>
+                handleChange('inspection', 'broodFrames', v)
+              }
               keyboardType="numeric"
               style={styles.input}
             />
@@ -137,7 +122,9 @@ export const ManualInspectionScreen = () => {
             <Text>Мед</Text>
             <TextInput
               value={form.inspection.honeyKg}
-              onChangeText={(v) => handleChange('inspection', 'honeyKg', v)}
+              onChangeText={(v: string) =>
+                handleChange('inspection', 'honeyKg', v)
+              }
               keyboardType="numeric"
               style={styles.input}
             />
@@ -148,9 +135,34 @@ export const ManualInspectionScreen = () => {
               <Text>Є матка</Text>
               <Switch
                 value={form.inspection.queen}
-                onValueChange={(v) => handleChange('inspection', 'queen', v)}
+                onValueChange={(v: boolean) =>
+                  handleChange('inspection', 'queen', v)
+                }
               />
             </View>
+
+            {form.inspection.queen && (
+              <>
+                <Text>Порода</Text>
+                <TextInput
+                  value={form.inspection.queenBreed}
+                  onChangeText={(v: string) =>
+                    handleChange('inspection', 'queenBreed', v)
+                  }
+                  style={styles.input}
+                />
+
+                <Text>Рік</Text>
+                <TextInput
+                  value={form.inspection.queenYear}
+                  onChangeText={(v: string) =>
+                    handleChange('inspection', 'queenYear', v)
+                  }
+                  keyboardType="numeric"
+                  style={styles.input}
+                />
+              </>
+            )}
           </>
         );
 
@@ -162,27 +174,25 @@ export const ManualInspectionScreen = () => {
             <SwitchRow
               label="Вихід маток"
               value={form.swarm.queenEmergence}
-              onChange={(v: string) =>
-                handleChange('swarm', 'queenEmergence', v)
-              }
+              onChange={(v) => handleChange('swarm', 'queenEmergence', v)}
             />
 
             <SwitchRow
               label="Печатні маточники"
               value={form.swarm.sealedCells}
-              onChange={(v: string) => handleChange('swarm', 'sealedCells', v)}
+              onChange={(v) => handleChange('swarm', 'sealedCells', v)}
             />
 
             <SwitchRow
               label="Відкриті маточники"
               value={form.swarm.openCells}
-              onChange={(v: string) => handleChange('swarm', 'openCells', v)}
+              onChange={(v) => handleChange('swarm', 'openCells', v)}
             />
 
             <SwitchRow
               label="Яйця в маточниках"
               value={form.swarm.eggsInCells}
-              onChange={(v: string) => handleChange('swarm', 'eggsInCells', v)}
+              onChange={(v) => handleChange('swarm', 'eggsInCells', v)}
             />
           </>
         );
@@ -195,29 +205,25 @@ export const ManualInspectionScreen = () => {
             <SwitchRow
               label="Понос"
               value={form.disease.diarrhea}
-              onChange={(v: string) => handleChange('disease', 'diarrhea', v)}
+              onChange={(v) => handleChange('disease', 'diarrhea', v)}
             />
 
             <SwitchRow
               label="Деформовані крила"
               value={form.disease.deformedWings}
-              onChange={(v: string) =>
-                handleChange('disease', 'deformedWings', v)
-              }
+              onChange={(v) => handleChange('disease', 'deformedWings', v)}
             />
 
             <SwitchRow
               label="Кліщі"
               value={form.disease.mitesVisible}
-              onChange={(v: string) =>
-                handleChange('disease', 'mitesVisible', v)
-              }
+              onChange={(v) => handleChange('disease', 'mitesVisible', v)}
             />
 
             <SwitchRow
               label="Проблемний розплід"
               value={form.disease.weakBrood}
-              onChange={(v: string) => handleChange('disease', 'weakBrood', v)}
+              onChange={(v) => handleChange('disease', 'weakBrood', v)}
             />
           </>
         );
@@ -230,15 +236,13 @@ export const ManualInspectionScreen = () => {
             <SwitchRow
               label="Це відводок"
               value={form.split.isSplit}
-              onChange={(v: string) => handleChange('split', 'isSplit', v)}
+              onChange={(v) => handleChange('split', 'isSplit', v)}
             />
 
             <SwitchRow
               label="Використати для відводків"
               value={form.split.usedForSplits}
-              onChange={(v: string) =>
-                handleChange('split', 'usedForSplits', v)
-              }
+              onChange={(v) => handleChange('split', 'usedForSplits', v)}
             />
 
             <Text>Рамки розплоду</Text>
@@ -303,15 +307,32 @@ export const ManualInspectionScreen = () => {
   );
 };
 
-// 🔥 маленький helper
-const SwitchRow = ({label, value, onChange}: any) => (
+// --- UI helpers ---
+
+const SwitchRow = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}) => (
   <View style={styles.row}>
     <Text>{label}</Text>
     <Switch value={value} onValueChange={onChange} />
   </View>
 );
 
-const TabButton = ({label, active, onPress}: any) => (
+const TabButton = ({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) => (
   <TouchableOpacity
     onPress={onPress}
     style={[styles.tab, active && styles.tabActive]}>
