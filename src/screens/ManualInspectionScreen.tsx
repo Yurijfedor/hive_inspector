@@ -16,6 +16,7 @@ import {useRoute} from '@react-navigation/native';
 // ❗ НОВЕ
 import {runManualBatch} from '../application/runManualBatch';
 import {normalizeManualForm} from '../features/manualInput/mappers/normalizeManualForm';
+import {useAuth} from '../auth/AuthProvider';
 
 type Tab = 'main' | 'swarm' | 'disease' | 'split';
 
@@ -24,6 +25,7 @@ export const ManualInspectionScreen = () => {
   const {hiveNumber} = route.params;
 
   // const driver = useConversation();
+  const {user} = useAuth();
 
   const [activeTab, setActiveTab] = useState<Tab>('main');
 
@@ -77,14 +79,15 @@ export const ManualInspectionScreen = () => {
   const handleSave = async () => {
     console.log('🔥 CLICK SAVE');
 
+    if (!user?.uid) {
+      console.log('❌ NO USER');
+      return;
+    }
+
     try {
-      // 1. нормалізація (boolean → "так/ні", string → number)
       const normalized = normalizeManualForm(form);
 
-      console.log('🧾 NORMALIZED FORM', normalized);
-
-      // 2. прямий виклик domain (без flow)
-      await runManualBatch(hiveNumber, normalized);
+      await runManualBatch(user.uid, hiveNumber, normalized);
 
       console.log('✅ ALL DATA SAVED');
     } catch (e) {

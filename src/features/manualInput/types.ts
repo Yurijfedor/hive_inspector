@@ -1,8 +1,8 @@
 export type InspectionFormData = {
-  strength: number;
-  broodFrames: number;
+  strength?: number;
+  broodFrames?: number;
 
-  queen: 'так' | 'ні';
+  queen?: 'так' | 'ні';
   queenBreed?: string;
   queenYear?: number;
 
@@ -10,12 +10,36 @@ export type InspectionFormData = {
 };
 
 export type InspectionFormUI = {
-  strength: number;
-  broodFrames: number;
+  // -------------------
+  // inspection
+  // -------------------
+  inspection?: {
+    strength: number;
+    broodFrames: number;
+    honeyKg: number;
+    queen: string;
+    queenBreed?: string;
+    queenYear?: number;
+  };
 
-  queen: string; //
-  queenBreed?: string;
-  queenYear?: number;
+  swarm?: {
+    queenEmergence: boolean;
+    sealedCells: boolean;
+    openCells: boolean;
+    eggsInCells: boolean;
+  };
 
-  honeyKg: number;
+  disease?: {
+    diarrhea: boolean;
+    deformedWings: boolean;
+    mitesVisible: boolean;
+    weakBrood: boolean;
+  };
+
+  split?: {
+    isSplit: boolean;
+    usedForSplits: boolean;
+    broodFrames: number;
+    foodFrames: number;
+  };
 };

@@ -1,10 +1,14 @@
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
-export const runManualBatch = async (hiveNumber: number, data: any) => {
+export const runManualBatch = async (
+  uid: string,
+  hiveNumber: number,
+  data: any,
+) => {
   const events = buildEvents(hiveNumber, data);
 
   for (const event of events) {
-    await handleDomainEvent(event);
+    await handleDomainEvent(uid, event); // ✅ тепер правильно
   }
 };
 
