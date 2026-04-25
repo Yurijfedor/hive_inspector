@@ -1,7 +1,8 @@
+import {BaseEvent} from './baseEvent';
+
 export type DiseaseEvent =
-  | {
+  | ({
       type: 'UPDATE_DISEASE';
-      hiveNumber: number;
       payload: {
         disease?:
           | 'NOSEMA'
@@ -14,8 +15,7 @@ export type DiseaseEvent =
         mitesVisible?: boolean;
         weakBrood?: boolean;
       };
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'STOP_DISEASE';
-      hiveNumber: number;
-    };
+    } & BaseEvent);

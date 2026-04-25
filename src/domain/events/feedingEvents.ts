@@ -1,12 +1,12 @@
+import {BaseEvent} from './baseEvent';
+
 export type FeedingEvent =
-  | {
+  | ({
       type: 'UPDATE_FEEDING';
-      hiveNumber: number;
       payload: {
         syrupLiters: number;
       };
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'STOP_FEEDING';
-      hiveNumber: number;
-    };
+    } & BaseEvent);

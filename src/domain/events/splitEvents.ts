@@ -1,15 +1,15 @@
+import {BaseEvent} from './baseEvent';
+
 export type SplitEvent =
-  | {
+  | ({
       type: 'UPDATE_SPLIT';
-      hiveNumber: number;
       payload: {
         isSplit?: boolean;
         usedForSplits?: boolean;
         broodFrames?: number;
         foodFrames?: number;
       };
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'STOP_SPLIT';
-      hiveNumber: number;
-    };
+    } & BaseEvent);

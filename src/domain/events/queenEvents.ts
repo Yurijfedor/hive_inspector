@@ -1,3 +1,5 @@
+import {BaseEvent} from './baseEvent';
+
 export type QueenPayload = Partial<{
   status: 'present' | 'absent' | 'unknown';
   breed: 'карніка' | 'бакфаст' | 'місцева' | 'невідомо';
@@ -6,12 +8,10 @@ export type QueenPayload = Partial<{
 }>;
 
 export type QueenEvent =
-  | {
+  | ({
       type: 'UPDATE_QUEEN';
-      hiveNumber: number;
       payload: QueenPayload;
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'STOP_QUEEN';
-      hiveNumber: number;
-    };
+    } & BaseEvent);

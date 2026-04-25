@@ -1,14 +1,12 @@
+import {BaseEvent} from '../domain/events/baseEvent';
+
 export type InspectionEvent =
-  | {
+  | ({
       type: 'STOP_INSPECTION';
-      hiveNumber: number;
-      context?: {
-        source?: 'voice' | 'manual';
-      };
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'UPDATE_INSPECTION';
-      hiveNumber: number;
+
       payload: {
         strength?: number | null;
         honeyKg?: number | null;
@@ -16,7 +14,4 @@ export type InspectionEvent =
         queen?: 'present' | 'absent' | 'unknown' | null;
         syrupLiters?: number | null;
       };
-      context?: {
-        source?: 'voice' | 'manual';
-      };
-    };
+    } & BaseEvent);

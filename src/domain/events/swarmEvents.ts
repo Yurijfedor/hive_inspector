@@ -1,15 +1,15 @@
+import {BaseEvent} from './baseEvent';
+
 export type SwarmEvent =
-  | {
+  | ({
       type: 'UPDATE_SWARM';
-      hiveNumber: number;
       payload: {
         queenEmergence?: boolean;
         sealedCells?: boolean;
         openCells?: boolean;
         eggsInCells?: boolean;
       };
-    }
-  | {
+    } & BaseEvent)
+  | ({
       type: 'STOP_SWARM';
-      hiveNumber: number;
-    };
+    } & BaseEvent);

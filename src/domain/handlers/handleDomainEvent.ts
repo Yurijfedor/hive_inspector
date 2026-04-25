@@ -8,10 +8,11 @@ import {handleTaskEffect} from './taskEffectHandler';
 import {handleQueenEffect} from './queenEffectHandler';
 import {ExecutionContext} from '../types/commandContext';
 
-export async function handleDomainEvent(
-  uid: string,
-  event: DomainEvent & {context?: ExecutionContext},
-) {
+export async function handleDomainEvent(uid: string, event: DomainEvent) {
+  const context: ExecutionContext = {
+    source: event.context?.source ?? 'voice',
+  };
+
   switch (event.type) {
     // -------------------------
     // INSPECTION
@@ -19,7 +20,10 @@ export async function handleDomainEvent(
 
     case 'UPDATE_INSPECTION':
     case 'STOP_INSPECTION':
-      return handleInspectionEffect(uid, event);
+      return handleInspectionEffect(uid, {
+        ...event,
+        context,
+      });
 
     // -------------------------
     // SWARM
@@ -27,7 +31,10 @@ export async function handleDomainEvent(
 
     case 'UPDATE_SWARM':
     case 'STOP_SWARM':
-      return handleSwarmEffect(uid, event);
+      return handleSwarmEffect(uid, {
+        ...event,
+        context,
+      });
 
     // -------------------------
     // FEEDING
@@ -35,7 +42,10 @@ export async function handleDomainEvent(
 
     case 'UPDATE_FEEDING':
     case 'STOP_FEEDING':
-      return handleFeedingEffect(uid, event);
+      return handleFeedingEffect(uid, {
+        ...event,
+        context,
+      });
 
     // -------------------------
     // DISEASE
@@ -43,7 +53,10 @@ export async function handleDomainEvent(
 
     case 'UPDATE_DISEASE':
     case 'STOP_DISEASE':
-      return handleDiseaseEffect(uid, event);
+      return handleDiseaseEffect(uid, {
+        ...event,
+        context,
+      });
 
     // -------------------------
     // SPLIT
@@ -51,14 +64,21 @@ export async function handleDomainEvent(
 
     case 'UPDATE_SPLIT':
     case 'STOP_SPLIT':
-      return handleSplitEffect(uid, event);
+      return handleSplitEffect(uid, {
+        ...event,
+        context,
+      });
 
     // ----------------------
     // TASKS
     // ----------------------
+
     case 'TASKS_CREATED_FROM_AI':
     case 'TASK_COMPLETED':
-      return handleTaskEffect(uid, event);
+      return handleTaskEffect(uid, {
+        ...event,
+        context,
+      });
 
     // -------------------------
     // QUEEN
@@ -66,6 +86,9 @@ export async function handleDomainEvent(
 
     case 'UPDATE_QUEEN':
     case 'STOP_QUEEN':
-      return handleQueenEffect(uid, event);
+      return handleQueenEffect(uid, {
+        ...event,
+        context,
+      });
   }
 }

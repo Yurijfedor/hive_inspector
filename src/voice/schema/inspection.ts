@@ -6,7 +6,8 @@ export const INSPECTION_LLM_SCHEMA = `
   "broodFrames": number | null,
   "queen": "present" | "absent" | "unknown" | null,
   "syrupLiters": number | null,
-  "stop": boolean | null
+  "stop": boolean | null,
+  "source": "voice" | "manual" | "ai" | null
 }
 `;
 
@@ -20,8 +21,9 @@ export const InspectionSchema = z.object({
   queen: z.enum(['present', 'absent', 'unknown']).nullable().optional(),
   syrupLiters: z.number().nullable().optional(),
   stop: z.boolean().nullable().optional(),
+  source: z.enum(['voice', 'manual', 'ai']).optional(),
 });
 
 export type InspectionCommand = z.infer<typeof InspectionSchema> & {
-  source?: 'voice' | 'manual';
+  source?: 'voice' | 'manual' | 'ai';
 };
