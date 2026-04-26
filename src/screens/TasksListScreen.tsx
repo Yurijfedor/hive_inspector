@@ -4,6 +4,7 @@ import {ScrollView, View, Text, StyleSheet} from 'react-native';
 import {useAuth} from '../auth/AuthProvider';
 import {Task} from '../types/task';
 import {TaskRepository} from '../domain/repositories/taskRepository';
+import {toggleTask} from '../domain/useCases/tasks/toggleTask';
 
 import {
   groupTasksByDate,
@@ -51,6 +52,15 @@ export const TasksListScreen = () => {
     await repo.saveAll(user.uid, updated);
   };
 
+  const toggleTaskHandler = async (id: string) => {
+    if (!user) return;
+
+    await toggleTask(user.uid, id);
+
+    const updated = await repo.getAll(); // reload після save
+    setTasks(updated);
+  };
+
   // 📅 SORT + GROUP
   const sorted = sortTasks(tasks);
   const grouped = groupTasksByDate(sorted);
@@ -71,7 +81,7 @@ export const TasksListScreen = () => {
             <TaskItem
               key={task.id}
               task={task}
-              onToggle={() => toggleTask(task.id)}
+              onToggle={() => toggleTaskHandler(task.id)}
             />
           ))}
         </View>
