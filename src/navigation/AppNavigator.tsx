@@ -13,6 +13,7 @@ import {ApiaryScreen} from '../screens/ApiaryScreen';
 import {ApiaryCategoryScreen} from '../screens/ApiaryCategoryScreen';
 import {ProfileScreen} from '../screens/ProfileScreen';
 import {ManualInspectionScreen} from '../screens/ManualInspectionScreen';
+import {TaskCreateScreen} from '../screens/TaskCreateScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,7 @@ export const AppNavigator = () => {
           component={ManualInspectionScreen}
           options={{title: '📝 Ручний огляд'}}
         />
+        <Stack.Screen name="TaskCreate" component={TaskCreateScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

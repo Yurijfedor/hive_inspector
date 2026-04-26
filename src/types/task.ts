@@ -3,18 +3,36 @@ export type Task = {
   hiveNumber: number;
   title: string;
 
-  type: 'FEEDING' | 'INSPECTION' | 'DISEASE' | 'SWARM' | 'SPLIT' | 'OTHER';
+  type: TaskType;
   date: number;
 
   completed: boolean;
 
   source: 'LLM' | 'USER' | 'SYSTEM' | 'CLOUD';
 
-  priority?: 'PRIMARY' | 'SECONDARY';
+  priority?: TaskPriority;
 
-  note?: string; // 🔥 нове поле
+  note?: string;
 
   updatedAt: number;
 
   deleted?: boolean;
 };
+
+export type TaskType =
+  | 'FEEDING'
+  | 'INSPECTION'
+  | 'DISEASE'
+  | 'SWARM'
+  | 'SPLIT'
+  | 'OTHER';
+
+export type CreateTaskInput = {
+  title: string;
+  hiveNumber: number;
+  type: TaskType;
+  date: number;
+  priority?: TaskPriority;
+};
+
+export type TaskPriority = 'PRIMARY' | 'SECONDARY';

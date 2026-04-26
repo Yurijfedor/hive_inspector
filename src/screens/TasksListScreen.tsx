@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useMemo} from 'react';
-import {ScrollView, View, Text, StyleSheet} from 'react-native';
+import {ScrollView, View, Text, StyleSheet, Button} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {Task} from '../types/task';
@@ -17,6 +18,7 @@ import {TaskItem} from '../components/tasks/TaskItem';
 export const TasksListScreen = () => {
   const {user} = useAuth();
   const repo = useMemo(() => new TaskRepository(), []);
+  const navigation = useNavigation<any>();
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -52,6 +54,12 @@ export const TasksListScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View>
+        <Button
+          title="➕ Додати задачу"
+          onPress={() => navigation.navigate('TaskCreate')}
+        />
+      </View>
       {sortedGroups.map(([date, groupTasks]) => (
         <View key={date}>
           <Text style={styles.date}>
