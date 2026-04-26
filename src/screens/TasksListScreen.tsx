@@ -30,27 +30,27 @@ export const TasksListScreen = () => {
   }, [repo]);
 
   // 🔄 TOGGLE COMPLETE
-  const toggleTask = async (id: string) => {
-    if (!user) return;
+  // const toggleTask = async (id: string) => {
+  //   if (!user) return;
 
-    const now = Date.now();
+  //   const now = Date.now();
 
-    const updated = tasks.map((t) =>
-      t.id === id
-        ? {
-            ...t,
-            completed: !t.completed,
-            updatedAt: now,
-            source: 'USER' as const,
-          }
-        : t,
-    );
+  //   const updated = tasks.map((t) =>
+  //     t.id === id
+  //       ? {
+  //           ...t,
+  //           completed: !t.completed,
+  //           updatedAt: now,
+  //           source: 'USER' as const,
+  //         }
+  //       : t,
+  //   );
 
-    setTasks(updated);
+  //   setTasks(updated);
 
-    // ☁️ пушимо тільки при зміні
-    await repo.saveAll(user.uid, updated);
-  };
+  //   // ☁️ пушимо тільки при зміні
+  //   await repo.saveAll(user.uid, updated);
+  // };
 
   const toggleTaskHandler = async (id: string) => {
     if (!user) return;

@@ -15,4 +15,6 @@ export type Task = {
   note?: string; // 🔥 нове поле
 
   updatedAt: number;
+
+  deleted?: boolean;
 };
