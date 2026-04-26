@@ -262,6 +262,7 @@ export class ConversationDriver {
       // -------------------------
       // 🔥 CONTROL INTENT (ПЕРШИЙ БЛОК!)
       // -------------------------
+      console.log('🧪 CONTROL CHECK:', text);
 
       const control = detectControlIntent(text);
 

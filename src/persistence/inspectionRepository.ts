@@ -81,7 +81,7 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
 async function finalizeInspection(
   uid: string,
   hiveNumber: number,
-  source: 'voice' | 'manual' = 'voice', // ✅ ДОДАЛИ
+  source: 'voice' | 'manual' | 'ai' = 'voice', // ✅ ДОДАЛИ
 ) {
   const currentRef = database().ref(
     `users/${uid}/hives/${hiveNumber}/currentInspection`,
@@ -93,7 +93,7 @@ async function finalizeInspection(
 
   const inspection = snapshot.val();
 
-  const finalSource = source ?? inspection.source ?? 'voice';
+  const finalSource = source ?? inspection?.source ?? 'voice';
 
   const newRef = database()
     .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
@@ -106,7 +106,7 @@ async function finalizeInspection(
     broodFrames: inspection.broodFrames ?? 0,
     syrupLiters: inspection.syrupLiters ?? 0,
     createdAt: Date.now(),
-    finalSource,
+    source: finalSource,
   });
 
   await database().ref(`users/${uid}/hives/${hiveNumber}/meta`).update({
