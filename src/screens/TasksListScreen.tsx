@@ -20,49 +20,30 @@ export const TasksListScreen = () => {
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  // 🔽 LOAD LOCAL TASKS (sync already done on app start)
+  // 🔽 LOAD LOCAL TASKS
   useEffect(() => {
     const loadTasks = async () => {
-      const data = await repo.getAll(); // ✅ БЕЗ uid
+      const data = await repo.getAll();
       setTasks(data);
     };
     loadTasks();
   }, [repo]);
 
-  // 🔄 TOGGLE COMPLETE
-  // const toggleTask = async (id: string) => {
-  //   if (!user) return;
-
-  //   const now = Date.now();
-
-  //   const updated = tasks.map((t) =>
-  //     t.id === id
-  //       ? {
-  //           ...t,
-  //           completed: !t.completed,
-  //           updatedAt: now,
-  //           source: 'USER' as const,
-  //         }
-  //       : t,
-  //   );
-
-  //   setTasks(updated);
-
-  //   // ☁️ пушимо тільки при зміні
-  //   await repo.saveAll(user.uid, updated);
-  // };
-
+  // 🔄 TOGGLE COMPLETE через useCase
   const toggleTaskHandler = async (id: string) => {
     if (!user) return;
 
     await toggleTask(user.uid, id);
 
-    const updated = await repo.getAll(); // reload після save
+    const updated = await repo.getAll();
     setTasks(updated);
   };
 
+  // 🧹 FILTER DELETED (КРОК 5)
+  const visibleTasks = tasks.filter((t) => !t.deleted);
+
   // 📅 SORT + GROUP
-  const sorted = sortTasks(tasks);
+  const sorted = sortTasks(visibleTasks);
   const grouped = groupTasksByDate(sorted);
 
   const sortedGroups = Object.entries(grouped).sort(
