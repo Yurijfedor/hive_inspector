@@ -26,7 +26,8 @@ export class TaskRepository {
     try {
       // ✅ 2. LOAD CLOUD
       // const cloudTasks = await this.loadFromFirebase(uid);
-      const cloudTasks: Task[] = [];
+      // const cloudTasks: Task[] = [];
+      const cloudTasks = await this.loadFromFirebase(uid);
 
       // ✅ 3. DIFF
       const tasksToPush = this.getTasksToPush(tasks, cloudTasks);
@@ -52,6 +53,11 @@ export class TaskRepository {
 
         const path = `users/${uid}/hives/${task.hiveNumber}/tasks/${safeTaskId}`;
 
+        if (task.deleted) {
+          updates[path] = null; // 🔥 DELETE
+          continue;
+        }
+
         updates[path] = {
           title: task.title,
           type: task.type,
@@ -62,7 +68,6 @@ export class TaskRepository {
           updatedAt: task.updatedAt ?? Date.now(),
         };
       }
-
       // console.log('🔥 UID:', uid);
       // console.log('🔥 UPDATE PATHS:', Object.keys(updates));
 
