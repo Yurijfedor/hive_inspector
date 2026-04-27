@@ -11,10 +11,14 @@ import {
   ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {useAuth} from '../auth/AuthProvider';
 import {createTask} from '../domain/useCases/tasks/createTask';
 import {TaskType, TaskPriority} from '../types/task';
+
+import {formatDateUA} from '../utils/date/formatDate';
+import {parseDateUA} from '../utils/date/parseDate';
 
 const TASK_TYPES: {label: string; value: TaskType}[] = [
   {label: '🍯 Підгодівля', value: 'FEEDING'},
@@ -25,6 +29,11 @@ const TASK_TYPES: {label: string; value: TaskType}[] = [
   {label: '📋 Інше', value: 'OTHER'},
 ];
 
+const PRIORITIES: {label: string; value: TaskPriority}[] = [
+  {label: '🔥 Важливо', value: 'PRIMARY'},
+  {label: '🟢 Звичайно', value: 'SECONDARY'},
+];
+
 export const TaskCreateScreen = () => {
   const navigation = useNavigation<any>();
   const {user} = useAuth();
@@ -33,14 +42,10 @@ export const TaskCreateScreen = () => {
   const [hiveNumber, setHiveNumber] = useState('');
   const [type, setType] = useState<TaskType>('INSPECTION');
   const [priority, setPriority] = useState<TaskPriority>('PRIMARY');
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split('T')[0],
-  );
 
-  const PRIORITIES: {label: string; value: TaskPriority}[] = [
-    {label: '🔥 Важливо', value: 'PRIMARY'},
-    {label: '🟢 Звичайно', value: 'SECONDARY'},
-  ];
+  const [date, setDate] = useState(Date.now());
+  const [dateInput, setDateInput] = useState(formatDateUA(Date.now()));
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleCreate = async () => {
     if (!user) return;
@@ -55,8 +60,8 @@ export const TaskCreateScreen = () => {
         title,
         hiveNumber: Number(hiveNumber),
         type,
-        date: new Date(date).getTime(),
-        priority, // ✅ тепер валідний тип
+        date,
+        priority,
       });
 
       navigation.goBack();
@@ -76,7 +81,7 @@ export const TaskCreateScreen = () => {
         <Text style={styles.title}>➕ Нова задача</Text>
 
         {/* TITLE */}
-        <Text>📌 Назва</Text>
+        <Text style={styles.label}>📌 Назва</Text>
         <TextInput
           style={styles.input}
           value={title}
@@ -85,7 +90,7 @@ export const TaskCreateScreen = () => {
         />
 
         {/* HIVE */}
-        <Text>🐝 Номер вулика</Text>
+        <Text style={styles.label}>🐝 Вулик</Text>
         <TextInput
           style={styles.input}
           value={hiveNumber}
@@ -95,34 +100,81 @@ export const TaskCreateScreen = () => {
         />
 
         {/* TYPE */}
-        <Text>📂 Тип</Text>
-        {TASK_TYPES.map((t) => (
-          <Button
-            key={t.value}
-            title={t.label}
-            onPress={() => setType(t.value)}
-            color={type === t.value ? '#4CAF50' : '#999'}
-          />
-        ))}
+        <Text style={styles.label}>📂 Тип</Text>
+        <View style={styles.chipContainer}>
+          {TASK_TYPES.map((t) => {
+            const active = type === t.value;
 
-        <Text>⚡ Пріоритет</Text>
+            return (
+              <Text
+                key={t.value}
+                style={[styles.chip, active && styles.chipActive]}
+                onPress={() => setType(t.value)}>
+                {t.label}
+              </Text>
+            );
+          })}
+        </View>
 
-        {PRIORITIES.map((p) => (
-          <Button
-            key={p.value}
-            title={p.label}
-            onPress={() => setPriority(p.value)}
-            color={priority === p.value ? '#4CAF50' : '#999'}
-          />
-        ))}
+        {/* PRIORITY */}
+        <Text style={styles.label}>⚡ Пріоритет</Text>
+        <View style={styles.chipContainer}>
+          {PRIORITIES.map((p) => {
+            const active = priority === p.value;
+
+            return (
+              <Text
+                key={p.value}
+                style={[styles.chip, active && styles.chipActive]}
+                onPress={() => setPriority(p.value)}>
+                {p.label}
+              </Text>
+            );
+          })}
+        </View>
 
         {/* DATE */}
-        <Text style={{marginTop: 10}}>📅 Дата (YYYY-MM-DD)</Text>
-        <TextInput style={styles.input} value={date} onChangeText={setDate} />
+        <Text style={styles.label}>📅 Дата</Text>
 
-        <View style={{marginTop: 20}}>
+        <View style={styles.dateRow}>
+          <TextInput
+            style={[styles.input, {flex: 1}]}
+            value={dateInput}
+            onChangeText={(text) => {
+              setDateInput(text);
+
+              const parsed = parseDateUA(text);
+              if (parsed) setDate(parsed);
+            }}
+            placeholder="ДД-ММ-РРРР"
+          />
+
+          <Text style={styles.calendarBtn} onPress={() => setShowPicker(true)}>
+            📅
+          </Text>
+        </View>
+
+        <View style={{marginTop: 24}}>
           <Button title="💾 Створити" onPress={handleCreate} />
         </View>
+
+        {/* DATE PICKER */}
+        {showPicker && (
+          <DateTimePicker
+            value={new Date(date)}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+
+              if (selectedDate) {
+                const ts = selectedDate.getTime();
+                setDate(ts);
+                setDateInput(formatDateUA(ts));
+              }
+            }}
+          />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -131,6 +183,7 @@ export const TaskCreateScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    paddingBottom: 40,
   },
 
   title: {
@@ -139,11 +192,47 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  label: {
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
     marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#eee',
+  },
+
+  chipActive: {
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+  },
+
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  calendarBtn: {
+    fontSize: 22,
+    padding: 8,
   },
 });

@@ -11,9 +11,12 @@ import {
   ScrollView,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {useAuth} from '../auth/AuthProvider';
 import {Task, TaskType} from '../types/task';
+import {formatDateUA} from '../utils/date/formatDate';
+import {parseDateUA} from '../utils/date/parseDate';
 
 import {updateTask} from '../domain/useCases/tasks/updateTask';
 import {deleteTask} from '../domain/useCases/tasks/deleteTask';
@@ -36,9 +39,12 @@ export const TaskEditScreen = () => {
   const [title, setTitle] = useState(task.title);
   const [hiveNumber, setHiveNumber] = useState(String(task.hiveNumber));
   const [type, setType] = useState<TaskType>(task.type);
-  const [date, setDate] = useState(
-    new Date(task.date).toISOString().split('T')[0],
-  );
+  //   const [date, setDate] = useState(
+  //     new Date(task.date).toISOString().split('T')[0],
+  //   );
+  const [date, setDate] = useState(task.date);
+  const [dateInput, setDateInput] = useState(formatDateUA(task.date));
+  const [showPicker, setShowPicker] = useState(false);
 
   // 💾 SAVE
   const handleSave = async () => {
@@ -55,9 +61,8 @@ export const TaskEditScreen = () => {
         title,
         hiveNumber: Number(hiveNumber),
         type,
-        date: new Date(date).getTime(),
+        date, // 👈 вже number
       });
-
       navigation.goBack();
     } catch (e) {
       console.log('❌ UPDATE FAILED', e);
@@ -96,11 +101,11 @@ export const TaskEditScreen = () => {
         <Text style={styles.title}>✏️ Редагування задачі</Text>
 
         {/* TITLE */}
-        <Text>📌 Назва</Text>
+        <Text style={styles.label}>📌 Назва</Text>
         <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
         {/* HIVE */}
-        <Text>🐝 Вулик</Text>
+        <Text style={styles.label}>🐝 Вулик</Text>
         <TextInput
           style={styles.input}
           value={hiveNumber}
@@ -109,27 +114,69 @@ export const TaskEditScreen = () => {
         />
 
         {/* TYPE */}
-        <Text>📂 Тип</Text>
-        {TASK_TYPES.map((t) => (
-          <Button
-            key={t.value}
-            title={t.label}
-            onPress={() => setType(t.value)}
-            color={type === t.value ? '#4CAF50' : '#999'}
-          />
-        ))}
+        <Text style={styles.label}>📂 Тип</Text>
+        <View style={styles.typeContainer}>
+          {TASK_TYPES.map((t) => {
+            const active = type === t.value;
+
+            return (
+              <Text
+                key={t.value}
+                style={[styles.typeChip, active && styles.typeChipActive]}
+                onPress={() => setType(t.value)}>
+                {t.label}
+              </Text>
+            );
+          })}
+        </View>
 
         {/* DATE */}
-        <Text style={{marginTop: 10}}>📅 Дата</Text>
-        <TextInput style={styles.input} value={date} onChangeText={setDate} />
+        <Text style={styles.label}>📅 Дата</Text>
 
-        <View style={{marginTop: 20}}>
+        <View style={styles.dateRow}>
+          <TextInput
+            style={[styles.input, {flex: 1}]}
+            value={dateInput}
+            onChangeText={(text) => {
+              setDateInput(text);
+
+              const parsed = parseDateUA(text);
+              if (parsed) setDate(parsed);
+            }}
+            placeholder="ДД-ММ-РРРР"
+          />
+
+          <Text style={styles.calendarBtn} onPress={() => setShowPicker(true)}>
+            📅
+          </Text>
+        </View>
+
+        {/* ACTIONS */}
+        <View style={{marginTop: 24}}>
           <Button title="💾 Зберегти" onPress={handleSave} />
         </View>
 
         <View style={{marginTop: 10}}>
           <Button title="🗑 Видалити" color="red" onPress={handleDelete} />
         </View>
+
+        {/* DATE PICKER */}
+        {showPicker && (
+          <DateTimePicker
+            value={new Date(date)}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+
+              if (selectedDate) {
+                const ts = selectedDate.getTime();
+                setDate(ts);
+                setDateInput(formatDateUA(ts));
+              }
+            }}
+          />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -138,6 +185,7 @@ export const TaskEditScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    paddingBottom: 40,
   },
 
   title: {
@@ -146,11 +194,49 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  label: {
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
     marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+
+  // 🔥 TYPES
+  typeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  typeChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#eee',
+  },
+
+  typeChipActive: {
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+  },
+
+  // 🔥 DATE
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  calendarBtn: {
+    fontSize: 22,
+    padding: 8,
   },
 });
