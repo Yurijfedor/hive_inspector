@@ -1,7 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {useAuth} from '../auth/AuthProvider';
-import {TaskRepository} from '../domain/repositories/taskRepository';
-import {syncHiveContexts} from '../sync/syncHiveContexts';
+import {runFullSync} from '../sync/runFullSync';
 import {shouldSyncToday} from '../sync/shouldSyncToday';
 import {isOnline} from '../sync/isOnline';
 
@@ -16,10 +15,7 @@ export const SyncGate = ({children}: {children: React.ReactNode}) => {
     hasSyncedRef.current = true;
 
     const runSync = async () => {
-      const repo = new TaskRepository();
-
       try {
-        // 🔍 перевірка інтернету
         const online = await isOnline();
 
         if (!online) {
@@ -27,22 +23,14 @@ export const SyncGate = ({children}: {children: React.ReactNode}) => {
           return;
         }
 
-        // 🔁 1. TASKS (як було)
-        const tasks = await repo.syncWithFirebase(user.uid);
-        console.log('🔄 TASK SYNC DONE:', tasks.length);
+        // 🔥 тільки tasks через runFullSync (але без hive)
+        console.log('🔄 INITIAL TASK SYNC');
 
-        // 🔁 2. HIVE CONTEXTS (раз на день)
-        const shouldSync = await shouldSyncToday();
+        await runFullSync(user.uid, {
+          includeHives: await shouldSyncToday(),
+        });
 
-        if (shouldSync) {
-          console.log('🔄 HIVE SYNC START');
-
-          await syncHiveContexts(user.uid);
-
-          console.log('✅ HIVE SYNC DONE');
-        } else {
-          console.log('⏭ HIVE SYNC SKIPPED (already today)');
-        }
+        console.log('✅ INITIAL SYNC DONE');
       } catch (e) {
         console.log('❌ SYNC FAILED', e);
       }

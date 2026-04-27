@@ -23,6 +23,7 @@ import {
   getApiaryStatus,
 } from '../services/analytics/apiaryAnalytics';
 import {loadInspections} from '../persistence/inspectionRepository';
+import {runFullSync} from '../sync/runFullSync';
 
 // 🔥 VOICE
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
@@ -43,6 +44,7 @@ export const ApiaryScreen = () => {
   const [chartData, setChartData] = useState<any>(null);
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
   const [fieldMode, setFieldMode] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   // 🔥 runtime
   const runtime = useMemo(() => {
@@ -173,6 +175,25 @@ export const ApiaryScreen = () => {
     runtime.start();
   };
 
+  const handleManualSync = async () => {
+    if (!uid) return;
+
+    try {
+      setSyncing(true);
+
+      await runFullSync(uid);
+
+      await load(); // refresh summary
+      await loadAnalytics();
+
+      console.log('✅ MANUAL SYNC DONE');
+    } catch (e) {
+      console.log('❌ MANUAL SYNC FAILED', e);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   // --------------------------------------------------
   // CLEANUP (ВАЖЛИВО)
   // --------------------------------------------------
@@ -267,8 +288,23 @@ export const ApiaryScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.voiceButton} onPress={handleStartVoice}>
-          <Text style={styles.voiceText}>🎤 Почати огляд</Text>
+        <TouchableOpacity style={styles.syncButton} onPress={handleStartVoice}>
+          <Text style={styles.syncText}>🎤 Почати огляд</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.syncButton}
+          onPress={() => navigation.navigate('TasksList')}>
+          <Text style={styles.syncText}>📅 Відкрити список завдань</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.syncButton}
+          onPress={handleManualSync}
+          disabled={syncing}>
+          <Text style={styles.syncText}>
+            {syncing ? '🔄 Синхронізація...' : '🔄 Оновити дані'}
+          </Text>
         </TouchableOpacity>
 
         <View
@@ -472,6 +508,18 @@ const styles = StyleSheet.create({
   },
 
   profileFallbackText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  syncButton: {
+    marginTop: 10,
+    backgroundColor: '#1976D2',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  syncText: {
     color: '#fff',
     fontWeight: '600',
   },

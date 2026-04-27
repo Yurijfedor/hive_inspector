@@ -2,12 +2,28 @@ import {Task} from '../types/task';
 import {ApiaryCategory} from '../domain/apiary';
 
 export type RootStackParamList = {
+  // 🧪 DEV
   Dev: undefined;
+
+  // 🏠 MAIN
+  Apiary: undefined;
+
+  // 📋 TASKS
+  TasksList: undefined; // 👈 ТВОЯ ПОМИЛКА БУЛА ТУТ
 
   Tasks: {
     initialTasks: Task[];
   };
 
+  TaskCreate: undefined;
+
+  TaskEdit: {
+    task: Task;
+  };
+
+  Today: undefined;
+
+  // 🐝 HIVE
   Hive: {
     hiveNumber: number;
   };
@@ -20,9 +36,11 @@ export type RootStackParamList = {
     hiveNumber: number;
   };
 
+  // 📊 APIARY
   ApiaryCategory: {
     category: ApiaryCategory;
   };
 
+  // 👤 PROFILE
   Profile: undefined;
 };
