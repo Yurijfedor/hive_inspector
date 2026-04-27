@@ -4,11 +4,12 @@ import {Task} from '../../types/task';
 type Props = {
   task: Task;
   onToggle: () => void;
+  onPress: () => void;
 };
 
-export const TaskItem = ({task, onToggle}: Props) => {
+export const TaskItem = ({task, onPress}: Props) => {
   return (
-    <TouchableOpacity onPress={onToggle}>
+    <TouchableOpacity onPress={onPress}>
       <View style={[styles.card, task.completed && styles.completedCard]}>
         <Text style={styles.title}>{task.title}</Text>
 

@@ -71,6 +71,7 @@ export const TasksListScreen = () => {
               key={task.id}
               task={task}
               onToggle={() => toggleTaskHandler(task.id)}
+              onPress={() => navigation.navigate('TaskEdit', {task})}
             />
           ))}
         </View>
