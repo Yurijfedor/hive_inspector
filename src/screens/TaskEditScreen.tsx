@@ -1,5 +1,15 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
@@ -77,45 +87,51 @@ export const TaskEditScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>✏️ Редагування задачі</Text>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled">
+        <Text style={styles.title}>✏️ Редагування задачі</Text>
 
-      {/* TITLE */}
-      <Text>📌 Назва</Text>
-      <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+        {/* TITLE */}
+        <Text>📌 Назва</Text>
+        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
-      {/* HIVE */}
-      <Text>🐝 Вулик</Text>
-      <TextInput
-        style={styles.input}
-        value={hiveNumber}
-        onChangeText={setHiveNumber}
-        keyboardType="numeric"
-      />
-
-      {/* TYPE */}
-      <Text>📂 Тип</Text>
-      {TASK_TYPES.map((t) => (
-        <Button
-          key={t.value}
-          title={t.label}
-          onPress={() => setType(t.value)}
-          color={type === t.value ? '#4CAF50' : '#999'}
+        {/* HIVE */}
+        <Text>🐝 Вулик</Text>
+        <TextInput
+          style={styles.input}
+          value={hiveNumber}
+          onChangeText={setHiveNumber}
+          keyboardType="numeric"
         />
-      ))}
 
-      {/* DATE */}
-      <Text style={{marginTop: 10}}>📅 Дата</Text>
-      <TextInput style={styles.input} value={date} onChangeText={setDate} />
+        {/* TYPE */}
+        <Text>📂 Тип</Text>
+        {TASK_TYPES.map((t) => (
+          <Button
+            key={t.value}
+            title={t.label}
+            onPress={() => setType(t.value)}
+            color={type === t.value ? '#4CAF50' : '#999'}
+          />
+        ))}
 
-      <View style={{marginTop: 20}}>
-        <Button title="💾 Зберегти" onPress={handleSave} />
-      </View>
+        {/* DATE */}
+        <Text style={{marginTop: 10}}>📅 Дата</Text>
+        <TextInput style={styles.input} value={date} onChangeText={setDate} />
 
-      <View style={{marginTop: 10}}>
-        <Button title="🗑 Видалити" color="red" onPress={handleDelete} />
-      </View>
-    </View>
+        <View style={{marginTop: 20}}>
+          <Button title="💾 Зберегти" onPress={handleSave} />
+        </View>
+
+        <View style={{marginTop: 10}}>
+          <Button title="🗑 Видалити" color="red" onPress={handleDelete} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

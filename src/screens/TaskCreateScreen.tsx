@@ -1,5 +1,15 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
@@ -57,58 +67,64 @@ export const TaskCreateScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>➕ Нова задача</Text>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled">
+        <Text style={styles.title}>➕ Нова задача</Text>
 
-      {/* TITLE */}
-      <Text>📌 Назва</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Наприклад: Перевірити розплід"
-      />
-
-      {/* HIVE */}
-      <Text>🐝 Номер вулика</Text>
-      <TextInput
-        style={styles.input}
-        value={hiveNumber}
-        onChangeText={setHiveNumber}
-        keyboardType="numeric"
-        placeholder="Наприклад: 12"
-      />
-
-      {/* TYPE */}
-      <Text>📂 Тип</Text>
-      {TASK_TYPES.map((t) => (
-        <Button
-          key={t.value}
-          title={t.label}
-          onPress={() => setType(t.value)}
-          color={type === t.value ? '#4CAF50' : '#999'}
+        {/* TITLE */}
+        <Text>📌 Назва</Text>
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Наприклад: Перевірити розплід"
         />
-      ))}
 
-      <Text>⚡ Пріоритет</Text>
-
-      {PRIORITIES.map((p) => (
-        <Button
-          key={p.value}
-          title={p.label}
-          onPress={() => setPriority(p.value)}
-          color={priority === p.value ? '#4CAF50' : '#999'}
+        {/* HIVE */}
+        <Text>🐝 Номер вулика</Text>
+        <TextInput
+          style={styles.input}
+          value={hiveNumber}
+          onChangeText={setHiveNumber}
+          keyboardType="numeric"
+          placeholder="Наприклад: 12"
         />
-      ))}
 
-      {/* DATE */}
-      <Text style={{marginTop: 10}}>📅 Дата (YYYY-MM-DD)</Text>
-      <TextInput style={styles.input} value={date} onChangeText={setDate} />
+        {/* TYPE */}
+        <Text>📂 Тип</Text>
+        {TASK_TYPES.map((t) => (
+          <Button
+            key={t.value}
+            title={t.label}
+            onPress={() => setType(t.value)}
+            color={type === t.value ? '#4CAF50' : '#999'}
+          />
+        ))}
 
-      <View style={{marginTop: 20}}>
-        <Button title="💾 Створити" onPress={handleCreate} />
-      </View>
-    </View>
+        <Text>⚡ Пріоритет</Text>
+
+        {PRIORITIES.map((p) => (
+          <Button
+            key={p.value}
+            title={p.label}
+            onPress={() => setPriority(p.value)}
+            color={priority === p.value ? '#4CAF50' : '#999'}
+          />
+        ))}
+
+        {/* DATE */}
+        <Text style={{marginTop: 10}}>📅 Дата (YYYY-MM-DD)</Text>
+        <TextInput style={styles.input} value={date} onChangeText={setDate} />
+
+        <View style={{marginTop: 20}}>
+          <Button title="💾 Створити" onPress={handleCreate} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
