@@ -14,6 +14,8 @@ import {useNavigation} from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {useAuth} from '../auth/AuthProvider';
+import {useHives} from '../hooks/useHives';
+import {HiveSelector} from '../components/HiveSelector';
 import {createTask} from '../domain/useCases/tasks/createTask';
 import {TaskType, TaskPriority} from '../types/task';
 
@@ -37,9 +39,10 @@ const PRIORITIES: {label: string; value: TaskPriority}[] = [
 export const TaskCreateScreen = () => {
   const navigation = useNavigation<any>();
   const {user} = useAuth();
+  const {hives} = useHives();
 
   const [title, setTitle] = useState('');
-  const [hiveNumber, setHiveNumber] = useState('');
+  const [hiveNumber, setHiveNumber] = useState<number | null>(null);
   const [type, setType] = useState<TaskType>('INSPECTION');
   const [priority, setPriority] = useState<TaskPriority>('PRIMARY');
 
@@ -91,12 +94,11 @@ export const TaskCreateScreen = () => {
 
         {/* HIVE */}
         <Text style={styles.label}>🐝 Вулик</Text>
-        <TextInput
-          style={styles.input}
+
+        <HiveSelector
           value={hiveNumber}
-          onChangeText={setHiveNumber}
-          keyboardType="numeric"
-          placeholder="Наприклад: 12"
+          onChange={setHiveNumber}
+          hives={hives}
         />
 
         {/* TYPE */}
