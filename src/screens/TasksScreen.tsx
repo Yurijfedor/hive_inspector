@@ -4,17 +4,7 @@ import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {Task} from '../types/task';
-// import {saveTasks} from '../services/tasks/tasksStorage';
 import {TaskRepository} from '../domain/repositories/taskRepository';
-
-// type Props = {
-//   route: {
-//     params: {
-//       initialTasks: Task[];
-//     };
-//   };
-//   navigation: any;
-// };
 
 export const TasksScreen = () => {
   const route = useRoute<any>();

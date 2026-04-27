@@ -1,17 +1,21 @@
+import database from '@react-native-firebase/database';
+
 import {Task, CreateTaskInput} from '../../../types/task';
 import {TaskRepository} from '../../repositories/taskRepository';
 
-function generateId() {
-  return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-}
+// function generateId() {
+//   return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+// }
 
 export async function createTask(uid: string, input: CreateTaskInput) {
   const repo = new TaskRepository();
 
+  const id = database().ref().push().key;
+
   const existing = await repo.getAll();
 
   const newTask: Task = {
-    id: generateId(),
+    id,
     title: input.title,
     hiveNumber: input.hiveNumber,
     type: input.type,

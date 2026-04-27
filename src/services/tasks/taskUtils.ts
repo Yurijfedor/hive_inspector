@@ -59,3 +59,18 @@ export const groupTasksByType = (tasks: Task[]) => {
 
   return result;
 };
+
+export function deduplicateTasks(tasks: Task[]): Task[] {
+  const map = new Map<string, Task>();
+
+  for (const task of tasks) {
+    const existing = map.get(task.id);
+
+    // залишаємо найновішу версію
+    if (!existing || (task.updatedAt ?? 0) > (existing.updatedAt ?? 0)) {
+      map.set(task.id, task);
+    }
+  }
+
+  return Array.from(map.values());
+}

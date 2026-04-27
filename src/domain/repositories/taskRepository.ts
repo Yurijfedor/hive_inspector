@@ -5,13 +5,16 @@ import {Task} from '../../types/task';
 import {loadTasks, saveTasks} from '../../services/tasks/tasksStorage';
 import {mergeTasks} from '../services/taskMergeService';
 import {sanitizeFirebaseKey} from '../../utils/firebase/sanitizeKey';
+import {deduplicateTasks} from '../../services/tasks/taskUtils';
 
 export class TaskRepository {
   // =============================
   // GET ALL (LOCAL)
   // =============================
   async getAll(): Promise<Task[]> {
-    return await loadTasks();
+    const tasks = await loadTasks();
+
+    return deduplicateTasks(tasks);
   }
 
   // =============================

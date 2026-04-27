@@ -12,19 +12,12 @@ import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {auth} from '../firebase/firebase';
-// import {runInspectionRuntimeTest} from '../flows/testInspection';
-// import {baseGrammar} from '../voice/grammars/baseGrammar';
-// import {hiveNumbers} from '../voice/grammars/hiveGrammar';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
-// import {mapLLMTasksToDomain} from '../services/ai/mapTasks';
-// import {loadTasks} from '../services/tasks/tasksStorage';
 import {TaskRepository} from '../domain/repositories/taskRepository';
-// import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
 import {syncHiveContexts} from '../sync/syncHiveContexts';
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
 import {getApiarySummary} from '../services/apiaryService';
-// import {startVoice, stopVoice} from '../services/voiceService';
 
 export const DevScreen = () => {
   const {user} = useAuth();

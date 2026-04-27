@@ -37,11 +37,7 @@ export const TaskEditScreen = () => {
   const {task}: {task: Task} = route.params;
 
   const [title, setTitle] = useState(task.title);
-  const [hiveNumber, setHiveNumber] = useState(String(task.hiveNumber));
   const [type, setType] = useState<TaskType>(task.type);
-  //   const [date, setDate] = useState(
-  //     new Date(task.date).toISOString().split('T')[0],
-  //   );
   const [date, setDate] = useState(task.date);
   const [dateInput, setDateInput] = useState(formatDateUA(task.date));
   const [showPicker, setShowPicker] = useState(false);
@@ -50,7 +46,7 @@ export const TaskEditScreen = () => {
   const handleSave = async () => {
     if (!user) return;
 
-    if (!title || !hiveNumber) {
+    if (!title) {
       Alert.alert('Помилка', 'Заповни всі поля');
       return;
     }
@@ -59,7 +55,7 @@ export const TaskEditScreen = () => {
       await updateTask(user.uid, {
         ...task,
         title,
-        hiveNumber: Number(hiveNumber),
+        hiveNumber: task.hiveNumber,
         type,
         date, // 👈 вже number
       });
@@ -100,18 +96,12 @@ export const TaskEditScreen = () => {
         keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>✏️ Редагування задачі</Text>
 
-        {/* TITLE */}
-        <Text style={styles.label}>📌 Назва</Text>
-        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
-
         {/* HIVE */}
-        <Text style={styles.label}>🐝 Вулик</Text>
-        <TextInput
-          style={styles.input}
-          value={hiveNumber}
-          onChangeText={setHiveNumber}
-          keyboardType="numeric"
-        />
+        <Text style={styles.label}>🐝 Вулик {task.hiveNumber}</Text>
+
+        {/* TITLE */}
+        <Text style={styles.label}>📌 Назва/короткий опис</Text>
+        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
         {/* TYPE */}
         <Text style={styles.label}>📂 Тип</Text>
@@ -196,7 +186,7 @@ const styles = StyleSheet.create({
 
   label: {
     marginBottom: 6,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   input: {
@@ -238,5 +228,18 @@ const styles = StyleSheet.create({
   calendarBtn: {
     fontSize: 22,
     padding: 8,
+  },
+  readonlyField: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    backgroundColor: '#f5f5f5',
+  },
+
+  readonlyText: {
+    color: '#333',
+    fontWeight: '500',
   },
 });
