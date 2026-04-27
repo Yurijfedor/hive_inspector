@@ -25,7 +25,7 @@ const TASK_TYPES: {label: string; value: TaskType}[] = [
   {label: '🐝 Огляд', value: 'INSPECTION'},
   {label: '🧬 Хвороби', value: 'DISEASE'},
   {label: '🐝 Роїння', value: 'SWARM'},
-  {label: '🪺 Відводки', value: 'SPLIT'},
+  {label: '📦 Відводки', value: 'SPLIT'},
   {label: '📋 Інше', value: 'OTHER'},
 ];
 
