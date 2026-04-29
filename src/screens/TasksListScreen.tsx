@@ -44,7 +44,9 @@ export const TasksListScreen = () => {
   const {hives} = useHives();
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [filters, setFilters] = useState<TaskFilters>({});
+  const [filters, setFilters] = useState<TaskFilters>({
+    status: 'ACTIVE', // 👈 дефолт
+  });
 
   // 🔽 LOAD LOCAL TASKS
   useEffect(() => {
@@ -119,6 +121,42 @@ export const TasksListScreen = () => {
 
       {/* 🎛 FILTERS */}
       <View style={styles.filters}>
+        <Text style={styles.filterTitle}>📌 Статус</Text>
+
+        <View style={{flexDirection: 'row'}}>
+          <Chip
+            label="Активні"
+            active={filters.status === 'ACTIVE'}
+            onPress={() =>
+              setFilters((prev) => ({
+                ...prev,
+                status: 'ACTIVE',
+              }))
+            }
+          />
+
+          <Chip
+            label="Виконані"
+            active={filters.status === 'COMPLETED'}
+            onPress={() =>
+              setFilters((prev) => ({
+                ...prev,
+                status: 'COMPLETED',
+              }))
+            }
+          />
+
+          <Chip
+            label="Всі"
+            active={filters.status === 'ALL'}
+            onPress={() =>
+              setFilters((prev) => ({
+                ...prev,
+                status: 'ALL',
+              }))
+            }
+          />
+        </View>
         <Text style={styles.filterTitle}>📂 Тип</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {TASK_TYPES.map((t) => (
