@@ -9,7 +9,9 @@ export type RootStackParamList = {
   Apiary: undefined;
 
   // 📋 TASKS
-  TasksList: undefined; // 👈 ТВОЯ ПОМИЛКА БУЛА ТУТ
+  TasksList: {
+    hiveNumber?: number;
+  };
 
   Tasks: {
     initialTasks: Task[];

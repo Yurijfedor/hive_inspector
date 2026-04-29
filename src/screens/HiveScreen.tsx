@@ -62,6 +62,16 @@ export const HiveScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
 
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate('TasksList', {
+            hiveNumber,
+          })
+        }>
+        <Text style={styles.buttonText}>📅 Завдання</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={handleManualInspection}>
         <Text style={styles.buttonText}>📝 Ручний огляд</Text>
       </TouchableOpacity>

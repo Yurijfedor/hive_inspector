@@ -7,7 +7,7 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {Task, TaskType, TaskPriority} from '../types/task';
@@ -40,12 +40,15 @@ export const TasksListScreen = () => {
   const {user} = useAuth();
   const repo = useMemo(() => new TaskRepository(), []);
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
 
   const {hives} = useHives();
+  const hiveNumberFromRoute = route.params?.hiveNumber;
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filters, setFilters] = useState<TaskFilters>({
-    status: 'ACTIVE', // 👈 дефолт
+    status: 'ACTIVE',
+    hiveNumber: hiveNumberFromRoute,
   });
 
   // 🔽 LOAD LOCAL TASKS
@@ -111,6 +114,10 @@ export const TasksListScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {hiveNumberFromRoute && (
+        <Text style={styles.contextTitle}>🐝 Вулик {hiveNumberFromRoute}</Text>
+      )}
+
       {/* ➕ CREATE */}
       <View style={{marginBottom: 10}}>
         <Button
@@ -168,18 +175,21 @@ export const TasksListScreen = () => {
             />
           ))}
         </ScrollView>
-
-        <Text style={styles.filterTitle}>🐝 Вулик</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {hives.map((h) => (
-            <Chip
-              key={h}
-              label={`🐝 ${h}`}
-              active={filters.hiveNumber === h}
-              onPress={() => toggleHive(h)}
-            />
-          ))}
-        </ScrollView>
+        {!hiveNumberFromRoute && (
+          <>
+            <Text style={styles.filterTitle}>🐝 Вулик</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {hives.map((h) => (
+                <Chip
+                  key={h}
+                  label={`🐝 ${h}`}
+                  active={filters.hiveNumber === h}
+                  onPress={() => toggleHive(h)}
+                />
+              ))}
+            </ScrollView>
+          </>
+        )}
 
         <Text style={styles.filterTitle}>⚡ Пріоритет</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -283,5 +293,10 @@ const styles = StyleSheet.create({
   clearBtn: {
     marginTop: 10,
     alignSelf: 'flex-start',
+  },
+  contextTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
   },
 });
