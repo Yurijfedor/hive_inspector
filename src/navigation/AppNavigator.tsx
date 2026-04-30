@@ -15,6 +15,7 @@ import {ProfileScreen} from '../screens/ProfileScreen';
 import {ManualInspectionScreen} from '../screens/ManualInspectionScreen';
 import {TaskCreateScreen} from '../screens/TaskCreateScreen';
 import {TaskEditScreen} from '../screens/TaskEditScreen';
+import {HiveCreateScreen} from '../screens/HiveCreateScreen';
 
 enableScreens(true);
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,7 @@ export const AppNavigator = () => {
         />
         <Stack.Screen name="TaskCreate" component={TaskCreateScreen} />
         <Stack.Screen name="TaskEdit" component={TaskEditScreen} />
+        <Stack.Screen name="HiveCreate" component={HiveCreateScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

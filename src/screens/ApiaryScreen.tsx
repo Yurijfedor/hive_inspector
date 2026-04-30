@@ -317,6 +317,12 @@ export const ApiaryScreen = () => {
 
         <TouchableOpacity
           style={styles.syncButton}
+          onPress={() => navigation.navigate('HiveCreate')}>
+          <Text style={styles.syncText}>➕ Додати вулик</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.syncButton}
           onPress={handleManualSync}
           disabled={syncing}>
           <Text style={styles.syncText}>

@@ -45,4 +45,6 @@ export type RootStackParamList = {
 
   // 👤 PROFILE
   Profile: undefined;
+
+  HiveCreate: undefined;
 };
