@@ -10,7 +10,7 @@ export type RootStackParamList = {
 
   // 📋 TASKS
   TasksList: {
-    hiveNumber?: number;
+    hiveNumber?: number | undefined;
   };
 
   Tasks: {

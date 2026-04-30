@@ -24,6 +24,8 @@ import {
 } from '../services/analytics/apiaryAnalytics';
 import {loadInspections} from '../persistence/inspectionRepository';
 import {runFullSync} from '../sync/runFullSync';
+import {TaskRepository} from '../domain/repositories/taskRepository';
+import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
 
 // 🔥 VOICE
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
@@ -45,6 +47,8 @@ export const ApiaryScreen = () => {
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
   const [fieldMode, setFieldMode] = useState(false);
   const [syncing, setSyncing] = useState(false);
+
+  const repo = new TaskRepository();
 
   // 🔥 runtime
   const runtime = useMemo(() => {
@@ -175,6 +179,16 @@ export const ApiaryScreen = () => {
     runtime.start();
   };
 
+  const testLoad = async () => {
+    const tasks = await repo.getAll();
+    const vm = mapTasksToViewModel(tasks);
+    console.log('VM:', vm);
+    console.log('📦 LOADED TASKS:', tasks);
+
+    // 🚀 ПЕРЕХІД НА TodayScreen
+    navigation.navigate('Today');
+  };
+
   const handleManualSync = async () => {
     if (!uid) return;
 
@@ -294,7 +308,10 @@ export const ApiaryScreen = () => {
 
         <TouchableOpacity
           style={styles.syncButton}
-          onPress={() => navigation.navigate('TasksList')}>
+          // onPress={() => navigation.navigate('TasksList', {})}>
+          onPress={() => {
+            testLoad();
+          }}>
           <Text style={styles.syncText}>📅 Відкрити список завдань</Text>
         </TouchableOpacity>
 

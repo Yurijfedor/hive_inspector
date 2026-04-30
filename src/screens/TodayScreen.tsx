@@ -174,7 +174,12 @@ export const TodayScreen = () => {
         </View>
       )}
 
-      <Text style={styles.link}>📆 Відкрити календар</Text>
+      {/* <Text style={styles.link}>📆 Відкрити календар</Text> */}
+      <TouchableOpacity
+        style={styles.syncButton}
+        onPress={() => navigation.navigate('TasksList', {})}>
+        <Text style={styles.syncText}>📅 Відкрити список завдань</Text>
+      </TouchableOpacity>
 
       {/* 🟢 STATUS */}
       <View style={styles.statusBox}>
@@ -266,6 +271,19 @@ const styles = StyleSheet.create({
   },
 
   statusText: {
+    fontWeight: '600',
+  },
+
+  syncButton: {
+    marginTop: 10,
+    backgroundColor: '#1976D2',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  syncText: {
+    color: '#fff',
     fontWeight: '600',
   },
 });
