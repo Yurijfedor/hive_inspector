@@ -85,7 +85,7 @@ export const TodayScreen = () => {
               strokeWidth: 2,
             },
           ],
-          legend: ['Середня сила', 'Середній мед', 'Середній розплід'], // ✅
+          legend: ['Сила', 'Мед', 'Розплід'], // ✅
         };
 
         setChartData(chart);
@@ -178,7 +178,7 @@ export const TodayScreen = () => {
       <TouchableOpacity
         style={styles.syncButton}
         onPress={() => navigation.navigate('TasksList', {})}>
-        <Text style={styles.syncText}>📅 Відкрити список завдань</Text>
+        <Text style={styles.syncText}>📅 Відкрити повний список завдань</Text>
       </TouchableOpacity>
 
       {/* 🟢 STATUS */}

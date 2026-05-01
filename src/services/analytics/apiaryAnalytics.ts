@@ -50,7 +50,9 @@ export const buildApiaryDynamics = (
     let totalStrength = 0;
     let totalHoney = 0;
     let totalBrood = 0;
+
     let count = 0;
+    let broodCount = 0;
 
     for (const hive in byHive) {
       const hiveInspections = byHive[hive];
@@ -61,7 +63,12 @@ export const buildApiaryDynamics = (
 
       totalStrength += last.strength ?? 0;
       totalHoney += last.honeyKg ?? 0;
-      totalBrood += last.broodFrames ?? 0;
+
+      if (last.broodFrames !== undefined && last.broodFrames !== null) {
+        totalBrood += last.broodFrames;
+        broodCount++;
+      }
+
       count++;
     }
 
@@ -71,7 +78,7 @@ export const buildApiaryDynamics = (
       date: dateStr,
       avgStrength: Math.round(totalStrength / count),
       avgHoney: Math.round(totalHoney / count),
-      avgBroodFrames: Math.round(totalBrood / count),
+      avgBroodFrames: broodCount > 0 ? Math.round(totalBrood / broodCount) : 0,
     });
   }
 

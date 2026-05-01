@@ -140,6 +140,7 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
           hiveNumber: Number(hiveNumber),
           date: i.createdAt ?? 0,
           strength: i.strength ?? 0,
+          broodFrames: i.broodFrames ?? 0,
           honeyKg: i.honeyKg ?? 0,
           queen: i.queen ?? 'unknown',
           source: i.source ?? 'voice',

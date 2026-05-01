@@ -121,10 +121,14 @@ export const ApiaryScreen = () => {
             color: () => '#FFC107',
             strokeWidth: 2,
           },
+          {
+            data: points.map((p) => p.avgBroodFrames ?? 0), // 👈 ДОДАТИ
+            color: () => '#9C27B0', // 👈 фіолетовий
+            strokeWidth: 2,
+          },
         ],
-        legend: ['Сила', 'Мед'],
+        legend: ['Сила', 'Мед', 'Розплід'], // 👈 теж оновити
       };
-
       setChartData(chart);
       setStatus(getApiaryStatus(points));
     } catch (e) {

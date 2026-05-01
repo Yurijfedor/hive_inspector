@@ -1,16 +1,7 @@
-// import {getFunctions} from 'firebase/functions';
-// import {app} from '../../firebase/firebaseApp';
-
-// import {Inspection} from '../../types/inspection';
 import {Task} from '../../types/task';
-import {
-  // loadInspections,
-  loadHiveContextsFromFirebase,
-} from '../../persistence/inspectionRepository';
+import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {TaskRepository} from '../../domain/repositories/taskRepository';
 import {mapLLMTasksToDomain} from './mapTasks';
-
-// const functions = getFunctions(app, 'us-central1');
 
 const taskRepository = new TaskRepository();
 
