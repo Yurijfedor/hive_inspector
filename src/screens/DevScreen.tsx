@@ -132,7 +132,6 @@ export const DevScreen = () => {
         padding: 20,
       }}>
       <Text style={{fontSize: 22, marginBottom: 20}}>BeeVoice Dev App</Text>
-
       <Text style={{marginBottom: 20}}>User: {userId}</Text>
 
       <Button title="🔄 Sync Hives" onPress={runTestSync} />

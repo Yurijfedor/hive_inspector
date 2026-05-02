@@ -354,8 +354,8 @@ export const ApiaryScreen = () => {
             width={screenWidth - 32}
             height={220}
             chartConfig={{
-              backgroundGradientFrom: '#fff',
-              backgroundGradientTo: '#fff',
+              backgroundGradientFrom: 'rgba(255, 248, 220, 1)',
+              backgroundGradientTo: 'rgba(255, 248, 220, 1)',
               decimalPlaces: 0,
               color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
             }}
@@ -383,7 +383,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 32,
-    backgroundColor: '#fff',
     flexGrow: 1,
   },
 
@@ -405,7 +404,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(255, 248, 220, 1)',
     borderRadius: 12,
     padding: 16,
   },
@@ -441,6 +440,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 14,
     borderRadius: 12,
+    backgroundColor: 'rgba(255, 248, 220, 1)',
   },
 
   statusText: {
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   },
 
   statusGood: {
-    backgroundColor: '#e8f5e9',
+    backgroundColor: 'rgba(255, 248, 220, 1)',
   },
 
   statusWarning: {
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   accountBox: {
     marginTop: 50,
     padding: 12,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'rgba(255, 248, 220, 1)',
     borderRadius: 10,
   },
 
