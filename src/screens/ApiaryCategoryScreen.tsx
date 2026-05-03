@@ -42,15 +42,26 @@ export const ApiaryCategoryScreen = () => {
 
     for (const hiveNumber of hiveNumbers) {
       const ctx = ctxRepo.buildFromTasks(hiveNumber, tasks);
+      console.log(ctx);
 
       switch (route.params.category) {
         case 'ALL':
           result.push(hiveNumber);
           break;
 
-        case 'NO_INSPECTION':
-          if (!ctx.lastInspection?.date) result.push(hiveNumber);
+        case 'NO_INSPECTION': {
+          const now = Date.now();
+          const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+          if (
+            !ctx.lastInspection?.date ||
+            now - ctx.lastInspection.date > SEVEN_DAYS
+          ) {
+            result.push(hiveNumber);
+          }
+
           break;
+        }
 
         case 'FEEDING':
           if (!ctx.feeding?.hasFeeding) result.push(hiveNumber);
@@ -90,7 +101,7 @@ export const ApiaryCategoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     padding: 16,
   },
 
