@@ -26,6 +26,7 @@ export const HiveScreen = () => {
         console.log(contexts);
 
         const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
+        console.log(`foundet hiveCtx : ${JSON.stringify(hiveCtx)}`);
 
         setContext(hiveCtx ?? null);
       } catch (e) {
@@ -86,9 +87,11 @@ export const HiveScreen = () => {
           <Text>Мед: {context.lastInspection.honeyKg} кг</Text>
           <Text>
             Матка:{' '}
-            {context.queen?.status === 'present'
-              ? 'наявна'
-              : context.queen?.status === 'absent'
+            {context?.queen?.status === 'present'
+              ? `наявна (${context.queen.breed ?? '—'}, ${
+                  context.queen.birthYear ?? '—'
+                } р.)`
+              : context?.queen?.status === 'absent'
               ? 'відсутня'
               : 'невідомо'}
           </Text>
@@ -100,10 +103,13 @@ export const HiveScreen = () => {
       {/* ⚠️ Ознаки */}
       <Text style={styles.section}>Ознаки</Text>
 
-      <Text>Роїння: {context?.swarm?.hasSwarmSigns ? '⚠️ є' : '✅ немає'}</Text>
+      <Text>
+        Роїння: {context?.swarm?.hasSwarmSigns === 'так' ? '⚠️ є' : '✅ немає'}
+      </Text>
 
       <Text>
-        Хвороби: {context?.disease?.hasDiseaseSigns ? '⚠️ є' : '✅ немає'}
+        Хвороби:{' '}
+        {context?.disease?.hasDiseaseSigns === 'так' ? '⚠️ є' : '✅ немає'}
       </Text>
 
       {/* 🕵️ Останній огляд */}
@@ -116,13 +122,6 @@ export const HiveScreen = () => {
       ) : (
         <Text>Немає даних</Text>
       )}
-
-      {/* 📋 META */}
-      <Text style={styles.section}>Метадані</Text>
-
-      <Text>Остання сила: {context?.meta?.lastStrength ?? '—'}</Text>
-
-      <Text>Підгодівля: {context?.feeding?.hasFeeding ? 'є' : 'немає'}</Text>
 
       {/* 📜 КНОПКА ІСТОРІЇ */}
       <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
