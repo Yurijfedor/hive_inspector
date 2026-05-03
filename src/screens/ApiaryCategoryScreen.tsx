@@ -77,11 +77,24 @@ export const ApiaryCategoryScreen = () => {
 
           break;
         }
-        case 'PROBLEMS':
-          if (ctx.disease?.hasDiseaseSigns || ctx.swarm?.hasSwarmSigns) {
+        case 'PROBLEMS': {
+          const now = Date.now();
+          const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
+
+          const hasRecentDisease =
+            ctx.disease?.lastDiseaseCheck &&
+            now - ctx.disease.lastDiseaseCheck < RECENT_DAYS;
+
+          const hasRecentSwarm =
+            ctx.swarm?.lastSwarmCheck &&
+            now - ctx.swarm.lastSwarmCheck < RECENT_DAYS;
+
+          if (hasRecentDisease || hasRecentSwarm) {
             result.push(hiveNumber);
           }
+
           break;
+        }
       }
     }
 
