@@ -123,11 +123,11 @@ export const ApiaryScreen = () => {
           },
           {
             data: points.map((p) => p.avgBroodFrames ?? 0), // 👈 ДОДАТИ
-            color: () => '#9C27B0', // 👈 фіолетовий
+            color: () => '#9C27B0',
             strokeWidth: 2,
           },
         ],
-        legend: ['Сила', 'Мед', 'Розплід'], // 👈 теж оновити
+        legend: ['Сила', 'Мед', 'Розплід'],
       };
       setChartData(chart);
       setStatus(getApiaryStatus(points));

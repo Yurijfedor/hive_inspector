@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     marginBottom: 12,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
   },
 
   overlay: {

@@ -1,11 +1,35 @@
 import {Task} from '../../types/task';
 import {HiveContext} from '../../types/hive';
+import {Inspection} from '../../types/inspection';
 
 export class HiveContextRepository {
-  buildFromTasks(hiveNumber: number, tasks: Task[]): HiveContext {
+  buildFromData(
+    hiveNumber: number,
+    tasks: Task[],
+    inspections: Inspection[],
+  ): HiveContext {
+    // 🔹 tasks цього вулика
     const hiveTasks = tasks.filter((t) => t.hiveNumber === hiveNumber);
 
-    // 🔧 нормалізація дати (safe)
+    // 🔹 inspections цього вулика
+    const hiveInspections = inspections
+      .filter((i) => i.hiveNumber === hiveNumber)
+      .sort((a, b) => b.date - a.date);
+
+    const lastInspectionData = hiveInspections[0];
+
+    // 🕵️ ОСТАННІЙ ОГЛЯД (тепер з реальних даних)
+    const lastInspection = lastInspectionData
+      ? {
+          date: lastInspectionData.date,
+          strength: lastInspectionData.strength ?? 0,
+          honeyKg: lastInspectionData.honeyKg ?? 0,
+          broodFrames: lastInspectionData.broodFrames ?? 0,
+          hasQueen: lastInspectionData.queen.present === true ? true : false,
+        }
+      : null;
+
+    // 🔧 нормалізація дати (для tasks)
     const getDate = (d: number | string | undefined) => {
       if (!d) return 0;
       return typeof d === 'string' ? new Date(d).getTime() : d;
@@ -13,22 +37,6 @@ export class HiveContextRepository {
 
     const sortByDateDesc = (a: Task, b: Task) =>
       getDate(b.date) - getDate(a.date);
-
-    // 🕵️ останній огляд
-    const inspections = hiveTasks
-      .filter((t) => t.type === 'INSPECTION')
-      .sort(sortByDateDesc);
-
-    const lastInspectionTask = inspections[0];
-
-    const lastInspection = lastInspectionTask
-      ? {
-          date: getDate(lastInspectionTask.date),
-          strength: 0,
-          honeyKg: 0,
-          hasQueen: true,
-        }
-      : null;
 
     // 🟡 FEEDING
     const feedingTasks = hiveTasks
@@ -84,6 +92,7 @@ export class HiveContextRepository {
 
       meta: {
         lastInspectionAt: lastInspection?.date,
+
         lastFeedingAt: feedingTasks[0]
           ? getDate(feedingTasks[0].date)
           : undefined,

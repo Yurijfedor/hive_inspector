@@ -79,9 +79,9 @@ export const InspectionHistoryScreen = () => {
       <Text>🍯 Мед: {item.honeyKg} кг</Text>
       <Text>
         👑 Матка:{' '}
-        {item.queen === 'present' || item.queen === 'так'
+        {item.queen.present === true
           ? 'наявна'
-          : item.queen === 'absent' || item.queen === 'ні'
+          : item.queen.present === false
           ? 'відсутня'
           : 'невідомо'}
       </Text>

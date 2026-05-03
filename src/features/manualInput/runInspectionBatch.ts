@@ -58,27 +58,27 @@ export async function runInspectionBatch(
 
     switch (step.id) {
       case 'STRENGTH':
-        value = data.strength;
+        value = data.inspection?.strength;
         break;
 
       case 'BROOD':
-        value = data.broodFrames;
+        value = data.inspection?.broodFrames;
         break;
 
       case 'QUEEN':
-        value = data.queen;
+        value = data.inspection?.queen;
         break;
 
       case 'QUEEN_BREED':
-        value = data.queenBreed;
+        value = data.inspection?.queenBreed;
         break;
 
       case 'QUEEN_YEAR':
-        value = data.queenYear;
+        value = data.inspection?.queenYear;
         break;
 
       case 'HONEY':
-        value = data.honeyKg;
+        value = data.inspection?.honeyKg;
         break;
 
       default:

@@ -6,7 +6,8 @@ export type Inspection = {
   strength: number; // 0–10 (або як у тебе)
   honeyKg: number;
   broodFrames?: number;
-  queen: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
+  // queen: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
+  queen: QueenInput;
   source: 'voice' | 'manual' | 'ai';
 };
 
@@ -15,6 +16,13 @@ export type InspectionRaw = {
   strength?: number;
   honeyKg?: number;
   broodFrames?: number;
-  queen?: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
+  // queen?: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
+  queen: QueenInput;
   source: 'voice' | 'manual' | 'ai';
+};
+
+export type QueenInput = {
+  present: boolean;
+  name?: string;
+  year?: number;
 };

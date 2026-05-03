@@ -1,20 +1,36 @@
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
+import {updateQueen} from '../domain/repositories/queenRepository';
 
 export const runManualBatch = async (
   uid: string,
   hiveNumber: number,
   data: any,
 ) => {
+  // ✅ 1. Спочатку оновлюємо queen
+  if (data.inspection?.queen) {
+    console.log('🐝 QUEEN DATA:', data.inspection.queen);
+    await updateQueen(uid, hiveNumber, {
+      status: data.inspection.queen.present ? 'present' : 'absent',
+      breed: data.inspection.queen.name,
+      birthYear: data.inspection.queen.year,
+    });
+  }
+
+  // ✅ 2. Потім будуємо events
   const events = buildEvents(hiveNumber, data);
 
+  // ✅ 3. Обробляємо events
   for (const event of events) {
-    await handleDomainEvent(uid, event); // ✅ тепер правильно
+    await handleDomainEvent(uid, event);
   }
 };
 
-// 🔥 тимчасово тут (потім винесемо)
+// 🔥 тимчасово тут (потім винесемо)в
 const buildEvents = (hiveNumber: number, data: any) => {
   const events: any[] = [];
+
+  // const {queen, ...inspectionWithoutQueen} = data.inspection;
+  // console.log(queen);
 
   // -------------------------
   // INSPECTION

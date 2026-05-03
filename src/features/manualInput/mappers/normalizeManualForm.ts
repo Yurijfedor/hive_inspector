@@ -12,11 +12,23 @@ export function normalizeManualForm(form: any) {
   return {
     inspection: {
       ...form.inspection,
+
       strength: toNumber(form.inspection.strength),
       broodFrames: toNumber(form.inspection.broodFrames),
       honeyKg: toNumber(form.inspection.honeyKg),
 
-      queen: boolToYesNo(form.inspection.queen),
+      // 🔥 ГОЛОВНИЙ ФІКС
+      queen: {
+        present: form.inspection.queen,
+
+        name: form.inspection.queen
+          ? form.inspection.queenBreed || undefined
+          : undefined,
+
+        year: form.inspection.queen
+          ? toNumber(form.inspection.queenYear)
+          : undefined,
+      },
     },
 
     swarm: {
@@ -35,6 +47,7 @@ export function normalizeManualForm(form: any) {
 
     split: {
       ...form.split,
+
       isSplit: boolToYesNo(form.split.isSplit),
       usedForSplits: boolToYesNo(form.split.usedForSplits),
 

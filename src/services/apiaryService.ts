@@ -1,6 +1,7 @@
 import {TaskRepository} from '../domain/repositories/taskRepository';
 import {HiveContextRepository} from '../domain/repositories/hiveContextRepository';
 import {ApiarySummary} from '../domain/apiary';
+import {loadInspections} from '../persistence/inspectionRepository';
 
 const NO_INSPECTION_DAYS = 7;
 
@@ -10,6 +11,7 @@ export async function getApiarySummary(_uid: string): Promise<ApiarySummary> {
 
   // 📦 1. отримуємо всі задачі (local-first)
   const tasks = await taskRepo.getAll();
+  const inspections = await loadInspections(_uid);
 
   // 🧠 2. групуємо по вуликах
   const hiveNumbers = Array.from(new Set(tasks.map((t) => t.hiveNumber)));
@@ -22,7 +24,11 @@ export async function getApiarySummary(_uid: string): Promise<ApiarySummary> {
 
   // 🐝 3. будуємо HiveContext для кожного вулика
   for (const hiveNumber of hiveNumbers) {
-    const context = hiveContextRepo.buildFromTasks(hiveNumber, tasks);
+    const context = hiveContextRepo.buildFromData(
+      hiveNumber,
+      tasks,
+      inspections,
+    );
 
     // ❌ немає інспекції
     if (!context.lastInspection?.date) {
@@ -37,7 +43,16 @@ export async function getApiarySummary(_uid: string): Promise<ApiarySummary> {
     }
 
     // 🍯 feeding
-    if (!context.feeding?.hasFeeding) {
+
+    const strength = context.lastInspection?.strength ?? 0;
+    const honey = context.lastInspection?.honeyKg ?? 0;
+    console.log(`context: ${JSON.stringify(context)}`);
+
+    console.log(`сила: ${strength}; мед: ${honey} `);
+
+    const needsFeeding = strength > 0 && honey < strength * 1.5;
+
+    if (needsFeeding) {
       needsFeedingCount++;
     }
 

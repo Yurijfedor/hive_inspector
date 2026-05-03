@@ -7,6 +7,7 @@ import {RootStackParamList} from '../navigation/types';
 import {useAuth} from '../auth/AuthProvider';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 import {HiveContextRepository} from '../domain/repositories/hiveContextRepository';
+import {loadInspections} from '../persistence/inspectionRepository';
 import {ApiaryCategory} from '../domain/apiary';
 
 type RouteParams = {
@@ -36,12 +37,13 @@ export const ApiaryCategoryScreen = () => {
     const ctxRepo = new HiveContextRepository();
 
     const tasks = await taskRepo.getAll();
+    const inspections = await loadInspections(uid);
     const hiveNumbers = Array.from(new Set(tasks.map((t) => t.hiveNumber)));
 
     const result: number[] = [];
 
     for (const hiveNumber of hiveNumbers) {
-      const ctx = ctxRepo.buildFromTasks(hiveNumber, tasks);
+      const ctx = ctxRepo.buildFromData(hiveNumber, tasks, inspections);
       console.log(ctx);
 
       switch (route.params.category) {
@@ -63,10 +65,18 @@ export const ApiaryCategoryScreen = () => {
           break;
         }
 
-        case 'FEEDING':
-          if (!ctx.feeding?.hasFeeding) result.push(hiveNumber);
-          break;
+        case 'FEEDING': {
+          const strength = ctx.lastInspection?.strength ?? 0;
+          const honey = ctx.lastInspection?.honeyKg ?? 0;
 
+          const needsFeeding = strength > 0 && honey < strength * 1.5;
+
+          if (needsFeeding) {
+            result.push(hiveNumber);
+          }
+
+          break;
+        }
         case 'PROBLEMS':
           if (ctx.disease?.hasDiseaseSigns || ctx.swarm?.hasSwarmSigns) {
             result.push(hiveNumber);

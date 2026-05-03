@@ -207,8 +207,8 @@ export async function loadHiveContextsFromFirebase(
           date: last.createdAt ?? 0,
           strength: last.strength ?? 0,
           honeyKg: last.honeyKg ?? 0,
-          broodFrames: last.broodFrames ?? 0, // ✅ ДОДАЛИ
-          hasQueen: last.queen === 'present',
+          broodFrames: last.broodFrames ?? 0,
+          hasQueen: last.queen.present === true,
         };
       }
     }
