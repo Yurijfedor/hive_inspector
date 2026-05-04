@@ -7,7 +7,7 @@ export type Inspection = {
   honeyKg: number;
   broodFrames?: number;
   // queen: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
-  queen: QueenInput;
+  queen: QueenInput | 'present' | 'absent' | 'unknown' | 'так' | 'ні';
   source: 'voice' | 'manual' | 'ai';
 };
 
@@ -17,7 +17,7 @@ export type InspectionRaw = {
   honeyKg?: number;
   broodFrames?: number;
   // queen?: 'present' | 'absent' | 'unknown' | 'так' | 'ні';
-  queen: QueenInput;
+  queen: QueenInput | 'present' | 'absent' | 'unknown' | 'так' | 'ні';
   source: 'voice' | 'manual' | 'ai';
 };
 
