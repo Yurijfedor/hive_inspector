@@ -10,6 +10,7 @@ import database, {FirebaseDatabaseTypes} from '@react-native-firebase/database';
 import {View, ActivityIndicator} from 'react-native';
 
 import {configureGoogleSignIn} from '../services/googleAuth';
+import {ensureUserExists} from '../services/authService';
 
 type UserRole = 'admin' | 'user';
 
@@ -70,6 +71,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         } else {
           if (isMounted) {
             setUser(u);
+            await ensureUserExists(u.uid);
           }
         }
 

@@ -6,6 +6,7 @@ import {
   linkWithCredential,
 } from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import database from '@react-native-firebase/database';
 
 const auth = getAuth();
 
@@ -138,5 +139,20 @@ export async function switchGoogleAccount() {
   } catch (e) {
     console.log('❌ Switch account error', e);
     throw e;
+  }
+}
+
+export async function ensureUserExists(uid: string) {
+  const ref = database().ref(`/users/${uid}`);
+
+  const snapshot = await ref.once('value');
+
+  if (!snapshot.exists()) {
+    console.log('🆕 Creating user in DB');
+
+    await ref.set({
+      role: 'user',
+      createdAt: Date.now(),
+    });
   }
 }
