@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {AppBackground} from '../components/AppBackground';
 import {useAuth} from '../auth/AuthProvider';
+import {withLayout} from './withLayout';
 
 // screens
 import {DevScreen} from '../screens/DevScreen';
@@ -40,36 +41,45 @@ export const AppNavigator = () => {
           )}
 
           {/* 🐝 ВСІ ІНШІ ЕКРАНИ */}
-          <Stack.Screen name="Apiary" component={ApiaryScreen} />
+          <Stack.Screen name="Apiary" component={withLayout(ApiaryScreen)} />
           <Stack.Screen
             name="ApiaryCategory"
-            component={ApiaryCategoryScreen}
+            component={withLayout(ApiaryCategoryScreen)}
           />
-          <Stack.Screen name="Tasks" component={TasksScreen} />
+          <Stack.Screen name="Tasks" component={withLayout(TasksScreen)} />
           <Stack.Screen
             name="TasksList"
-            component={TasksListScreen}
+            component={withLayout(TasksListScreen)}
             options={{title: '📅 Мої задачі'}}
           />
           <Stack.Screen
             name="Today"
-            component={TodayScreen}
+            component={withLayout(TodayScreen)}
             options={{title: '🐝 Сьогодні'}}
           />
-          <Stack.Screen name="Hive" component={HiveScreen} />
+          <Stack.Screen name="Hive" component={withLayout(HiveScreen)} />
           <Stack.Screen
             name="InspectionHistory"
-            component={InspectionHistoryScreen}
+            component={withLayout(InspectionHistoryScreen)}
           />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Profile" component={withLayout(ProfileScreen)} />
           <Stack.Screen
             name="ManualInspection"
-            component={ManualInspectionScreen}
+            component={withLayout(ManualInspectionScreen)}
             options={{title: '📝 Ручний огляд'}}
           />
-          <Stack.Screen name="TaskCreate" component={TaskCreateScreen} />
-          <Stack.Screen name="TaskEdit" component={TaskEditScreen} />
-          <Stack.Screen name="HiveCreate" component={HiveCreateScreen} />
+          <Stack.Screen
+            name="TaskCreate"
+            component={withLayout(TaskCreateScreen)}
+          />
+          <Stack.Screen
+            name="TaskEdit"
+            component={withLayout(TaskEditScreen)}
+          />
+          <Stack.Screen
+            name="HiveCreate"
+            component={withLayout(HiveCreateScreen)}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </AppBackground>
