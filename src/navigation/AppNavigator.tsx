@@ -4,7 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {AppBackground} from '../components/AppBackground';
-import {DevScreen} from '../screens/DevScreen';
+// import {DevScreen} from '../screens/DevScreen';
 import {TasksScreen} from '../screens/TasksScreen';
 import {TasksListScreen} from '../screens/TasksListScreen';
 import {TodayScreen} from '../screens/TodayScreen';
@@ -29,7 +29,7 @@ export const AppNavigator = () => {
           screenOptions={{
             contentStyle: {backgroundColor: 'transparent'},
           }}>
-          <Stack.Screen name="Dev" component={DevScreen} />
+          {/* <Stack.Screen name="Dev" component={DevScreen} /> */}
           <Stack.Screen name="Apiary" component={ApiaryScreen} />
           <Stack.Screen
             name="ApiaryCategory"
