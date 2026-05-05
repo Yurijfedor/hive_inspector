@@ -4,7 +4,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {AppBackground} from '../components/AppBackground';
-// import {DevScreen} from '../screens/DevScreen';
+import {useAuth} from '../auth/AuthProvider';
+
+// screens
+import {DevScreen} from '../screens/DevScreen';
 import {TasksScreen} from '../screens/TasksScreen';
 import {TasksListScreen} from '../screens/TasksListScreen';
 import {TodayScreen} from '../screens/TodayScreen';
@@ -22,6 +25,8 @@ enableScreens(true);
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator = () => {
+  const {role} = useAuth();
+
   return (
     <AppBackground>
       <NavigationContainer>
@@ -29,7 +34,12 @@ export const AppNavigator = () => {
           screenOptions={{
             contentStyle: {backgroundColor: 'transparent'},
           }}>
-          {/* <Stack.Screen name="Dev" component={DevScreen} /> */}
+          {/* 🔥 ADMIN ONLY */}
+          {role === 'admin' && (
+            <Stack.Screen name="Dev" component={DevScreen} />
+          )}
+
+          {/* 🐝 ВСІ ІНШІ ЕКРАНИ */}
           <Stack.Screen name="Apiary" component={ApiaryScreen} />
           <Stack.Screen
             name="ApiaryCategory"
