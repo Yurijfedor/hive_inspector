@@ -38,6 +38,10 @@ export const TaskEditScreen = () => {
 
   const [title, setTitle] = useState(task.title);
   const [type, setType] = useState<TaskType>(task.type);
+
+  // ✅ COMPLETED
+  const [completed, setCompleted] = useState(task.completed);
+
   const [date, setDate] = useState(task.date);
   const [dateInput, setDateInput] = useState(formatDateUA(task.date));
   const [showPicker, setShowPicker] = useState(false);
@@ -57,8 +61,13 @@ export const TaskEditScreen = () => {
         title,
         hiveNumber: task.hiveNumber,
         type,
-        date, // 👈 вже number
+
+        // ✅ NEW
+        completed,
+
+        date,
       });
+
       navigation.goBack();
     } catch (e) {
       console.log('❌ UPDATE FAILED', e);
@@ -101,10 +110,12 @@ export const TaskEditScreen = () => {
 
         {/* TITLE */}
         <Text style={styles.label}>📌 Назва/короткий опис</Text>
+
         <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
         {/* TYPE */}
         <Text style={styles.label}>📂 Тип</Text>
+
         <View style={styles.typeContainer}>
           {TASK_TYPES.map((t) => {
             const active = type === t.value;
@@ -120,6 +131,26 @@ export const TaskEditScreen = () => {
           })}
         </View>
 
+        {/* COMPLETED */}
+        <Text style={styles.label}>✅ Статус</Text>
+
+        <View style={styles.typeContainer}>
+          <Text
+            style={[styles.typeChip, completed === false && styles.pendingChip]}
+            onPress={() => setCompleted(false)}>
+            ⏳ Не виконано
+          </Text>
+
+          <Text
+            style={[
+              styles.typeChip,
+              completed === true && styles.completedChip,
+            ]}
+            onPress={() => setCompleted(true)}>
+            ✅ Виконано
+          </Text>
+        </View>
+
         {/* DATE */}
         <Text style={styles.label}>📅 Дата</Text>
 
@@ -131,7 +162,10 @@ export const TaskEditScreen = () => {
               setDateInput(text);
 
               const parsed = parseDateUA(text);
-              if (parsed) setDate(parsed);
+
+              if (parsed) {
+                setDate(parsed);
+              }
             }}
             placeholder="ДД-ММ-РРРР"
           />
@@ -161,6 +195,7 @@ export const TaskEditScreen = () => {
 
               if (selectedDate) {
                 const ts = selectedDate.getTime();
+
                 setDate(ts);
                 setDateInput(formatDateUA(ts));
               }
@@ -218,6 +253,17 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
+  // ✅ STATUS
+  pendingChip: {
+    backgroundColor: '#F57C00',
+    color: '#fff',
+  },
+
+  completedChip: {
+    backgroundColor: '#2E7D32',
+    color: '#fff',
+  },
+
   // 🔥 DATE
   dateRow: {
     flexDirection: 'row',
@@ -229,6 +275,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     padding: 8,
   },
+
   readonlyField: {
     borderWidth: 1,
     borderColor: '#ddd',

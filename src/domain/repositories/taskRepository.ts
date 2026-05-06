@@ -21,15 +21,11 @@ export class TaskRepository {
   // 🔥 SMART SAVE (LOCAL + DIFF PUSH)
   // =============================
   async saveAll(uid: string, tasks: Task[]): Promise<void> {
-    console.log('я тут');
-
     // ✅ 1. LOCAL = source of truth
     await saveTasks(tasks);
 
     try {
       // ✅ 2. LOAD CLOUD
-      // const cloudTasks = await this.loadFromFirebase(uid);
-      // const cloudTasks: Task[] = [];
       const cloudTasks = await this.loadFromFirebase(uid);
 
       // ✅ 3. DIFF
@@ -67,13 +63,10 @@ export class TaskRepository {
           date: task.date,
           completed: task.completed,
           priority: task.priority ?? null,
-          source: 'local',
+          source: 'LOCAL',
           updatedAt: task.updatedAt ?? Date.now(),
         };
       }
-      // console.log('🔥 UID:', uid);
-      // console.log('🔥 UPDATE PATHS:', Object.keys(updates));
-
       // ✅ 5. PUSH (batch)
       await database().ref().update(updates);
 

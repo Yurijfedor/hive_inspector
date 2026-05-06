@@ -8,7 +8,7 @@ export type Task = {
 
   completed: boolean;
 
-  source: 'LLM' | 'USER' | 'SYSTEM' | 'CLOUD';
+  source: 'LLM' | 'USER' | 'SYSTEM' | 'CLOUD' | 'LOCAL';
 
   priority?: TaskPriority;
 
