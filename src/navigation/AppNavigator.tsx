@@ -33,6 +33,7 @@ export const AppNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
+            headerShown: false,
             contentStyle: {backgroundColor: 'transparent'},
           }}>
           {/* 🔥 ADMIN ONLY */}

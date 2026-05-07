@@ -28,11 +28,17 @@ export const Header = ({onMenuPress}: {onMenuPress: () => void}) => {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+
+    backgroundColor: 'rgba(255,255,255,0.45)',
+
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+
+    zIndex: 10,
   },
   logo: {fontSize: 18, fontWeight: '600'},
   button: {fontSize: 18},

@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative', // 🔥 важливо для overlay
-    backgroundColor: '#f5f5f5', // легкий фон (можеш змінити)
   },
 
   content: {
