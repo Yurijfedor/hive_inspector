@@ -2,25 +2,28 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
+import {ProfileAvatar} from '../components/ProfileAvatar';
+import {UserBadge} from '../components/UserBadge';
+
 export const Header = ({onMenuPress}: {onMenuPress: () => void}) => {
   const navigation = useNavigation<any>();
 
   return (
     <View style={styles.container}>
-      {/* LOGO */}
-      <TouchableOpacity onPress={() => navigation.navigate('Apiary')}>
-        <Text style={styles.logo}>🐝 Bee</Text>
+      <View style={styles.left}>
+        <TouchableOpacity onPress={() => navigation.navigate('Apiary')}>
+          <Text style={styles.logo}>🐝 Bee</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
+        <Text style={styles.menuIcon}>☰</Text>
       </TouchableOpacity>
 
-      {/* MENU */}
-      <TouchableOpacity onPress={onMenuPress}>
-        <Text style={styles.button}>☰</Text>
-      </TouchableOpacity>
-
-      {/* PROFILE */}
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-        <Text style={styles.button}>👤</Text>
-      </TouchableOpacity>
+      <View style={styles.right}>
+        <UserBadge />
+        <ProfileAvatar />
+      </View>
     </View>
   );
 };
@@ -40,6 +43,33 @@ const styles = StyleSheet.create({
 
     zIndex: 10,
   },
+
   logo: {fontSize: 18, fontWeight: '600'},
-  button: {fontSize: 18},
+  left: {
+    justifyContent: 'center',
+  },
+
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  menuButton: {
+    minWidth: 44,
+    height: 44,
+
+    borderRadius: 12,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    backgroundColor: 'rgba(255,255,255,0.45)',
+  },
+
+  menuIcon: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+  },
 });

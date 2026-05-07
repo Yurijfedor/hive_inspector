@@ -7,12 +7,10 @@ import {
   ActivityIndicator,
   Dimensions,
   ScrollView,
-  Image,
 } from 'react-native';
 import {LineChart} from 'react-native-chart-kit';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {signInWithGoogle} from '../services/authService';
 
 import {RootStackParamList} from '../navigation/types';
 import {useAuth} from '../auth/AuthProvider';
@@ -141,26 +139,6 @@ export const ApiaryScreen = () => {
   }, [loadAnalytics]);
 
   // --------------------------------------------------
-  // PROFILE
-  // --------------------------------------------------
-
-  const handleProfilePress = async () => {
-    try {
-      if (user?.isAnonymous) {
-        console.log('👤 Anonymous → start Google login');
-
-        await signInWithGoogle();
-        navigation.navigate('Profile');
-        return;
-      }
-
-      navigation.navigate('Profile');
-    } catch (e) {
-      console.log('❌ PROFILE PRESS ERROR', e);
-    }
-  };
-
-  // --------------------------------------------------
   // 🎤 START VOICE
   // --------------------------------------------------
 
@@ -248,26 +226,6 @@ export const ApiaryScreen = () => {
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity
-          onPress={handleProfilePress}
-          style={{position: 'absolute', right: 16, top: 16}}>
-          {user?.photoURL ? (
-            <Image source={{uri: user.photoURL}} style={styles.profileAvatar} />
-          ) : (
-            <View style={styles.profileFallback}>
-              <Text style={styles.profileFallbackText}>
-                {user?.displayName?.[0] || '👤'}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.accountBox}>
-          <Text style={styles.accountText}>
-            {user?.isAnonymous ? '👤 Гість' : `👤 ${user?.email}`}
-          </Text>
-        </View>
-
         <Text style={styles.title}>🐝 Пасіка</Text>
 
         <View style={styles.grid}>
@@ -471,73 +429,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  googleButton: {
-    marginTop: 50,
-    backgroundColor: '#4285F4',
-    padding: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-
-  googleText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  accountBox: {
-    marginTop: 50,
-    padding: 12,
-    backgroundColor: 'rgba(255, 248, 220, 1)',
-    borderRadius: 10,
-  },
-
-  accountText: {
-    fontSize: 14,
-    color: '#333',
-  },
-
-  authButtons: {
-    marginTop: 12,
-    gap: 8,
-  },
-
-  switchButton: {
-    backgroundColor: '#1976D2',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-
-  logoutButton: {
-    backgroundColor: '#D32F2F',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-
-  authText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-
-  profileAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
-
-  profileFallback: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  profileFallbackText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
   syncButton: {
     marginTop: 10,
     backgroundColor: '#1976D2',
