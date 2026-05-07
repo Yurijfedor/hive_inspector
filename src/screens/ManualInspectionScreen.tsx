@@ -8,26 +8,28 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 
-// import {useConversation} from '../conversation/ConversationProvider';
-
-// ❗ НОВЕ
 import {runManualBatch} from '../application/runManualBatch';
 import {normalizeManualForm} from '../features/manualInput/mappers/normalizeManualForm';
 import {useAuth} from '../auth/AuthProvider';
+import {runFullSync} from '../sync/runFullSync';
 
 type Tab = 'main' | 'swarm' | 'disease' | 'split';
 
 export const ManualInspectionScreen = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const {hiveNumber} = route.params;
 
   // const driver = useConversation();
   const {user} = useAuth();
 
   const [activeTab, setActiveTab] = useState<Tab>('main');
+  const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
     inspection: {
@@ -75,24 +77,62 @@ export const ManualInspectionScreen = () => {
     }));
   };
 
-  // 🔥 ПОВНІСТЮ НОВА ЛОГІКА
-  const handleSave = async () => {
-    console.log('🔥 CLICK SAVE');
-
-    if (!user?.uid) {
-      console.log('❌ NO USER');
+  const handleSave = () => {
+    if (saving) {
       return;
     }
 
-    try {
-      const normalized = normalizeManualForm(form);
+    Alert.alert(
+      'Підтвердження',
+      'Ви підтверджуєте коректність введених даних?',
+      [
+        {
+          text: 'Скасувати',
+          style: 'cancel',
+        },
+        {
+          text: 'Так',
+          onPress: async () => {
+            console.log('🔥 START SAVE');
 
-      await runManualBatch(user.uid, hiveNumber, normalized);
+            if (!user?.uid) {
+              Alert.alert('Помилка', 'Користувач не авторизований');
 
-      console.log('✅ ALL DATA SAVED');
-    } catch (e) {
-      console.log('❌ SAVE ERROR', e);
-    }
+              return;
+            }
+
+            try {
+              setSaving(true);
+
+              const normalized = normalizeManualForm(form);
+
+              // 🔥 save
+              await runManualBatch(user.uid, hiveNumber, normalized);
+
+              // 🔥 sync
+              await runFullSync(user.uid);
+
+              console.log('✅ SAVE + SYNC DONE');
+
+              Alert.alert('Успіх', 'Дані успішно збережено', [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    navigation.goBack();
+                  },
+                },
+              ]);
+            } catch (e) {
+              console.log('❌ SAVE ERROR', e);
+
+              Alert.alert('Помилка', 'Не вдалося зберегти дані');
+            } finally {
+              setSaving(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const renderTab = () => {
@@ -303,7 +343,11 @@ export const ManualInspectionScreen = () => {
         {renderTab()}
 
         <View style={{marginTop: 24}}>
-          <Button title="Зберегти" onPress={handleSave} />
+          <Button
+            title={saving ? 'Збереження...' : 'Зберегти'}
+            onPress={handleSave}
+            disabled={saving}
+          />
         </View>
       </ScrollView>
     </View>

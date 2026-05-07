@@ -1,43 +1,88 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+
+import {
+  useRoute,
+  useNavigation,
+  useFocusEffect,
+  RouteProp,
+} from '@react-navigation/native';
+
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {useAuth} from '../auth/AuthProvider';
 import {HiveContext} from '../types/hive';
 import {loadHiveContextsFromFirebase} from '../persistence/inspectionRepository';
 
+import {RootStackParamList} from '../navigation/types';
+
+// --------------------------------------------------
+// TYPES
+// --------------------------------------------------
+
+type HiveScreenRouteProp = RouteProp<RootStackParamList, 'Hive'>;
+
+type HiveScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+// --------------------------------------------------
+// SCREEN
+// --------------------------------------------------
+
 export const HiveScreen = () => {
-  const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+  const route = useRoute<HiveScreenRouteProp>();
+
+  const navigation = useNavigation<HiveScreenNavigationProp>();
+
   const {hiveNumber} = route.params;
 
   const {user} = useAuth();
   const uid = user?.uid;
 
   const [context, setContext] = useState<HiveContext | null>(null);
+
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!uid) return;
+  // --------------------------------------------------
+  // LOAD HIVE
+  // --------------------------------------------------
 
-    const load = async () => {
-      try {
-        const contexts = await loadHiveContextsFromFirebase(uid);
-        console.log(contexts);
+  const loadHive = useCallback(async () => {
+    if (!uid) {
+      return;
+    }
 
-        const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
-        console.log(`foundet hiveCtx : ${JSON.stringify(hiveCtx)}`);
+    try {
+      setLoading(true);
 
-        setContext(hiveCtx ?? null);
-      } catch (e) {
-        console.log('❌ LOAD HIVE CONTEXT ERROR', e);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const contexts = await loadHiveContextsFromFirebase(uid);
 
-    load();
+      console.log('📦 HIVE CONTEXTS:', contexts);
+
+      const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
+
+      console.log(`🐝 FOUND HIVE CONTEXT: ${JSON.stringify(hiveCtx)}`);
+
+      setContext(hiveCtx ?? null);
+    } catch (e) {
+      console.log('❌ LOAD HIVE CONTEXT ERROR', e);
+    } finally {
+      setLoading(false);
+    }
   }, [hiveNumber, uid]);
+
+  // --------------------------------------------------
+  // AUTO REFRESH ON SCREEN FOCUS
+  // --------------------------------------------------
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHive();
+    }, [loadHive]),
+  );
+
+  // --------------------------------------------------
+  // NAVIGATION
+  // --------------------------------------------------
 
   const handleOpenHistory = () => {
     navigation.navigate('InspectionHistory', {
@@ -51,6 +96,16 @@ export const HiveScreen = () => {
     });
   };
 
+  const handleOpenTasks = () => {
+    navigation.navigate('TasksList', {
+      hiveNumber,
+    });
+  };
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -63,13 +118,9 @@ export const HiveScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() =>
-          navigation.navigate('TasksList', {
-            hiveNumber,
-          })
-        }>
+      {/* ACTIONS */}
+
+      <TouchableOpacity style={styles.button} onPress={handleOpenTasks}>
         <Text style={styles.buttonText}>📅 Завдання</Text>
       </TouchableOpacity>
 
@@ -77,14 +128,18 @@ export const HiveScreen = () => {
         <Text style={styles.buttonText}>📝 Ручний огляд</Text>
       </TouchableOpacity>
 
-      {/* 🧠 Стан */}
+      {/* STATUS */}
+
       <Text style={styles.section}>Стан</Text>
 
       {context?.lastInspection ? (
         <>
-          <Text>Сила: {context.lastInspection.strength}</Text>
-          <Text>Розплід: {context.lastInspection.broodFrames}</Text>
-          <Text>Мед: {context.lastInspection.honeyKg} кг</Text>
+          <Text>Сила: {context.lastInspection.strength ?? '—'}</Text>
+
+          <Text>Розплід: {context.lastInspection.broodFrames ?? '—'}</Text>
+
+          <Text>Мед: {context.lastInspection.honeyKg ?? '—'} кг</Text>
+
           <Text>
             Матка:{' '}
             {context?.queen?.status === 'present'
@@ -100,7 +155,8 @@ export const HiveScreen = () => {
         <Text>Немає даних</Text>
       )}
 
-      {/* ⚠️ Ознаки */}
+      {/* SIGNS */}
+
       <Text style={styles.section}>Ознаки</Text>
 
       <Text>
@@ -112,7 +168,8 @@ export const HiveScreen = () => {
         {context?.disease?.hasDiseaseSigns === 'так' ? '⚠️ є' : '✅ немає'}
       </Text>
 
-      {/* 🕵️ Останній огляд */}
+      {/* LAST INSPECTION */}
+
       <Text style={styles.section}>Останній огляд</Text>
 
       {context?.lastInspection ? (
@@ -123,13 +180,18 @@ export const HiveScreen = () => {
         <Text>Немає даних</Text>
       )}
 
-      {/* 📜 КНОПКА ІСТОРІЇ */}
+      {/* HISTORY */}
+
       <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
         <Text style={styles.buttonText}>📜 Історія</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+// --------------------------------------------------
+// STYLES
+// --------------------------------------------------
 
 const styles = StyleSheet.create({
   container: {
