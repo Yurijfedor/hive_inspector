@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
