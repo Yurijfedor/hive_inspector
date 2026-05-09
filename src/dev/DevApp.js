@@ -6,14 +6,18 @@ import {AppNavigator} from '../navigation/AppNavigator';
 
 import {ConversationProvider} from '../conversation/ConversationProvider';
 
+import {LocalizationProvider} from '../providers/LocalizationProvider';
+
 export default function DevApp() {
   return (
-    <AuthProvider>
-      <ConversationProvider>
-        <SyncGate>
-          <AppNavigator />
-        </SyncGate>
-      </ConversationProvider>
-    </AuthProvider>
+    <LocalizationProvider>
+      <AuthProvider>
+        <ConversationProvider>
+          <SyncGate>
+            <AppNavigator />
+          </SyncGate>
+        </ConversationProvider>
+      </AuthProvider>
+    </LocalizationProvider>
   );
 }
