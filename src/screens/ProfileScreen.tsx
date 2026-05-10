@@ -4,10 +4,13 @@ import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {logout, switchGoogleAccount} from '../services/authService';
+import {useAppTranslation} from '../hooks/useAppTranslation';
+import {setAppLanguage} from '../localization/i18n';
 
 export const ProfileScreen = () => {
   const {user} = useAuth();
   const navigation = useNavigation<any>();
+  const {t, i18n} = useAppTranslation();
 
   const isAnonymous = user?.isAnonymous;
 
@@ -37,24 +40,58 @@ export const ProfileScreen = () => {
           </View>
         )}
 
-        <Text style={styles.name}>{user?.displayName || 'Користувач'}</Text>
+        <Text style={styles.name}>
+          {user?.displayName || t('profile:user')}
+        </Text>
+      </View>
+      <View style={styles.languageContainer}>
+        <Text style={styles.languageLabel}>{t('profile:language')}</Text>
+
+        <View style={styles.languageButtons}>
+          <TouchableOpacity
+            style={[
+              styles.languageButton,
+              i18n.language === 'en' && styles.activeLanguageButton,
+            ]}
+            onPress={() => setAppLanguage('en')}>
+            <Text>EN</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.languageButton,
+              i18n.language === 'uk' && styles.activeLanguageButton,
+            ]}
+            onPress={() => setAppLanguage('uk')}>
+            <Text>UA</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.languageButton,
+              i18n.language === 'de' && styles.activeLanguageButton,
+            ]}
+            onPress={() => setAppLanguage('de')}>
+            <Text>DE</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* USER INFO */}
       <View style={styles.card}>
-        <Text style={styles.label}>Статус:</Text>
+        <Text style={styles.label}>{t('profile:status')}</Text>
         <Text style={styles.value}>
-          {isAnonymous ? 'Гість' : 'Google акаунт'}
+          {isAnonymous ? t('profile:guest') : t('profile:googleAccount')}
         </Text>
 
         {!isAnonymous && (
           <>
-            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.label}>{t('profile:email')}</Text>
             <Text style={styles.value}>{user?.email}</Text>
           </>
         )}
 
-        <Text style={styles.label}>UID:</Text>
+        <Text style={styles.label}>{t('profile:uid')}</Text>
         <Text style={styles.uid}>{user?.uid}</Text>
       </View>
 
@@ -63,13 +100,13 @@ export const ProfileScreen = () => {
         <TouchableOpacity
           style={styles.switchButton}
           onPress={handleSwitchAccount}>
-          <Text style={styles.buttonText}>🔄 Змінити акаунт</Text>
+          <Text style={styles.buttonText}>🔄 {t('profile:switchAccount')}</Text>
         </TouchableOpacity>
       )}
 
       {!user?.isAnonymous && (
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.buttonText}>🚪 Вийти</Text>
+          <Text style={styles.buttonText}>🚪 {t('profile:logout')}</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -162,5 +199,30 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: '600',
+  },
+  languageContainer: {
+    marginBottom: 20,
+  },
+
+  languageLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+
+  languageButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+
+  languageButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+  },
+
+  activeLanguageButton: {
+    backgroundColor: '#90CAF9',
   },
 });
