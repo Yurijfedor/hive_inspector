@@ -7,5 +7,7 @@ declare module 'i18next' {
     defaultNS: 'common';
 
     resources: typeof defaultResources;
+
+    returnNull: false;
   }
 }

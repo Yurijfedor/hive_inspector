@@ -3,9 +3,11 @@ import enNavigation from './locales/en/navigation';
 import enProfile from './locales/en/profile';
 
 export const defaultResources = {
-  common: enCommon,
+  en: {
+    common: enCommon,
 
-  navigation: enNavigation,
+    navigation: enNavigation,
 
-  profile: enProfile,
+    profile: enProfile,
+  },
 } as const;
