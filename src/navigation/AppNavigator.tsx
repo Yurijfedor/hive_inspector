@@ -6,6 +6,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AppBackground} from '../components/AppBackground';
 import {useAuth} from '../auth/AuthProvider';
 import {withLayout} from './withLayout';
+import {useAppTranslation} from '../hooks/useAppTranslation';
 
 // screens
 import {DevScreen} from '../screens/DevScreen';
@@ -27,6 +28,7 @@ const Stack = createNativeStackNavigator();
 
 export const AppNavigator = () => {
   const {role} = useAuth();
+  const {t} = useAppTranslation();
 
   return (
     <AppBackground>
@@ -51,23 +53,35 @@ export const AppNavigator = () => {
           <Stack.Screen
             name="TasksList"
             component={withLayout(TasksListScreen)}
-            options={{title: '📅 Мої задачі'}}
+            options={{
+              title: t('navigation:myTasks'),
+            }}
           />
           <Stack.Screen
             name="Today"
             component={withLayout(TodayScreen)}
-            options={{title: '🐝 Сьогодні'}}
+            options={{
+              title: t('navigation:today'),
+            }}
           />
           <Stack.Screen name="Hive" component={withLayout(HiveScreen)} />
           <Stack.Screen
             name="InspectionHistory"
             component={withLayout(InspectionHistoryScreen)}
           />
-          <Stack.Screen name="Profile" component={withLayout(ProfileScreen)} />
+          <Stack.Screen
+            name="Profile"
+            component={withLayout(ProfileScreen)}
+            options={{
+              title: t('navigation:profile'),
+            }}
+          />
           <Stack.Screen
             name="ManualInspection"
             component={withLayout(ManualInspectionScreen)}
-            options={{title: '📝 Ручний огляд'}}
+            options={{
+              title: t('navigation:manualInspection'),
+            }}
           />
           <Stack.Screen
             name="TaskCreate"
