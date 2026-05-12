@@ -12,6 +12,7 @@ import enProfile from './locales/en/profile';
 import enTasks from './locales/en/tasks';
 import enTaskTypes from './locales/en/taskTypes';
 import enTaskPriorities from './locales/en/taskPriorities';
+import enTaskStatuses from './locales/en/taskStatuses';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -20,6 +21,7 @@ import ukProfile from './locales/uk/profile';
 import ukTasks from './locales/uk/tasks';
 import ukTaskTypes from './locales/uk/taskTypes';
 import ukTaskPriorities from './locales/uk/taskPriorities';
+import ukTaskStatuses from './locales/uk/taskStatuses';
 
 // DE
 import deCommon from './locales/de/common';
@@ -28,8 +30,10 @@ import deProfile from './locales/de/profile';
 import deTasks from './locales/de/tasks';
 import deTaskTypes from './locales/de/taskTypes';
 import deTaskPriorities from './locales/de/taskPriorities';
+import deTaskStatuses from './locales/de/taskStatuses';
 
 import {AppLanguage} from './types';
+// import {en} from 'zod/v4/locales';
 
 // ========================================
 // TRANSLATION RESOURCES
@@ -43,6 +47,7 @@ const resources = {
     tasks: enTasks,
     taskTypes: enTaskTypes,
     taskPriorities: enTaskPriorities,
+    taskStatuses: enTaskStatuses,
   },
 
   uk: {
@@ -52,6 +57,7 @@ const resources = {
     tasks: ukTasks,
     taskTypes: ukTaskTypes,
     taskPriorities: ukTaskPriorities,
+    taskStatuses: ukTaskStatuses,
   },
 
   de: {
@@ -61,6 +67,7 @@ const resources = {
     tasks: deTasks,
     taskTypes: deTaskTypes,
     taskPriorities: deTaskPriorities,
+    taskStatuses: deTaskStatuses,
   },
 };
 
@@ -99,6 +106,7 @@ export async function initLocalization() {
       'tasks',
       'taskTypes',
       'taskPriorities',
+      'taskStatuses',
     ],
 
     interpolation: {

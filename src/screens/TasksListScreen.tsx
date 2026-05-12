@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useMemo} from 'react';
+
 import {
   ScrollView,
   View,
@@ -7,12 +8,17 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
+
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
+
 import {Task, TaskType, TaskPriority} from '../types/task';
+
 import {TaskRepository} from '../domain/repositories/taskRepository';
+
 import {toggleTask} from '../domain/useCases/tasks/toggleTask';
+
 import {filterTasks, TaskFilters} from '../services/tasks/filterTasks';
 
 import {
@@ -22,9 +28,17 @@ import {
 } from '../services/tasks/taskUtils';
 
 import {TaskItem} from '../components/tasks/TaskItem';
+
 import {useHives} from '../hooks/useHives';
 
-// 👉 константи
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
+import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
+
+import {getTaskPriorityLabel} from '../localization/helpers/getTaskPriorityLabel';
+
+// 👉 constants
+
 const TASK_TYPES: TaskType[] = [
   'FEEDING',
   'INSPECTION',
@@ -38,43 +52,64 @@ const PRIORITIES: TaskPriority[] = ['PRIMARY', 'SECONDARY'];
 
 export const TasksListScreen = () => {
   const {user} = useAuth();
-  const repo = useMemo(() => new TaskRepository(), []);
+
+  const repo = useMemo(() => {
+    return new TaskRepository();
+  }, []);
+
   const navigation = useNavigation<any>();
+
   const route = useRoute<any>();
 
   const {hives} = useHives();
+
+  const {t} = useAppTranslation();
+
   const hiveNumberFromRoute = route.params?.hiveNumber;
 
   const [tasks, setTasks] = useState<Task[]>([]);
+
   const [filters, setFilters] = useState<TaskFilters>({
     status: 'ACTIVE',
+
     hiveNumber: hiveNumberFromRoute,
   });
 
-  // 🔽 LOAD LOCAL TASKS
+  // 🔽 LOAD TASKS
+
   useEffect(() => {
     const loadTasks = async () => {
       const data = await repo.getAll();
+
       setTasks(data);
     };
+
     loadTasks();
   }, [repo]);
 
   // 🔄 TOGGLE COMPLETE
+
   const toggleTaskHandler = async (id: string) => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     await toggleTask(user.uid, id);
 
     const updated = await repo.getAll();
+
     setTasks(updated);
   };
 
   // 🔥 FILTER + SORT + GROUP
+
   const sortedGroups = useMemo(() => {
-    const visibleTasks = tasks.filter((t) => !t.deleted);
+    const visibleTasks = tasks.filter((task) => !task.deleted);
+
     const filteredTasks = filterTasks(visibleTasks, filters);
+
     const sorted = sortTasks(filteredTasks);
+
     const grouped = groupTasksByDate(sorted);
 
     return Object.entries(grouped).sort(
@@ -84,12 +119,13 @@ export const TasksListScreen = () => {
   }, [tasks, filters]);
 
   // --------------------------------------------------
-  // 🎛 FILTER UI HELPERS
+  // 🎛 FILTER HELPERS
   // --------------------------------------------------
 
   const toggleType = (type: TaskType) => {
     setFilters((prev) => ({
       ...prev,
+
       type: prev.type === type ? undefined : type,
     }));
   };
@@ -97,6 +133,7 @@ export const TasksListScreen = () => {
   const toggleHive = (hive: number) => {
     setFilters((prev) => ({
       ...prev,
+
       hiveNumber: prev.hiveNumber === hive ? undefined : hive,
     }));
   };
@@ -104,6 +141,7 @@ export const TasksListScreen = () => {
   const togglePriority = (priority: TaskPriority) => {
     setFilters((prev) => ({
       ...prev,
+
       priority: prev.priority === priority ? undefined : priority,
     }));
   };
@@ -115,102 +153,125 @@ export const TasksListScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {hiveNumberFromRoute && (
-        <Text style={styles.contextTitle}>🐝 Вулик {hiveNumberFromRoute}</Text>
+        <Text style={styles.contextTitle}>
+          🐝 {t('tasks:hive')} #{hiveNumberFromRoute}
+        </Text>
       )}
 
       {/* ➕ CREATE */}
-      <View style={{marginBottom: 10}}>
+
+      <View style={styles.createContainer}>
         <Button
-          title="➕ Додати задачу"
+          title={`➕ ${t('navigation:createTask')}`}
           onPress={() => navigation.navigate('TaskCreate')}
         />
       </View>
 
       {/* 🎛 FILTERS */}
-      <View style={styles.filters}>
-        <Text style={styles.filterTitle}>📌 Статус</Text>
 
-        <View style={{flexDirection: 'row'}}>
+      <View style={styles.filters}>
+        {/* STATUS */}
+
+        <Text style={styles.filterTitle}>📌 {t('tasks:status')}</Text>
+
+        <View style={styles.row}>
           <Chip
-            label="Активні"
+            label={t('taskStatuses:ACTIVE')}
             active={filters.status === 'ACTIVE'}
             onPress={() =>
               setFilters((prev) => ({
                 ...prev,
+
                 status: 'ACTIVE',
               }))
             }
           />
 
           <Chip
-            label="Виконані"
+            label={t('taskStatuses:COMPLETED')}
             active={filters.status === 'COMPLETED'}
             onPress={() =>
               setFilters((prev) => ({
                 ...prev,
+
                 status: 'COMPLETED',
               }))
             }
           />
 
           <Chip
-            label="Всі"
+            label={t('taskStatuses:ALL')}
             active={filters.status === 'ALL'}
             onPress={() =>
               setFilters((prev) => ({
                 ...prev,
+
                 status: 'ALL',
               }))
             }
           />
         </View>
-        <Text style={styles.filterTitle}>📂 Тип</Text>
+
+        {/* TYPE */}
+
+        <Text style={styles.filterTitle}>📂 {t('tasks:type')}</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {TASK_TYPES.map((t) => (
+          {TASK_TYPES.map((type) => (
             <Chip
-              key={t}
-              label={t}
-              active={filters.type === t}
-              onPress={() => toggleType(t)}
+              key={type}
+              label={getTaskTypeLabel(type, t)}
+              active={filters.type === type}
+              onPress={() => toggleType(type)}
             />
           ))}
         </ScrollView>
+
+        {/* HIVE */}
+
         {!hiveNumberFromRoute && (
           <>
-            <Text style={styles.filterTitle}>🐝 Вулик</Text>
+            <Text style={styles.filterTitle}>🐝 {t('tasks:hive')}</Text>
+
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {hives.map((h) => (
+              {hives.map((hive) => (
                 <Chip
-                  key={h}
-                  label={`🐝 ${h}`}
-                  active={filters.hiveNumber === h}
-                  onPress={() => toggleHive(h)}
+                  key={hive}
+                  label={`🐝 ${hive}`}
+                  active={filters.hiveNumber === hive}
+                  onPress={() => toggleHive(hive)}
                 />
               ))}
             </ScrollView>
           </>
         )}
 
-        <Text style={styles.filterTitle}>⚡ Пріоритет</Text>
+        {/* PRIORITY */}
+
+        <Text style={styles.filterTitle}>⚡ {t('tasks:priority')}</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {PRIORITIES.map((p) => (
+          {PRIORITIES.map((priority) => (
             <Chip
-              key={p}
-              label={p}
-              active={filters.priority === p}
-              onPress={() => togglePriority(p)}
+              key={priority}
+              label={getTaskPriorityLabel(priority, t)}
+              active={filters.priority === priority}
+              onPress={() => togglePriority(priority)}
             />
           ))}
         </ScrollView>
 
+        {/* CLEAR */}
+
         <TouchableOpacity
           style={styles.clearBtn}
           onPress={() => setFilters({})}>
-          <Text>❌ Очистити фільтри</Text>
+          <Text>❌ {t('tasks:clearFilters')}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 📋 LIST */}
+      {/* 📋 TASK LIST */}
+
       {sortedGroups.map(([date, groupTasks]) => (
         <View key={date}>
           <Text style={styles.date}>
@@ -232,7 +293,7 @@ export const TasksListScreen = () => {
 };
 
 // --------------------------------------------------
-// 🔹 CHIP COMPONENT
+// 🔹 CHIP
 // --------------------------------------------------
 
 const Chip = ({
@@ -241,13 +302,15 @@ const Chip = ({
   onPress,
 }: {
   label: string;
+
   active: boolean;
+
   onPress: () => void;
 }) => (
   <TouchableOpacity
     onPress={onPress}
     style={[styles.chip, active && styles.activeChip]}>
-    <Text style={active && {color: '#fff'}}>{label}</Text>
+    <Text style={active ? styles.activeChipText : undefined}>{label}</Text>
   </TouchableOpacity>
 );
 
@@ -260,9 +323,19 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
+  createContainer: {
+    marginBottom: 10,
+  },
+
+  row: {
+    flexDirection: 'row',
+  },
+
   date: {
     fontSize: 18,
+
     fontWeight: 'bold',
+
     marginTop: 16,
   },
 
@@ -272,31 +345,47 @@ const styles = StyleSheet.create({
 
   filterTitle: {
     fontWeight: '600',
+
     marginTop: 10,
+
     marginBottom: 6,
   },
 
   chip: {
     paddingHorizontal: 10,
+
     paddingVertical: 6,
+
     borderRadius: 20,
+
     borderWidth: 1,
+
     borderColor: '#ccc',
+
     marginRight: 6,
   },
 
   activeChip: {
     backgroundColor: '#4CAF50',
+
     borderColor: '#4CAF50',
+  },
+
+  activeChipText: {
+    color: '#fff',
   },
 
   clearBtn: {
     marginTop: 10,
+
     alignSelf: 'flex-start',
   },
+
   contextTitle: {
     fontSize: 18,
+
     fontWeight: '600',
+
     marginBottom: 10,
   },
 });
