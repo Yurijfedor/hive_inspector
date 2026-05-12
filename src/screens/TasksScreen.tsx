@@ -1,39 +1,63 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, Button, ScrollView} from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import React, {useState, useMemo} from 'react';
 
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {useAuth} from '../auth/AuthProvider';
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
 import {Task} from '../types/task';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 
+import {formatDate} from '../localization/helpers/formatDate';
+
 export const TasksScreen = () => {
   const route = useRoute<any>();
+
   const navigation = useNavigation<any>();
 
   const {user} = useAuth();
 
-  const repo = new TaskRepository();
+  const {t, currentLanguage} = useAppTranslation();
+
+  const repo = useMemo(() => {
+    return new TaskRepository();
+  }, []);
 
   const {initialTasks} = route.params;
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
-  // ✏️ редагування title
+  // ✏️ UPDATE TITLE
   const updateTitle = (index: number, text: string) => {
     const updated = [...tasks];
+
     updated[index] = {
       ...updated[index],
       title: text,
     };
+
     setTasks(updated);
   };
 
+  // 💾 SAVE
   const handleSave = async () => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     try {
       await repo.saveAll(user.uid, tasks);
+
       console.log('💾 SAVING TASKS:', tasks);
+
       navigation.navigate('TasksList');
     } catch (e) {
       console.log('❌ SAVE FAILED', e);
@@ -41,48 +65,112 @@ export const TasksScreen = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        padding: 20,
-      }}>
-      <Text style={{fontSize: 22, marginBottom: 20}}>🧠 AI задачі</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* TITLE */}
+
+      <Text style={styles.screenTitle}>{t('tasks:title')}</Text>
+
+      {/* TASKS */}
+
+      {tasks.length === 0 && (
+        <Text style={styles.emptyText}>{t('tasks:noTasks')}</Text>
+      )}
 
       {tasks.map((task, index) => (
-        <View
-          key={task.id}
-          style={{
-            padding: 12,
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 10,
-            marginBottom: 15,
-          }}>
-          <Text>🐝 Вулик: {task.hiveNumber}</Text>
+        <View key={task.id} style={styles.card}>
+          {/* HIVE */}
 
-          <Text style={{marginTop: 5}}>📌 Назва:</Text>
+          <Text style={styles.rowText}>
+            🐝 {t('tasks:hive')}: {task.hiveNumber}
+          </Text>
+
+          {/* TITLE */}
+
+          <Text style={styles.label}>📌 {t('tasks:title')}</Text>
+
           <TextInput
             value={task.title}
             onChangeText={(text) => updateTitle(index, text)}
-            style={{
-              borderWidth: 1,
-              borderColor: '#ddd',
-              padding: 8,
-              marginTop: 5,
-              borderRadius: 6,
-            }}
+            style={styles.input}
           />
 
-          <Text style={{marginTop: 5}}>📂 Тип: {task.type}</Text>
+          {/* TYPE */}
 
-          <Text style={{marginTop: 5}}>
-            📅 {new Date(task.date).toLocaleDateString()}
+          <Text style={styles.rowText}>
+            📂 {t('tasks:type')}: {task.type}
+          </Text>
+
+          {/* DATE */}
+
+          <Text style={styles.rowText}>
+            📅 {t('tasks:dueDate')}: {formatDate(task.date, currentLanguage)}
           </Text>
         </View>
       ))}
 
-      <View style={{marginTop: 20}}>
-        <Button title="💾 Зберегти" onPress={handleSave} />
+      {/* SAVE BUTTON */}
+
+      <View style={styles.saveContainer}>
+        <Button title={`💾 ${t('common:save')}`} onPress={handleSave} />
       </View>
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+
+  screenTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 20,
+  },
+
+  emptyText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 20,
+  },
+
+  card: {
+    padding: 12,
+
+    borderWidth: 1,
+
+    borderColor: '#ccc',
+
+    borderRadius: 10,
+
+    marginBottom: 15,
+  },
+
+  rowText: {
+    fontSize: 15,
+
+    marginTop: 5,
+  },
+
+  label: {
+    marginTop: 10,
+
+    marginBottom: 5,
+
+    fontWeight: '600',
+  },
+
+  input: {
+    borderWidth: 1,
+
+    borderColor: '#ddd',
+
+    padding: 8,
+
+    borderRadius: 6,
+  },
+
+  saveContainer: {
+    marginTop: 20,
+  },
+});

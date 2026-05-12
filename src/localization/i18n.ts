@@ -34,18 +34,21 @@ const resources = {
     common: enCommon,
     navigation: enNavigation,
     profile: enProfile,
+    tasks: enTasks,
   },
 
   uk: {
     common: ukCommon,
     navigation: ukNavigation,
     profile: ukProfile,
+    tasks: ukTasks,
   },
 
   de: {
     common: deCommon,
     navigation: deNavigation,
     profile: deProfile,
+    tasks: deTasks,
   },
 };
 
