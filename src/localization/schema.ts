@@ -5,18 +5,17 @@ import enTasks from './locales/en/tasks';
 import enTaskTypes from './locales/en/taskTypes';
 import enTaskPriorities from './locales/en/taskPriorities';
 import enTaskStatuses from './locales/en/taskStatuses';
+import enRelativeDates from './locales/en/relativeDates';
 
 export const defaultResources = {
   en: {
     common: enCommon,
-
     navigation: enNavigation,
-
     profile: enProfile,
-
     tasks: enTasks,
     taskTypes: enTaskTypes,
     taskPriorities: enTaskPriorities,
     taskStatuses: enTaskStatuses,
+    relativeDates: enRelativeDates,
   },
 } as const;
