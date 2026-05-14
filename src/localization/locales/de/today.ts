@@ -10,4 +10,5 @@ export default {
   completedTasks: 'Abgeschlossene Aufgaben',
 
   activeTasks: 'Aktive Aufgaben',
+  openFullTaskList: 'Vollständige Aufgabenliste öffnen',
 };

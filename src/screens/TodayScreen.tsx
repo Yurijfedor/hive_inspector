@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+
 import {
   ScrollView,
   View,
@@ -7,38 +8,59 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
+
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
 import {LineChart} from 'react-native-chart-kit';
 
 import {RootStackParamList} from '../navigation/types';
+
 import {TaskRepository} from '../domain/repositories/taskRepository';
+
 import {Task} from '../types/task';
 
 import {
   buildApiaryDynamics,
   getApiaryStatus,
 } from '../services/analytics/apiaryAnalytics';
+
 import {loadInspections} from '../persistence/inspectionRepository';
 
 import {buildTimeline} from '../services/tasks/buildTimeline';
-import {getRelativeDateLabel} from '../services/tasks/getRelativeDateLabel';
-import {formatDate, groupTasksByType} from '../services/tasks/taskUtils';
-import {getTaskTypeLabel} from '../services/tasks/getTaskTypeLabel';
+
+import {groupTasksByType} from '../services/tasks/taskUtils';
 
 import {useAuth} from '../auth/AuthProvider';
+
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
+import {formatDate} from '../localization/helpers/formatDate';
+
+import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
+
+import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
 export const TodayScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const repo = useMemo(() => new TaskRepository(), []);
+
+  const repo = useMemo(() => {
+    return new TaskRepository();
+  }, []);
 
   const {user} = useAuth();
+
   const uid = user?.uid;
 
+  const {t, currentLanguage} = useAppTranslation();
+
   const [tasks, setTasks] = useState<Task[]>([]);
+
   const [chartData, setChartData] = useState<any>(null);
+
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
 
   const screenWidth = Dimensions.get('window').width;
@@ -46,17 +68,23 @@ export const TodayScreen = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   // 📦 LOAD TASKS
+
   useEffect(() => {
     const load = async () => {
       const data = await repo.getAll();
+
       setTasks(data);
     };
+
     load();
   }, [repo]);
 
-  // 📊 LOAD APIARY ANALYTICS
+  // 📊 LOAD ANALYTICS
+
   useEffect(() => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
 
     const loadAnalytics = async () => {
       try {
@@ -64,31 +92,50 @@ export const TodayScreen = () => {
 
         const points = buildApiaryDynamics(inspections);
 
-        if (points.length === 0) return;
+        if (points.length === 0) {
+          return;
+        }
 
         const chart = {
           labels: points.map((p) => p.date.slice(0, 5)),
+
           datasets: [
             {
               data: points.map((p) => p.avgStrength),
+
               color: () => '#4CAF50',
+
               strokeWidth: 2,
             },
+
             {
               data: points.map((p) => p.avgHoney),
+
               color: () => '#FFC107',
+
               strokeWidth: 2,
             },
+
             {
-              data: points.map((p) => p.avgBroodFrames ?? 0), // ✅ ДОДАЛИ
+              data: points.map((p) => p.avgBroodFrames ?? 0),
+
               color: () => '#9C27B0',
+
               strokeWidth: 2,
             },
           ],
-          legend: ['Сила', 'Мед', 'Розплід'], // ✅
+
+          legend: [
+            t('analytics:strength'),
+
+            t('analytics:honey'),
+
+            t('analytics:brood'),
+          ],
         };
 
         setChartData(chart);
+
         setStatus(getApiaryStatus(points));
       } catch (e) {
         console.log('❌ ANALYTICS ERROR', e);
@@ -96,10 +143,12 @@ export const TodayScreen = () => {
     };
 
     loadAnalytics();
-  }, [uid]);
+  }, [uid, t]);
 
-  // 📅 TASKS LOGIC
+  // 📅 TASKS
+
   const timeline = buildTimeline(tasks, 5);
+
   const today = buildTimeline(tasks, 1)[0];
 
   const handleOpenDay = (day: {date: number}) => {
@@ -107,28 +156,36 @@ export const TodayScreen = () => {
   };
 
   const handleOpenHive = (hiveNumber: number) => {
-    navigation.navigate('Hive', {hiveNumber});
+    navigation.navigate('Hive', {
+      hiveNumber,
+    });
   };
 
   const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
+
   const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>🐝 Сьогодні</Text>
+      {/* 🐝 TITLE */}
+
+      <Text style={styles.title}>🐝 {t('today:title')}</Text>
 
       {/* 🧾 TODAY TASKS */}
+
       {today.tasks.length === 0 ? (
-        <Text style={styles.empty}>✅ Сьогодні задач немає</Text>
+        <Text style={styles.empty}>✅ {t('today:noTasks')}</Text>
       ) : (
         today.tasks.map((task) => (
           <Text key={task.id} style={styles.task}>
-            🐝 Вулик {task.hiveNumber} — {task.title}
+            🐝 {t('tasks:hive')} #{task.hiveNumber} — {task.title}
           </Text>
         ))
       )}
 
-      <Text style={styles.sectionTitle}>📅 План на дні</Text>
+      {/* 📅 UPCOMING */}
+
+      <Text style={styles.sectionTitle}>📅 {t('today:upcomingTasks')}</Text>
 
       {timeline.map((day) => (
         <TouchableOpacity
@@ -138,34 +195,38 @@ export const TodayScreen = () => {
           <Text
             style={[
               styles.groupTitle,
+
               selectedDay === day.date && styles.groupActive,
             ]}>
-            {getRelativeDateLabel(day.date)} ({day.tasks.length})
+            {getRelativeDateLabel(day.date, t)} ({day.tasks.length})
           </Text>
         </TouchableOpacity>
       ))}
 
       {/* 📋 SELECTED DAY */}
+
       {selectedTasks && selectedDay && (
         <View style={styles.details}>
           <Text style={styles.sectionTitle}>
-            📋 Задачі на {formatDate(selectedDay)}
+            📋 {formatDate(selectedDay, currentLanguage)}
           </Text>
 
           {selectedTasks.length === 0 ? (
-            <Text style={styles.empty}>Немає задач</Text>
+            <Text style={styles.empty}>{t('tasks:noTasks')}</Text>
           ) : (
             Object.entries(grouped!).map(([type, groupTasks]) => (
               <View key={type} style={styles.group}>
                 <Text style={styles.groupTitle}>
-                  {getTaskTypeLabel(type)} ({groupTasks.length})
+                  {getTaskTypeLabel(type as any, t)} ({groupTasks.length})
                 </Text>
 
                 {groupTasks.map((task) => (
                   <TouchableOpacity
                     key={task.id}
                     onPress={() => handleOpenHive(task.hiveNumber)}>
-                    <Text style={styles.task}>🐝 Вулик {task.hiveNumber}</Text>
+                    <Text style={styles.task}>
+                      🐝 {t('tasks:hive')} #{task.hiveNumber}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -174,23 +235,28 @@ export const TodayScreen = () => {
         </View>
       )}
 
-      {/* <Text style={styles.link}>📆 Відкрити календар</Text> */}
+      {/* 📅 OPEN FULL TASK LIST */}
+
       <TouchableOpacity
         style={styles.syncButton}
         onPress={() => navigation.navigate('TasksList', {})}>
-        <Text style={styles.syncText}>📅 Відкрити повний список завдань</Text>
+        <Text style={styles.syncText}>📅 {t('today:openFullTaskList')}</Text>
       </TouchableOpacity>
 
       {/* 🟢 STATUS */}
+
       <View style={styles.statusBox}>
         <Text style={styles.statusText}>
-          {status === 'good' && '🟢 Пасіка в хорошому стані'}
-          {status === 'warning' && '🟡 Пасіка слабшає'}
-          {status === 'critical' && '🔴 КРИТИЧНЕ падіння сили!'}
+          {status === 'good' && `🟢 ${t('analytics:apiaryGood')}`}
+
+          {status === 'warning' && `🟡 ${t('analytics:apiaryWarning')}`}
+
+          {status === 'critical' && `🔴 ${t('analytics:apiaryCritical')}`}
         </Text>
       </View>
 
       {/* 📊 CHART */}
+
       {chartData && (
         <LineChart
           data={chartData}
@@ -198,8 +264,11 @@ export const TodayScreen = () => {
           height={220}
           chartConfig={{
             backgroundGradientFrom: '#fff',
+
             backgroundGradientTo: '#fff',
+
             decimalPlaces: 0,
+
             color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
           }}
           bezier
@@ -216,19 +285,25 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 22,
+
     fontWeight: 'bold',
+
     marginBottom: 12,
   },
 
   sectionTitle: {
     fontSize: 20,
+
     fontWeight: 'bold',
+
     marginTop: 16,
+
     marginBottom: 8,
   },
 
   empty: {
     fontSize: 16,
+
     marginBottom: 16,
   },
 
@@ -238,6 +313,7 @@ const styles = StyleSheet.create({
 
   groupTitle: {
     fontSize: 18,
+
     fontWeight: '600',
   },
 
@@ -247,26 +323,29 @@ const styles = StyleSheet.create({
 
   task: {
     fontSize: 16,
-    marginBottom: 6,
-  },
 
-  link: {
-    marginTop: 16,
-    color: 'blue',
+    marginBottom: 6,
   },
 
   groupActive: {
     backgroundColor: '#e3f2fd',
+
     borderRadius: 8,
+
     padding: 6,
+
     fontWeight: 'bold',
+
     color: '#1976d2',
   },
 
   statusBox: {
     padding: 12,
+
     borderRadius: 10,
+
     backgroundColor: '#eef6ff',
+
     marginTop: 12,
   },
 
@@ -276,14 +355,19 @@ const styles = StyleSheet.create({
 
   syncButton: {
     marginTop: 10,
+
     backgroundColor: '#1976D2',
+
     padding: 14,
+
     borderRadius: 12,
+
     alignItems: 'center',
   },
 
   syncText: {
     color: '#fff',
+
     fontWeight: '600',
   },
 });

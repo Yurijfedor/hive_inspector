@@ -10,4 +10,5 @@ export default {
   completedTasks: 'Completed tasks',
 
   activeTasks: 'Active tasks',
+  openFullTaskList: 'Open full task list',
 };

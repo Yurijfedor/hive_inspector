@@ -10,4 +10,5 @@ export default {
   completedTasks: 'Виконані задачі',
 
   activeTasks: 'Активні задачі',
+  openFullTaskList: 'Відкрити повний список задач',
 };
