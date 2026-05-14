@@ -17,6 +17,7 @@ import enRelativeDates from './locales/en/relativeDates';
 import enToday from './locales/en/today';
 import enAnalytics from './locales/en/analytics';
 import enTaskEdit from './locales/en/taskEdit';
+import enTaskCreate from './locales/en/taskCreate';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -30,6 +31,7 @@ import ukRelativeDates from './locales/uk/relativeDates';
 import ukToday from './locales/uk/today';
 import ukAnalytics from './locales/uk/analytics';
 import ukTaskEdit from './locales/uk/taskEdit';
+import ukTaskCreate from './locales/uk/taskCreate';
 
 // DE
 import deCommon from './locales/de/common';
@@ -43,6 +45,7 @@ import deRelativeDates from './locales/de/relativeDates';
 import deToday from './locales/de/today';
 import deAnalytics from './locales/de/analytics';
 import deTaskEdit from './locales/de/taskEdit';
+import deTaskCreate from './locales/de/taskCreate';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -64,6 +67,7 @@ const resources = {
     today: enToday,
     analytics: enAnalytics,
     taskEdit: enTaskEdit,
+    taskCreate: enTaskCreate,
   },
 
   uk: {
@@ -78,6 +82,7 @@ const resources = {
     today: ukToday,
     analytics: ukAnalytics,
     taskEdit: ukTaskEdit,
+    taskCreate: ukTaskCreate,
   },
 
   de: {
@@ -92,6 +97,7 @@ const resources = {
     today: deToday,
     analytics: deAnalytics,
     taskEdit: deTaskEdit,
+    taskCreate: deTaskCreate,
   },
 };
 
@@ -135,6 +141,7 @@ export async function initLocalization() {
       'today',
       'analytics',
       'taskEdit',
+      'taskCreate',
     ],
 
     interpolation: {

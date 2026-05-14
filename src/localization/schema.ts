@@ -9,6 +9,7 @@ import enRelativeDates from './locales/en/relativeDates';
 import enToday from './locales/en/today';
 import enAnalytics from './locales/en/analytics';
 import enTaskEdit from './locales/en/taskEdit';
+import enTaskCreate from './locales/en/taskCreate';
 
 export const defaultResources = {
   en: {
@@ -23,5 +24,6 @@ export const defaultResources = {
     today: enToday,
     analytics: enAnalytics,
     taskEdit: enTaskEdit,
+    taskCreate: enTaskCreate,
   },
 } as const;
