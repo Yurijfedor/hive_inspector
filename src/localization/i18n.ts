@@ -14,6 +14,7 @@ import enTaskTypes from './locales/en/taskTypes';
 import enTaskPriorities from './locales/en/taskPriorities';
 import enTaskStatuses from './locales/en/taskStatuses';
 import enRelativeDates from './locales/en/relativeDates';
+import enToday from './locales/en/today';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -24,6 +25,7 @@ import ukTaskTypes from './locales/uk/taskTypes';
 import ukTaskPriorities from './locales/uk/taskPriorities';
 import ukTaskStatuses from './locales/uk/taskStatuses';
 import ukRelativeDates from './locales/uk/relativeDates';
+import ukToday from './locales/uk/today';
 
 // DE
 import deCommon from './locales/de/common';
@@ -34,6 +36,7 @@ import deTaskTypes from './locales/de/taskTypes';
 import deTaskPriorities from './locales/de/taskPriorities';
 import deTaskStatuses from './locales/de/taskStatuses';
 import deRelativeDates from './locales/de/relativeDates';
+import deToday from './locales/de/today';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -52,6 +55,7 @@ const resources = {
     taskPriorities: enTaskPriorities,
     taskStatuses: enTaskStatuses,
     relativeDates: enRelativeDates,
+    today: enToday,
   },
 
   uk: {
@@ -63,6 +67,7 @@ const resources = {
     taskPriorities: ukTaskPriorities,
     taskStatuses: ukTaskStatuses,
     relativeDates: ukRelativeDates,
+    today: ukToday,
   },
 
   de: {
@@ -74,6 +79,7 @@ const resources = {
     taskPriorities: deTaskPriorities,
     taskStatuses: deTaskStatuses,
     relativeDates: deRelativeDates,
+    today: deToday,
   },
 };
 
@@ -114,6 +120,7 @@ export async function initLocalization() {
       'taskPriorities',
       'taskStatuses',
       'relativeDates',
+      'today',
     ],
 
     interpolation: {

@@ -6,6 +6,7 @@ import enTaskTypes from './locales/en/taskTypes';
 import enTaskPriorities from './locales/en/taskPriorities';
 import enTaskStatuses from './locales/en/taskStatuses';
 import enRelativeDates from './locales/en/relativeDates';
+import enToday from './locales/en/today';
 
 export const defaultResources = {
   en: {
@@ -17,5 +18,6 @@ export const defaultResources = {
     taskPriorities: enTaskPriorities,
     taskStatuses: enTaskStatuses,
     relativeDates: enRelativeDates,
+    today: enToday,
   },
 } as const;
