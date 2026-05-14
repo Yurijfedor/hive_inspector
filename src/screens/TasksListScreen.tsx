@@ -162,7 +162,7 @@ export const TasksListScreen = () => {
 
       <View style={styles.createContainer}>
         <Button
-          title={`➕ ${t('navigation:createTask')}`}
+          title={`${t('navigation:createTask')}`}
           onPress={() => navigation.navigate('TaskCreate')}
         />
       </View>
