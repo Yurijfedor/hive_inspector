@@ -24,4 +24,7 @@ export default {
   status: 'Статус',
 
   type: 'Тип',
+  selectHive: 'Оберіть вулик',
+
+  close: 'Закрити',
 };

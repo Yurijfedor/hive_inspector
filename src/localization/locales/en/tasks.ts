@@ -24,4 +24,7 @@ export default {
   status: 'Status',
 
   type: 'Type',
+  selectHive: 'Select hive',
+
+  close: 'Close',
 };

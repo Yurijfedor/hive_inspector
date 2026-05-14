@@ -10,14 +10,20 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
 import {createHive} from '../domain/useCases/hives/createHive';
 
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
 export const HiveCreateScreen = () => {
   const navigation = useNavigation<any>();
+
   const {user} = useAuth();
+
+  const {t} = useAppTranslation();
 
   const [hiveNumber, setHiveNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,18 +33,26 @@ export const HiveCreateScreen = () => {
   // --------------------------------------------------
 
   const handleCreate = async () => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     const number = Number(hiveNumber);
 
     // 🔒 VALIDATION
+
     if (!hiveNumber || isNaN(number)) {
-      Alert.alert('Помилка', 'Введи коректний номер вулика');
+      Alert.alert(t('common:error'), t('hiveCreate:errors.invalidHiveNumber'));
+
       return;
     }
 
     if (number <= 0) {
-      Alert.alert('Помилка', 'Номер має бути більше 0');
+      Alert.alert(
+        t('common:error'),
+        t('hiveCreate:errors.hiveNumberMustBePositive'),
+      );
+
       return;
     }
 
@@ -50,14 +64,20 @@ export const HiveCreateScreen = () => {
       console.log('✅ HIVE CREATED:', number);
 
       // 👉 UX: одразу відкриваємо вулик
-      navigation.replace('Hive', {hiveNumber: number});
+
+      navigation.replace('Hive', {
+        hiveNumber: number,
+      });
     } catch (e: any) {
       console.log('❌ CREATE HIVE FAILED', e);
 
       if (e.message === 'Hive already exists') {
-        Alert.alert('Помилка', 'Такий вулик вже існує');
+        Alert.alert(
+          t('common:error'),
+          t('hiveCreate:errors.hiveAlreadyExists'),
+        );
       } else {
-        Alert.alert('Помилка', 'Не вдалося створити вулик');
+        Alert.alert(t('common:error'), t('hiveCreate:errors.createFailed'));
       }
     } finally {
       setLoading(false);
@@ -73,28 +93,35 @@ export const HiveCreateScreen = () => {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>➕ Додати вулик</Text>
+        {/* TITLE */}
+
+        <Text style={styles.title}>➕ {t('hiveCreate:title')}</Text>
 
         {/* INPUT */}
-        <Text style={styles.label}>🐝 Номер вулика</Text>
+
+        <Text style={styles.label}>🐝 {t('hiveCreate:hiveNumber')}</Text>
 
         <TextInput
           style={styles.input}
           value={hiveNumber}
           onChangeText={setHiveNumber}
           keyboardType="numeric"
-          placeholder="Наприклад: 12"
+          placeholder={t('hiveCreate:placeholder')}
         />
 
         {/* INFO */}
-        <Text style={styles.hint}>
-          Після створення можна одразу додати огляд або задачі
-        </Text>
+
+        <Text style={styles.hint}>{t('hiveCreate:hint')}</Text>
 
         {/* BUTTON */}
+
         <View style={{marginTop: 20}}>
           <Button
-            title={loading ? '⏳ Створення...' : '💾 Створити'}
+            title={
+              loading
+                ? `⏳ ${t('hiveCreate:creating')}`
+                : `💾 ${t('hiveCreate:create')}`
+            }
             onPress={handleCreate}
             disabled={loading}
           />

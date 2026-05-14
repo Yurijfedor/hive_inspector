@@ -36,6 +36,8 @@ import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 
 import {getTaskPriorityLabel} from '../localization/helpers/getTaskPriorityLabel';
 
+import {getDeviceLocale} from '../localization/helpers/getDeviceLocale';
+
 // 🔥 TASK TYPES
 
 const TASK_TYPES: TaskType[] = [
@@ -236,6 +238,7 @@ export const TaskCreateScreen = () => {
             value={new Date(date)}
             mode="date"
             display="default"
+            locale={getDeviceLocale(currentLanguage)}
             onChange={(event, selectedDate) => {
               setShowPicker(false);
 

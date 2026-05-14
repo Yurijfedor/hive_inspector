@@ -10,6 +10,7 @@ import enToday from './locales/en/today';
 import enAnalytics from './locales/en/analytics';
 import enTaskEdit from './locales/en/taskEdit';
 import enTaskCreate from './locales/en/taskCreate';
+import hiveCreateEn from './locales/en/hiveCreate';
 
 export const defaultResources = {
   en: {
@@ -25,5 +26,6 @@ export const defaultResources = {
     analytics: enAnalytics,
     taskEdit: enTaskEdit,
     taskCreate: enTaskCreate,
+    hiveCreate: hiveCreateEn,
   },
 } as const;

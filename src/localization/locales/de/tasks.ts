@@ -24,4 +24,7 @@ export default {
   status: 'Status',
 
   type: 'Typ',
+  selectHive: 'Bienenstock auswählen',
+
+  close: 'Schließen',
 };
