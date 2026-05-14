@@ -8,6 +8,7 @@ import enTaskStatuses from './locales/en/taskStatuses';
 import enRelativeDates from './locales/en/relativeDates';
 import enToday from './locales/en/today';
 import enAnalytics from './locales/en/analytics';
+import enTaskEdit from './locales/en/taskEdit';
 
 export const defaultResources = {
   en: {
@@ -21,5 +22,6 @@ export const defaultResources = {
     relativeDates: enRelativeDates,
     today: enToday,
     analytics: enAnalytics,
+    taskEdit: enTaskEdit,
   },
 } as const;
