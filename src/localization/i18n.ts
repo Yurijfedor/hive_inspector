@@ -19,6 +19,7 @@ import enAnalytics from './locales/en/analytics';
 import enTaskEdit from './locales/en/taskEdit';
 import enTaskCreate from './locales/en/taskCreate';
 import hiveCreateEn from './locales/en/hiveCreate';
+import inspectionEn from './locales/en/inspection';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -34,6 +35,7 @@ import ukAnalytics from './locales/uk/analytics';
 import ukTaskEdit from './locales/uk/taskEdit';
 import ukTaskCreate from './locales/uk/taskCreate';
 import hiveCreateUk from './locales/uk/hiveCreate';
+import inspectionUk from './locales/uk/inspection';
 
 // DE
 import deCommon from './locales/de/common';
@@ -49,6 +51,7 @@ import deAnalytics from './locales/de/analytics';
 import deTaskEdit from './locales/de/taskEdit';
 import deTaskCreate from './locales/de/taskCreate';
 import hiveCreateDe from './locales/de/hiveCreate';
+import inspectionDe from './locales/de/inspection';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -72,6 +75,7 @@ const resources = {
     taskEdit: enTaskEdit,
     taskCreate: enTaskCreate,
     hiveCreate: hiveCreateEn,
+    inspection: inspectionEn,
   },
 
   uk: {
@@ -88,6 +92,7 @@ const resources = {
     taskEdit: ukTaskEdit,
     taskCreate: ukTaskCreate,
     hiveCreate: hiveCreateUk,
+    inspection: inspectionUk,
   },
 
   de: {
@@ -104,6 +109,7 @@ const resources = {
     taskEdit: deTaskEdit,
     taskCreate: deTaskCreate,
     hiveCreate: hiveCreateDe,
+    inspection: inspectionDe,
   },
 };
 
@@ -149,6 +155,7 @@ export async function initLocalization() {
       'taskEdit',
       'taskCreate',
       'hiveCreate',
+      'inspection',
     ],
 
     interpolation: {

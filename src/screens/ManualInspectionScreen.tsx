@@ -10,24 +10,31 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+
 import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {runManualBatch} from '../application/runManualBatch';
 import {normalizeManualForm} from '../features/manualInput/mappers/normalizeManualForm';
+
 import {useAuth} from '../auth/AuthProvider';
 import {runFullSync} from '../sync/runFullSync';
+
+import {useAppTranslation} from '../hooks/useAppTranslation';
 
 type Tab = 'main' | 'swarm' | 'disease' | 'split';
 
 export const ManualInspectionScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+
   const {hiveNumber} = route.params;
 
-  // const driver = useConversation();
   const {user} = useAuth();
 
+  const {t} = useAppTranslation();
+
   const [activeTab, setActiveTab] = useState<Tab>('main');
+
   const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
@@ -69,6 +76,7 @@ export const ManualInspectionScreen = () => {
   ) => {
     setForm((prev) => ({
       ...prev,
+
       [section]: {
         ...prev[section],
         [key]: value,
@@ -82,20 +90,26 @@ export const ManualInspectionScreen = () => {
     }
 
     Alert.alert(
-      'Підтвердження',
-      'Ви підтверджуєте коректність введених даних?',
+      t('inspection:confirm.title'),
+      t('inspection:confirm.message'),
+
       [
         {
-          text: 'Скасувати',
+          text: t('inspection:confirm.cancel'),
           style: 'cancel',
         },
+
         {
-          text: 'Так',
+          text: t('inspection:confirm.confirm'),
+
           onPress: async () => {
             console.log('🔥 START SAVE');
 
             if (!user?.uid) {
-              Alert.alert('Помилка', 'Користувач не авторизований');
+              Alert.alert(
+                t('common:error'),
+                t('inspection:errors.unauthorized'),
+              );
 
               return;
             }
@@ -106,25 +120,33 @@ export const ManualInspectionScreen = () => {
               const normalized = normalizeManualForm(form);
 
               // 🔥 save
+
               await runManualBatch(user.uid, hiveNumber, normalized);
 
               // 🔥 sync
+
               await runFullSync(user.uid);
 
               console.log('✅ SAVE + SYNC DONE');
 
-              Alert.alert('Успіх', 'Дані успішно збережено', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    navigation.goBack();
+              Alert.alert(
+                t('inspection:success.title'),
+                t('inspection:success.saved'),
+
+                [
+                  {
+                    text: 'OK',
+
+                    onPress: () => {
+                      navigation.goBack();
+                    },
                   },
-                },
-              ]);
+                ],
+              );
             } catch (e) {
               console.log('❌ SAVE ERROR', e);
 
-              Alert.alert('Помилка', 'Не вдалося зберегти дані');
+              Alert.alert(t('common:error'), t('inspection:errors.saveFailed'));
             } finally {
               setSaving(false);
             }
@@ -139,9 +161,12 @@ export const ManualInspectionScreen = () => {
       case 'main':
         return (
           <>
-            <Text style={styles.section}>Основні дані</Text>
+            <Text style={styles.section}>
+              {t('inspection:sections.mainData')}
+            </Text>
 
-            <Text>Сила</Text>
+            <Text>{t('inspection:fields.strength')}</Text>
+
             <TextInput
               value={form.inspection.strength}
               onChangeText={(v: string) =>
@@ -151,7 +176,8 @@ export const ManualInspectionScreen = () => {
               style={styles.input}
             />
 
-            <Text>Розплід</Text>
+            <Text>{t('inspection:fields.brood')}</Text>
+
             <TextInput
               value={form.inspection.broodFrames}
               onChangeText={(v: string) =>
@@ -161,7 +187,8 @@ export const ManualInspectionScreen = () => {
               style={styles.input}
             />
 
-            <Text>Мед</Text>
+            <Text>{t('inspection:fields.honey')}</Text>
+
             <TextInput
               value={form.inspection.honeyKg}
               onChangeText={(v: string) =>
@@ -171,10 +198,11 @@ export const ManualInspectionScreen = () => {
               style={styles.input}
             />
 
-            <Text style={styles.section}>Матка</Text>
+            <Text style={styles.section}>{t('inspection:sections.queen')}</Text>
 
             <View style={styles.row}>
               <Text>Є матка</Text>
+
               <Switch
                 value={form.inspection.queen}
                 onValueChange={(v: boolean) =>
@@ -186,6 +214,7 @@ export const ManualInspectionScreen = () => {
             {form.inspection.queen && (
               <>
                 <Text>Порода</Text>
+
                 <TextInput
                   value={form.inspection.queenBreed}
                   onChangeText={(v: string) =>
@@ -195,6 +224,7 @@ export const ManualInspectionScreen = () => {
                 />
 
                 <Text>Рік</Text>
+
                 <TextInput
                   value={form.inspection.queenYear}
                   onChangeText={(v: string) =>
@@ -288,6 +318,7 @@ export const ManualInspectionScreen = () => {
             />
 
             <Text>Рамки розплоду</Text>
+
             <TextInput
               value={form.split.broodFrames}
               onChangeText={(v: string) =>
@@ -298,6 +329,7 @@ export const ManualInspectionScreen = () => {
             />
 
             <Text>Кормові рамки</Text>
+
             <TextInput
               value={form.split.foodFrames}
               onChangeText={(v: string) =>
@@ -315,35 +347,42 @@ export const ManualInspectionScreen = () => {
     <View style={{flex: 1}}>
       <View style={styles.tabs}>
         <TabButton
-          label="Огляд"
+          label={t('inspection:tabs.inspection')}
           active={activeTab === 'main'}
           onPress={() => setActiveTab('main')}
         />
+
         <TabButton
-          label="Роїння"
+          label={t('inspection:tabs.swarm')}
           active={activeTab === 'swarm'}
           onPress={() => setActiveTab('swarm')}
         />
+
         <TabButton
-          label="Хвороби"
+          label={t('inspection:tabs.disease')}
           active={activeTab === 'disease'}
           onPress={() => setActiveTab('disease')}
         />
+
         <TabButton
-          label="Відводки"
+          label={t('inspection:tabs.split')}
           active={activeTab === 'split'}
           onPress={() => setActiveTab('split')}
         />
       </View>
 
       <ScrollView contentContainerStyle={{padding: 16}}>
-        <Text style={styles.title}>Вулик №{hiveNumber}</Text>
+        <Text style={styles.title}>{t('inspection:title', {hiveNumber})}</Text>
 
         {renderTab()}
 
         <View style={{marginTop: 24}}>
           <Button
-            title={saving ? 'Збереження...' : 'Зберегти'}
+            title={
+              saving
+                ? t('inspection:buttons.saving')
+                : t('inspection:buttons.save')
+            }
             onPress={handleSave}
             disabled={saving}
           />
@@ -353,7 +392,9 @@ export const ManualInspectionScreen = () => {
   );
 };
 
-// --- UI helpers ---
+// --------------------------------------------------
+// UI HELPERS
+// --------------------------------------------------
 
 const SwitchRow = ({
   label,
@@ -366,6 +407,7 @@ const SwitchRow = ({
 }) => (
   <View style={styles.row}>
     <Text>{label}</Text>
+
     <Switch value={value} onValueChange={onChange} />
   </View>
 );
@@ -386,9 +428,22 @@ const TabButton = ({
   </TouchableOpacity>
 );
 
+// --------------------------------------------------
+// STYLES
+// --------------------------------------------------
+
 const styles = StyleSheet.create({
-  title: {fontSize: 20, fontWeight: 'bold', marginBottom: 12},
-  section: {fontSize: 16, marginVertical: 10},
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+
+  section: {
+    fontSize: 16,
+    marginVertical: 10,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -396,12 +451,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 6,
   },
+
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 10,
   },
+
   tabs: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -409,6 +466,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ddd',
   },
-  tab: {padding: 8},
-  tabActive: {backgroundColor: '#333', borderRadius: 6},
+
+  tab: {
+    padding: 8,
+  },
+
+  tabActive: {
+    backgroundColor: '#333',
+    borderRadius: 6,
+  },
 });
