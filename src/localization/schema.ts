@@ -15,6 +15,7 @@ import inspectionEn from './locales/en/inspection';
 import queenEn from './locales/en/queen';
 import swarmEn from './locales/en/swarm';
 import diseaseEn from './locales/en/disease';
+import splitEn from './locales/en/split';
 
 export const defaultResources = {
   en: {
@@ -35,5 +36,6 @@ export const defaultResources = {
     queen: queenEn,
     swarm: swarmEn,
     disease: diseaseEn,
+    split: splitEn,
   },
 } as const;

@@ -303,21 +303,21 @@ export const ManualInspectionScreen = () => {
       case 'split':
         return (
           <>
-            <Text style={styles.section}>Відводки</Text>
+            <Text style={styles.section}>{t('split:title')}</Text>
 
             <SwitchRow
-              label="Це відводок"
+              label={t('split:isSplit')}
               value={form.split.isSplit}
               onChange={(v) => handleChange('split', 'isSplit', v)}
             />
 
             <SwitchRow
-              label="Використати для відводків"
+              label={t('split:usedForSplits')}
               value={form.split.usedForSplits}
               onChange={(v) => handleChange('split', 'usedForSplits', v)}
             />
 
-            <Text>Рамки розплоду</Text>
+            <Text>{t('split:broodFrames')}</Text>
 
             <TextInput
               value={form.split.broodFrames}
@@ -328,7 +328,7 @@ export const ManualInspectionScreen = () => {
               style={styles.input}
             />
 
-            <Text>Кормові рамки</Text>
+            <Text>{t('split:foodFrames')}</Text>
 
             <TextInput
               value={form.split.foodFrames}
