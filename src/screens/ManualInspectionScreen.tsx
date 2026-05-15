@@ -201,7 +201,7 @@ export const ManualInspectionScreen = () => {
             <Text style={styles.section}>{t('inspection:sections.queen')}</Text>
 
             <View style={styles.row}>
-              <Text>Є матка</Text>
+              <Text>{t('queen:present')}</Text>
 
               <Switch
                 value={form.inspection.queen}
@@ -213,7 +213,7 @@ export const ManualInspectionScreen = () => {
 
             {form.inspection.queen && (
               <>
-                <Text>Порода</Text>
+                <Text>{t('queen:breed')}</Text>
 
                 <TextInput
                   value={form.inspection.queenBreed}
@@ -223,7 +223,7 @@ export const ManualInspectionScreen = () => {
                   style={styles.input}
                 />
 
-                <Text>Рік</Text>
+                <Text>{t('queen:year')}</Text>
 
                 <TextInput
                   value={form.inspection.queenYear}

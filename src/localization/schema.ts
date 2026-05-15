@@ -12,6 +12,7 @@ import enTaskEdit from './locales/en/taskEdit';
 import enTaskCreate from './locales/en/taskCreate';
 import hiveCreateEn from './locales/en/hiveCreate';
 import inspectionEn from './locales/en/inspection';
+import queenEn from './locales/en/queen';
 
 export const defaultResources = {
   en: {
@@ -29,5 +30,6 @@ export const defaultResources = {
     taskCreate: enTaskCreate,
     hiveCreate: hiveCreateEn,
     inspection: inspectionEn,
+    queen: queenEn,
   },
 } as const;
