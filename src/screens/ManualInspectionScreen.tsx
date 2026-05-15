@@ -272,28 +272,28 @@ export const ManualInspectionScreen = () => {
       case 'disease':
         return (
           <>
-            <Text style={styles.section}>Хвороби</Text>
+            <Text style={styles.section}>{t('disease:title')}</Text>
 
             <SwitchRow
-              label="Понос"
+              label={t('disease:diarrhea')}
               value={form.disease.diarrhea}
               onChange={(v) => handleChange('disease', 'diarrhea', v)}
             />
 
             <SwitchRow
-              label="Деформовані крила"
+              label={t('disease:deformedWings')}
               value={form.disease.deformedWings}
               onChange={(v) => handleChange('disease', 'deformedWings', v)}
             />
 
             <SwitchRow
-              label="Кліщі"
+              label={t('disease:mitesVisible')}
               value={form.disease.mitesVisible}
               onChange={(v) => handleChange('disease', 'mitesVisible', v)}
             />
 
             <SwitchRow
-              label="Проблемний розплід"
+              label={t('disease:weakBrood')}
               value={form.disease.weakBrood}
               onChange={(v) => handleChange('disease', 'weakBrood', v)}
             />

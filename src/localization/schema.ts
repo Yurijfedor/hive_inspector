@@ -14,6 +14,8 @@ import hiveCreateEn from './locales/en/hiveCreate';
 import inspectionEn from './locales/en/inspection';
 import queenEn from './locales/en/queen';
 import swarmEn from './locales/en/swarm';
+import diseaseEn from './locales/en/disease';
+
 export const defaultResources = {
   en: {
     common: enCommon,
@@ -32,5 +34,6 @@ export const defaultResources = {
     inspection: inspectionEn,
     queen: queenEn,
     swarm: swarmEn,
+    disease: diseaseEn,
   },
 } as const;

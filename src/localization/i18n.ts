@@ -22,6 +22,7 @@ import hiveCreateEn from './locales/en/hiveCreate';
 import inspectionEn from './locales/en/inspection';
 import queenEn from './locales/en/queen';
 import swarmEn from './locales/en/swarm';
+import diseaseEn from './locales/en/disease';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -40,6 +41,7 @@ import hiveCreateUk from './locales/uk/hiveCreate';
 import inspectionUk from './locales/uk/inspection';
 import queenUk from './locales/uk/queen';
 import swarmUk from './locales/uk/swarm';
+import diseaseUk from './locales/uk/disease';
 
 // DE
 import deCommon from './locales/de/common';
@@ -58,6 +60,7 @@ import hiveCreateDe from './locales/de/hiveCreate';
 import inspectionDe from './locales/de/inspection';
 import queenDe from './locales/de/queen';
 import swarmDe from './locales/de/swarm';
+import diseaseDe from './locales/de/disease';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -84,6 +87,7 @@ const resources = {
     inspection: inspectionEn,
     queen: queenEn,
     swarm: swarmEn,
+    disease: diseaseEn,
   },
 
   uk: {
@@ -103,6 +107,7 @@ const resources = {
     inspection: inspectionUk,
     queen: queenUk,
     swarm: swarmUk,
+    disease: diseaseUk,
   },
 
   de: {
@@ -122,6 +127,7 @@ const resources = {
     inspection: inspectionDe,
     queen: queenDe,
     swarm: swarmDe,
+    disease: diseaseDe,
   },
 };
 
@@ -170,6 +176,7 @@ export async function initLocalization() {
       'inspection',
       'queen',
       'swarm',
+      'disease',
     ],
 
     interpolation: {
