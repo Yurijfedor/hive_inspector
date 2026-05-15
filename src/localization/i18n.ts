@@ -21,6 +21,7 @@ import enTaskCreate from './locales/en/taskCreate';
 import hiveCreateEn from './locales/en/hiveCreate';
 import inspectionEn from './locales/en/inspection';
 import queenEn from './locales/en/queen';
+import swarmEn from './locales/en/swarm';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -38,6 +39,7 @@ import ukTaskCreate from './locales/uk/taskCreate';
 import hiveCreateUk from './locales/uk/hiveCreate';
 import inspectionUk from './locales/uk/inspection';
 import queenUk from './locales/uk/queen';
+import swarmUk from './locales/uk/swarm';
 
 // DE
 import deCommon from './locales/de/common';
@@ -55,6 +57,7 @@ import deTaskCreate from './locales/de/taskCreate';
 import hiveCreateDe from './locales/de/hiveCreate';
 import inspectionDe from './locales/de/inspection';
 import queenDe from './locales/de/queen';
+import swarmDe from './locales/de/swarm';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -80,6 +83,7 @@ const resources = {
     hiveCreate: hiveCreateEn,
     inspection: inspectionEn,
     queen: queenEn,
+    swarm: swarmEn,
   },
 
   uk: {
@@ -98,6 +102,7 @@ const resources = {
     hiveCreate: hiveCreateUk,
     inspection: inspectionUk,
     queen: queenUk,
+    swarm: swarmUk,
   },
 
   de: {
@@ -116,6 +121,7 @@ const resources = {
     hiveCreate: hiveCreateDe,
     inspection: inspectionDe,
     queen: queenDe,
+    swarm: swarmDe,
   },
 };
 
@@ -163,6 +169,7 @@ export async function initLocalization() {
       'hiveCreate',
       'inspection',
       'queen',
+      'swarm',
     ],
 
     interpolation: {

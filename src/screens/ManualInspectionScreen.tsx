@@ -241,28 +241,28 @@ export const ManualInspectionScreen = () => {
       case 'swarm':
         return (
           <>
-            <Text style={styles.section}>Роїння</Text>
+            <Text style={styles.section}>{t('swarm:title')}</Text>
 
             <SwitchRow
-              label="Вихід маток"
+              label={t('swarm:queenEmergence')}
               value={form.swarm.queenEmergence}
               onChange={(v) => handleChange('swarm', 'queenEmergence', v)}
             />
 
             <SwitchRow
-              label="Печатні маточники"
+              label={t('swarm:sealedCells')}
               value={form.swarm.sealedCells}
               onChange={(v) => handleChange('swarm', 'sealedCells', v)}
             />
 
             <SwitchRow
-              label="Відкриті маточники"
+              label={t('swarm:openCells')}
               value={form.swarm.openCells}
               onChange={(v) => handleChange('swarm', 'openCells', v)}
             />
 
             <SwitchRow
-              label="Яйця в маточниках"
+              label={t('swarm:eggsInCells')}
               value={form.swarm.eggsInCells}
               onChange={(v) => handleChange('swarm', 'eggsInCells', v)}
             />

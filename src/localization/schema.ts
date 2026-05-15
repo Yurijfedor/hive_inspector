@@ -13,7 +13,7 @@ import enTaskCreate from './locales/en/taskCreate';
 import hiveCreateEn from './locales/en/hiveCreate';
 import inspectionEn from './locales/en/inspection';
 import queenEn from './locales/en/queen';
-
+import swarmEn from './locales/en/swarm';
 export const defaultResources = {
   en: {
     common: enCommon,
@@ -31,5 +31,6 @@ export const defaultResources = {
     hiveCreate: hiveCreateEn,
     inspection: inspectionEn,
     queen: queenEn,
+    swarm: swarmEn,
   },
 } as const;
