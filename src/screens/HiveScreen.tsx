@@ -23,9 +23,10 @@ import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {formatDate} from '../localization/helpers/formatDate';
 
-import {getBooleanSignLabel} from '../localization/helpers/getBooleanSignLabel';
 import {getQueenSummary} from '../localization/helpers/getQueenSummary';
 import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
+import {getSwarmSummary} from '../localization/helpers/getSwarmSummary';
+import {getDiseaseSummary} from '../localization/helpers/getDiseaseSummary';
 
 // --------------------------------------------------
 // TYPES
@@ -173,13 +174,11 @@ export const HiveScreen = () => {
       <Text style={styles.section}>{t('hive:sections.signs')}</Text>
 
       <Text>
-        {t('hive:fields.swarm')}:{' '}
-        {getBooleanSignLabel(context?.swarm?.hasSwarmSigns === 'так', t)}
+        {t('hive:fields.swarm')}: {getSwarmSummary(context?.swarm, t)}
       </Text>
 
       <Text>
-        {t('hive:fields.disease')}:{' '}
-        {getBooleanSignLabel(context?.disease?.hasDiseaseSigns === 'так', t)}
+        {t('hive:fields.disease')}: {getDiseaseSummary(context?.disease, t)}
       </Text>
 
       {/* LAST INSPECTION */}
