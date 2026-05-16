@@ -4,4 +4,9 @@ export default {
   breed: 'Порода',
 
   year: 'Рік',
+  statuses: {
+    present: 'наявна',
+    absent: 'відсутня',
+    unknown: 'невідомо',
+  },
 };

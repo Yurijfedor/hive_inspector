@@ -24,6 +24,7 @@ import queenEn from './locales/en/queen';
 import swarmEn from './locales/en/swarm';
 import diseaseEn from './locales/en/disease';
 import splitEn from './locales/en/split';
+import hiveEn from './locales/en/hive';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -44,6 +45,7 @@ import queenUk from './locales/uk/queen';
 import swarmUk from './locales/uk/swarm';
 import diseaseUk from './locales/uk/disease';
 import splitUk from './locales/uk/split';
+import hiveUk from './locales/uk/hive'; 
 
 // DE
 import deCommon from './locales/de/common';
@@ -64,6 +66,7 @@ import queenDe from './locales/de/queen';
 import swarmDe from './locales/de/swarm';
 import diseaseDe from './locales/de/disease';
 import splitDe from './locales/de/split';
+import hiveDe from './locales/de/hive';
 
 import {AppLanguage} from './types';
 // import {en} from 'zod/v4/locales';
@@ -92,6 +95,7 @@ const resources = {
     swarm: swarmEn,
     disease: diseaseEn,
     split: splitEn,
+    hive: hiveEn,
   },
 
   uk: {
@@ -113,6 +117,7 @@ const resources = {
     swarm: swarmUk,
     disease: diseaseUk,
     split: splitUk,
+    hive: hiveUk,
   },
 
   de: {
@@ -134,6 +139,7 @@ const resources = {
     swarm: swarmDe,
     disease: diseaseDe,
     split: splitDe,
+    hive: hiveDe,
   },
 };
 
@@ -184,6 +190,7 @@ export async function initLocalization() {
       'swarm',
       'disease',
       'split',
+      'hive',
     ],
 
     interpolation: {

@@ -1,4 +1,5 @@
 import React, {useState, useCallback} from 'react';
+
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 import {
@@ -11,10 +12,20 @@ import {
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {useAuth} from '../auth/AuthProvider';
+
 import {HiveContext} from '../types/hive';
+
 import {loadHiveContextsFromFirebase} from '../persistence/inspectionRepository';
 
 import {RootStackParamList} from '../navigation/types';
+
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
+import {formatDate} from '../localization/helpers/formatDate';
+
+import {getQueenStatusLabel} from '../localization/helpers/getQueenStatusLabel';
+
+import {getBooleanSignLabel} from '../localization/helpers/getBooleanSignLabel';
 
 // --------------------------------------------------
 // TYPES
@@ -36,7 +47,10 @@ export const HiveScreen = () => {
   const {hiveNumber} = route.params;
 
   const {user} = useAuth();
+
   const uid = user?.uid;
+
+  const {t, currentLanguage} = useAppTranslation();
 
   const [context, setContext] = useState<HiveContext | null>(null);
 
@@ -109,81 +123,90 @@ export const HiveScreen = () => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Завантаження...</Text>
+        <Text>{t('hive:loading')}</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🐝 Вулик {hiveNumber}</Text>
+      {/* TITLE */}
+
+      <Text style={styles.title}>🐝 {t('hive:title', {hiveNumber})}</Text>
 
       {/* ACTIONS */}
 
       <TouchableOpacity style={styles.button} onPress={handleOpenTasks}>
-        <Text style={styles.buttonText}>📅 Завдання</Text>
+        <Text style={styles.buttonText}>📅 {t('hive:actions.tasks')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleManualInspection}>
-        <Text style={styles.buttonText}>📝 Ручний огляд</Text>
+        <Text style={styles.buttonText}>
+          📝 {t('hive:actions.manualInspection')}
+        </Text>
       </TouchableOpacity>
 
       {/* STATUS */}
 
-      <Text style={styles.section}>Стан</Text>
+      <Text style={styles.section}>{t('hive:sections.status')}</Text>
 
       {context?.lastInspection ? (
         <>
-          <Text>Сила: {context.lastInspection.strength ?? '—'}</Text>
-
-          <Text>Розплід: {context.lastInspection.broodFrames ?? '—'}</Text>
-
-          <Text>Мед: {context.lastInspection.honeyKg ?? '—'} кг</Text>
+          <Text>
+            {t('hive:fields.strength')}:{' '}
+            {context.lastInspection.strength ?? '—'}
+          </Text>
 
           <Text>
-            Матка:{' '}
+            {t('hive:fields.brood')}:{' '}
+            {context.lastInspection.broodFrames ?? '—'}
+          </Text>
+
+          <Text>
+            {t('hive:fields.honey')}: {context.lastInspection.honeyKg ?? '—'} кг
+          </Text>
+
+          <Text>
+            {t('hive:fields.queen')}:{' '}
             {context?.queen?.status === 'present'
-              ? `наявна (${context.queen.breed ?? '—'}, ${
-                  context.queen.birthYear ?? '—'
-                } р.)`
-              : context?.queen?.status === 'absent'
-              ? 'відсутня'
-              : 'невідомо'}
+              ? `${getQueenStatusLabel(context.queen.status, t)} (${
+                  context.queen.breed ?? '—'
+                }, ${context.queen.birthYear ?? '—'})`
+              : getQueenStatusLabel(context?.queen?.status, t)}
           </Text>
         </>
       ) : (
-        <Text>Немає даних</Text>
+        <Text>{t('hive:empty.noData')}</Text>
       )}
 
       {/* SIGNS */}
 
-      <Text style={styles.section}>Ознаки</Text>
+      <Text style={styles.section}>{t('hive:sections.signs')}</Text>
 
       <Text>
-        Роїння: {context?.swarm?.hasSwarmSigns === 'так' ? '⚠️ є' : '✅ немає'}
+        {t('hive:fields.swarm')}:{' '}
+        {getBooleanSignLabel(context?.swarm?.hasSwarmSigns === 'так', t)}
       </Text>
 
       <Text>
-        Хвороби:{' '}
-        {context?.disease?.hasDiseaseSigns === 'так' ? '⚠️ є' : '✅ немає'}
+        {t('hive:fields.disease')}:{' '}
+        {getBooleanSignLabel(context?.disease?.hasDiseaseSigns === 'так', t)}
       </Text>
 
       {/* LAST INSPECTION */}
 
-      <Text style={styles.section}>Останній огляд</Text>
+      <Text style={styles.section}>{t('hive:sections.lastInspection')}</Text>
 
       {context?.lastInspection ? (
-        <Text>
-          {new Date(context.lastInspection.date).toLocaleDateString()}
-        </Text>
+        <Text>{formatDate(context.lastInspection.date, currentLanguage)}</Text>
       ) : (
-        <Text>Немає даних</Text>
+        <Text>{t('hive:empty.noData')}</Text>
       )}
 
       {/* HISTORY */}
 
       <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
-        <Text style={styles.buttonText}>📜 Історія</Text>
+        <Text style={styles.buttonText}>📜 {t('hive:actions.history')}</Text>
       </TouchableOpacity>
     </View>
   );

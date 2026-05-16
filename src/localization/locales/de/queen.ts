@@ -4,4 +4,9 @@ export default {
   breed: 'Rasse',
 
   year: 'Jahr',
+  statuses: {
+    present: 'vorhanden',
+    absent: 'nicht vorhanden',
+    unknown: 'unbekannt',
+  },
 };
