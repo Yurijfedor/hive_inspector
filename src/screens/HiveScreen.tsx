@@ -25,6 +25,7 @@ import {formatDate} from '../localization/helpers/formatDate';
 
 import {getBooleanSignLabel} from '../localization/helpers/getBooleanSignLabel';
 import {getQueenSummary} from '../localization/helpers/getQueenSummary';
+import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
 
 // --------------------------------------------------
 // TYPES
@@ -151,19 +152,13 @@ export const HiveScreen = () => {
 
       {context?.lastInspection ? (
         <>
-          <Text>
-            {t('hive:fields.strength')}:{' '}
-            {context.lastInspection.strength ?? '—'}
-          </Text>
-
-          <Text>
-            {t('hive:fields.brood')}:{' '}
-            {context.lastInspection.broodFrames ?? '—'}
-          </Text>
-
-          <Text>
-            {t('hive:fields.honey')}: {context.lastInspection.honeyKg ?? '—'} кг
-          </Text>
+          {getInspectionMetricsSummary(context.lastInspection, t).map(
+            (metric) => (
+              <Text key={metric.label}>
+                {metric.label}: {metric.value}
+              </Text>
+            ),
+          )}
 
           <Text>
             {t('hive:fields.queen')}: {getQueenSummary(context?.queen, t)}
