@@ -23,9 +23,8 @@ import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {formatDate} from '../localization/helpers/formatDate';
 
-import {getQueenStatusLabel} from '../localization/helpers/getQueenStatusLabel';
-
 import {getBooleanSignLabel} from '../localization/helpers/getBooleanSignLabel';
+import {getQueenSummary} from '../localization/helpers/getQueenSummary';
 
 // --------------------------------------------------
 // TYPES
@@ -167,12 +166,7 @@ export const HiveScreen = () => {
           </Text>
 
           <Text>
-            {t('hive:fields.queen')}:{' '}
-            {context?.queen?.status === 'present'
-              ? `${getQueenStatusLabel(context.queen.status, t)} (${
-                  context.queen.breed ?? '—'
-                }, ${context.queen.birthYear ?? '—'})`
-              : getQueenStatusLabel(context?.queen?.status, t)}
+            {t('hive:fields.queen')}: {getQueenSummary(context?.queen, t)}
           </Text>
         </>
       ) : (
