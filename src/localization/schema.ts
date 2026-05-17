@@ -17,6 +17,7 @@ import swarmEn from './locales/en/swarm';
 import diseaseEn from './locales/en/disease';
 import splitEn from './locales/en/split';
 import hiveEn from './locales/en/hive';
+import inspectionHistoryEn from './locales/en/inspectionHistory';
 
 export const defaultResources = {
   en: {
@@ -39,5 +40,6 @@ export const defaultResources = {
     disease: diseaseEn,
     split: splitEn,
     hive: hiveEn,
+    inspectionHistory: inspectionHistoryEn,
   },
 } as const;

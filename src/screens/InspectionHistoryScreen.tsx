@@ -1,30 +1,53 @@
 import React, {useEffect, useState} from 'react';
+
 import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+
 import {useRoute} from '@react-navigation/native';
+
 import {LineChart} from 'react-native-chart-kit';
 
 import {useAuth} from '../auth/AuthProvider';
+
 import {Inspection} from '../types/inspection';
+
 import {loadInspectionsByHive} from '../persistence/inspectionRepository';
+
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
+import {formatDate} from '../localization/helpers/formatDate';
+
+import {getQueenSummary} from '../localization/helpers/getQueenSummary';
+
+import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
 
 export const InspectionHistoryScreen = () => {
   const route = useRoute<any>();
+
   const {hiveNumber} = route.params;
+
   const screenWidth = Dimensions.get('window').width;
 
   const {user} = useAuth();
+
   const uid = user?.uid;
 
+  const {t, currentLanguage} = useAppTranslation();
+
   const [inspections, setInspections] = useState<Inspection[]>([]);
+
   const [loading, setLoading] = useState(true);
+
   const [mode, setMode] = useState<'list' | 'chart'>('list');
 
   useEffect(() => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
 
     const load = async () => {
       try {
         const data = await loadInspectionsByHive(uid, hiveNumber);
+
         console.log(data);
 
         setInspections(data);
@@ -38,31 +61,47 @@ export const InspectionHistoryScreen = () => {
     load();
   }, [uid, hiveNumber]);
 
-  const prepareChartData = (inspections: Inspection[]) => {
-    const sorted = [...inspections].sort((a, b) => a.date - b.date);
+  const prepareChartData = (inspectionData: Inspection[]) => {
+    const sorted = [...inspectionData].sort((a, b) => a.date - b.date);
 
     return {
       labels: sorted.map((i) =>
-        new Date(i.date).toLocaleDateString().slice(0, 5),
+        formatDate(i.date, currentLanguage).slice(0, 5),
       ),
+
       datasets: [
         {
           data: sorted.map((i) => i.strength ?? 0),
+
           color: () => '#4CAF50',
+
           strokeWidth: 2,
         },
+
         {
           data: sorted.map((i) => i.honeyKg ?? 0),
+
           color: () => '#FFC107',
+
           strokeWidth: 2,
         },
+
         {
-          data: sorted.map((i) => i.broodFrames ?? 0), // ✅ ДОДАЛИ
-          color: () => '#9C27B0', // 🟣 фіолетовий (логічно для розплоду)
+          data: sorted.map((i) => i.broodFrames ?? 0),
+
+          color: () => '#9C27B0',
+
           strokeWidth: 2,
         },
       ],
-      legend: ['Сила', 'Мед', 'Розплід'], // ✅ ДОДАЛИ
+
+      legend: [
+        t('inspectionHistory:chart.strength'),
+
+        t('inspectionHistory:chart.honey'),
+
+        t('inspectionHistory:chart.brood'),
+      ],
     };
   };
 
@@ -70,62 +109,102 @@ export const InspectionHistoryScreen = () => {
 
   const renderItem = ({item}: {item: Inspection}) => (
     <View style={styles.card}>
+      {/* DATE */}
+
       <Text style={styles.date}>
-        📅 {new Date(item.date).toLocaleDateString()}
+        📅 {formatDate(item.date, currentLanguage)}
       </Text>
 
-      <Text>🐝 Сила: {item.strength}</Text>
-      <Text>🐣 Розплід: {item.broodFrames}</Text>
-      <Text>🍯 Мед: {item.honeyKg} кг</Text>
+      {/* METRICS */}
+
+      {getInspectionMetricsSummary(item, t).map((metric) => (
+        <Text key={metric.label}>
+          {metric.label}: {metric.value}
+        </Text>
+      ))}
+
+      {/* QUEEN */}
+
       <Text>
-        👑 Матка:{' '}
+        👑 {t('inspectionHistory:fields.queen')}:{' '}
         {typeof item.queen === 'object'
-          ? item.queen.present === true
-            ? 'наявна'
-            : item.queen.present === false
-            ? 'відсутня'
-            : 'невідомо'
+          ? getQueenSummary(
+              {
+                status:
+                  item.queen.present === true
+                    ? 'present'
+                    : item.queen.present === false
+                    ? 'absent'
+                    : 'unknown',
+              },
+              t,
+            )
           : item.queen}
       </Text>
     </View>
   );
 
+  // --------------------------------------------------
+  // LOADING
+  // --------------------------------------------------
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Завантаження...</Text>
+        <Text>{t('inspectionHistory:loading')}</Text>
       </View>
     );
   }
+
+  // --------------------------------------------------
+  // EMPTY
+  // --------------------------------------------------
 
   if (inspections.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>Немає оглядів</Text>
+        <Text>{t('inspectionHistory:empty.noInspections')}</Text>
       </View>
     );
   }
 
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📜 Історія вулика {hiveNumber}</Text>
+      {/* TITLE */}
 
-      {/* 🔘 TOGGLE */}
+      <Text style={styles.title}>
+        📜{' '}
+        {t('inspectionHistory:title', {
+          hiveNumber,
+        })}
+      </Text>
+
+      {/* TOGGLE */}
+
       <View style={styles.toggle}>
         <Text
-          style={{fontWeight: mode === 'list' ? 'bold' : 'normal'}}
+          style={{
+            fontWeight: mode === 'list' ? 'bold' : 'normal',
+          }}
           onPress={() => setMode('list')}>
-          📜 Історія
+          📜 {t('inspectionHistory:modes.history')}
         </Text>
 
         <Text
-          style={{fontWeight: mode === 'chart' ? 'bold' : 'normal'}}
+          style={{
+            fontWeight: mode === 'chart' ? 'bold' : 'normal',
+          }}
           onPress={() => setMode('chart')}>
-          📊 Графік
+          📊 {t('inspectionHistory:modes.chart')}
         </Text>
       </View>
 
-      {/* 📜 / 📊 CONTENT */}
+      {/* CONTENT */}
+
       {mode === 'list' ? (
         <FlatList
           data={inspections}
@@ -139,8 +218,11 @@ export const InspectionHistoryScreen = () => {
           height={220}
           chartConfig={{
             backgroundGradientFrom: '#fff',
+
             backgroundGradientTo: '#fff',
+
             decimalPlaces: 0,
+
             color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
           }}
           bezier
@@ -149,6 +231,11 @@ export const InspectionHistoryScreen = () => {
     </View>
   );
 };
+
+// --------------------------------------------------
+// STYLES
+// --------------------------------------------------
+
 const styles = StyleSheet.create({
   container: {
     padding: 16,
@@ -171,6 +258,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 4,
   },
+
   toggle: {
     flexDirection: 'row',
     justifyContent: 'space-around',

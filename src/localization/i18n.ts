@@ -25,6 +25,7 @@ import swarmEn from './locales/en/swarm';
 import diseaseEn from './locales/en/disease';
 import splitEn from './locales/en/split';
 import hiveEn from './locales/en/hive';
+import inspectionHistoryEn from './locales/en/inspectionHistory';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -45,7 +46,8 @@ import queenUk from './locales/uk/queen';
 import swarmUk from './locales/uk/swarm';
 import diseaseUk from './locales/uk/disease';
 import splitUk from './locales/uk/split';
-import hiveUk from './locales/uk/hive'; 
+import hiveUk from './locales/uk/hive';
+import inspectionHistoryUk from './locales/uk/inspectionHistory';
 
 // DE
 import deCommon from './locales/de/common';
@@ -67,10 +69,9 @@ import swarmDe from './locales/de/swarm';
 import diseaseDe from './locales/de/disease';
 import splitDe from './locales/de/split';
 import hiveDe from './locales/de/hive';
+import inspectionHistoryDe from './locales/de/inspectionHistory';
 
 import {AppLanguage} from './types';
-// import {en} from 'zod/v4/locales';
-
 // ========================================
 // TRANSLATION RESOURCES
 // ========================================
@@ -96,6 +97,7 @@ const resources = {
     disease: diseaseEn,
     split: splitEn,
     hive: hiveEn,
+    inspectionHistory: inspectionHistoryEn,
   },
 
   uk: {
@@ -118,6 +120,7 @@ const resources = {
     disease: diseaseUk,
     split: splitUk,
     hive: hiveUk,
+    inspectionHistory: inspectionHistoryUk,
   },
 
   de: {
@@ -140,6 +143,7 @@ const resources = {
     disease: diseaseDe,
     split: splitDe,
     hive: hiveDe,
+    inspectionHistory: inspectionHistoryDe,
   },
 };
 
@@ -191,6 +195,7 @@ export async function initLocalization() {
       'disease',
       'split',
       'hive',
+      'inspectionHistory',
     ],
 
     interpolation: {
