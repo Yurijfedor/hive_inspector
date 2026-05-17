@@ -21,8 +21,9 @@ import {RootStackParamList} from '../navigation/types';
 
 import {useAppTranslation} from '../hooks/useAppTranslation';
 
-import {formatDate} from '../localization/helpers/formatDate';
+import {InfoRow} from '../components/common/InfoRow';
 
+import {formatDate} from '../localization/helpers/formatDate';
 import {getQueenSummary} from '../localization/helpers/getQueenSummary';
 import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
 import {getSwarmSummary} from '../localization/helpers/getSwarmSummary';
@@ -155,9 +156,11 @@ export const HiveScreen = () => {
         <>
           {getInspectionMetricsSummary(context.lastInspection, t).map(
             (metric) => (
-              <Text key={metric.label}>
-                {metric.label}: {metric.value}
-              </Text>
+              <InfoRow
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+              />
             ),
           )}
 

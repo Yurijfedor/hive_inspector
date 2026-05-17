@@ -14,10 +14,10 @@ import {loadInspectionsByHive} from '../persistence/inspectionRepository';
 
 import {useAppTranslation} from '../hooks/useAppTranslation';
 
+import {InfoRow} from '../components/common/InfoRow';
+
 import {formatDate} from '../localization/helpers/formatDate';
-
 import {getQueenSummary} from '../localization/helpers/getQueenSummary';
-
 import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
 
 export const InspectionHistoryScreen = () => {
@@ -118,9 +118,7 @@ export const InspectionHistoryScreen = () => {
       {/* METRICS */}
 
       {getInspectionMetricsSummary(item, t).map((metric) => (
-        <Text key={metric.label}>
-          {metric.label}: {metric.value}
-        </Text>
+        <InfoRow key={metric.label} label={metric.label} value={metric.value} />
       ))}
 
       {/* QUEEN */}
