@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useCallback, useMemo} from 'react';
+
 import {
   View,
   Text,
@@ -8,63 +9,101 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
+
 import {LineChart} from 'react-native-chart-kit';
+
 import {useNavigation} from '@react-navigation/native';
+
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {RootStackParamList} from '../navigation/types';
+
 import {useAuth} from '../auth/AuthProvider';
+
 import {getApiarySummary} from '../services/apiaryService';
+
 import {ApiarySummary} from '../domain/apiary';
+
 import {
   buildApiaryDynamics,
   getApiaryStatus,
 } from '../services/analytics/apiaryAnalytics';
+
 import {loadInspections} from '../persistence/inspectionRepository';
+
 import {runFullSync} from '../sync/runFullSync';
+
 import {TaskRepository} from '../domain/repositories/taskRepository';
+
 import {mapTasksToViewModel} from '../services/tasks/mapTasksToViewModel';
 
 // 🔥 VOICE
+
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
+
 import {enableFieldMode, disableFieldMode} from '../native/brightness';
+
 import {FieldModeOverlay} from '../FieldModeOverlay';
+
+// 🌍 LOCALIZATION
+
+import {useAppTranslation} from '../hooks/useAppTranslation';
+
+import {getApiaryStatusLabel} from '../localization/helpers/getApiaryStatusLabel';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export const ApiaryScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+
   const {user} = useAuth();
+
   const uid = user?.uid;
+
+  const {t} = useAppTranslation();
 
   const screenWidth = Dimensions.get('window').width;
 
   const [summary, setSummary] = useState<ApiarySummary | null>(null);
+
   const [loading, setLoading] = useState(true);
+
   const [chartData, setChartData] = useState<any>(null);
+
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
+
   const [fieldMode, setFieldMode] = useState(false);
+
   const [syncing, setSyncing] = useState(false);
 
   const repo = new TaskRepository();
 
-  // 🔥 runtime
+  // --------------------------------------------------
+  // 🔥 RUNTIME
+  // --------------------------------------------------
+
   const runtime = useMemo(() => {
-    if (!uid) return null;
+    if (!uid) {
+      return null;
+    }
+
     return new DevVoiceRuntime(uid);
   }, [uid]);
 
   // --------------------------------------------------
-  // 🔥 SYNC WITH RUNTIME STOP
+  // 🔥 STOP FIELD MODE
   // --------------------------------------------------
 
   useEffect(() => {
-    if (!runtime) return;
+    if (!runtime) {
+      return;
+    }
 
     const unsubscribe = runtime.onStop(() => {
       console.log('🧩 UI STOP FIELD MODE');
 
       disableFieldMode();
+
       setFieldMode(false);
     });
 
@@ -76,11 +115,15 @@ export const ApiaryScreen = () => {
   // --------------------------------------------------
 
   const load = useCallback(async () => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
 
     try {
       setLoading(true);
+
       const data = await getApiarySummary(uid);
+
       setSummary(data);
     } catch (e) {
       console.log('❌ LOAD APIARY SUMMARY FAILED', e);
@@ -98,41 +141,64 @@ export const ApiaryScreen = () => {
   // --------------------------------------------------
 
   const loadAnalytics = useCallback(async () => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
 
     try {
       const inspections = await loadInspections(uid);
+
       const points = buildApiaryDynamics(inspections);
 
-      if (points.length === 0) return;
+      if (points.length === 0) {
+        return;
+      }
 
       const chart = {
         labels: points.map((p) => p.date.slice(0, 5)),
+
         datasets: [
           {
             data: points.map((p) => p.avgStrength),
+
             color: () => '#4CAF50',
+
             strokeWidth: 2,
           },
+
           {
             data: points.map((p) => p.avgHoney),
+
             color: () => '#FFC107',
+
             strokeWidth: 2,
           },
+
           {
-            data: points.map((p) => p.avgBroodFrames ?? 0), // 👈 ДОДАТИ
+            data: points.map((p) => p.avgBroodFrames ?? 0),
+
             color: () => '#9C27B0',
+
             strokeWidth: 2,
           },
         ],
-        legend: ['Сила', 'Мед', 'Розплід'],
+
+        legend: [
+          t('apiaryDashboard:chart.strength'),
+
+          t('apiaryDashboard:chart.honey'),
+
+          t('apiaryDashboard:chart.brood'),
+        ],
       };
+
       setChartData(chart);
+
       setStatus(getApiaryStatus(points));
     } catch (e) {
       console.log('❌ ANALYTICS ERROR', e);
     }
-  }, [uid]);
+  }, [uid, t]);
 
   useEffect(() => {
     loadAnalytics();
@@ -145,41 +211,57 @@ export const ApiaryScreen = () => {
   const handleStartVoice = () => {
     if (!runtime) {
       console.log('❌ Runtime not ready');
+
       return;
     }
 
     if (fieldMode) {
       console.log('⚠️ Already in field mode');
+
       return;
     }
 
     console.log('🎤 START VOICE FROM APIARY');
 
     enableFieldMode();
+
     setFieldMode(true);
 
     runtime.start();
   };
 
+  // --------------------------------------------------
+  // 📅 TASKS
+  // --------------------------------------------------
+
   const testLoad = async () => {
     const tasks = await repo.getAll();
+
     const vm = mapTasksToViewModel(tasks);
+
     console.log('VM:', vm);
+
     console.log('📦 LOADED TASKS:', tasks);
 
-    // 🚀 ПЕРЕХІД НА TodayScreen
     navigation.navigate('Today');
   };
 
+  // --------------------------------------------------
+  // 🔄 MANUAL SYNC
+  // --------------------------------------------------
+
   const handleManualSync = async () => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
 
     try {
       setSyncing(true);
 
       await runFullSync(uid);
 
-      await load(); // refresh summary
+      await load();
+
       await loadAnalytics();
 
       console.log('✅ MANUAL SYNC DONE');
@@ -191,7 +273,7 @@ export const ApiaryScreen = () => {
   };
 
   // --------------------------------------------------
-  // CLEANUP (ВАЖЛИВО)
+  // CLEANUP
   // --------------------------------------------------
 
   useEffect(() => {
@@ -199,12 +281,13 @@ export const ApiaryScreen = () => {
       console.log('🧹 ApiaryScreen unmount');
 
       disableFieldMode();
+
       setFieldMode(false);
     };
   }, []);
 
   // --------------------------------------------------
-  // UI
+  // LOADING
   // --------------------------------------------------
 
   if (loading) {
@@ -215,26 +298,43 @@ export const ApiaryScreen = () => {
     );
   }
 
+  // --------------------------------------------------
+  // EMPTY
+  // --------------------------------------------------
+
   if (!summary) {
     return (
       <View style={styles.center}>
-        <Text>Немає даних</Text>
+        <Text>{t('apiaryDashboard:empty.noData')}</Text>
       </View>
     );
   }
 
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>🐝 Пасіка</Text>
+        {/* TITLE */}
+
+        <Text style={styles.title}>🐝 {t('apiaryDashboard:title')}</Text>
+
+        {/* SUMMARY GRID */}
 
         <View style={styles.grid}>
           <TouchableOpacity
             style={styles.cardWrapper}
             onPress={() =>
-              navigation.navigate('ApiaryCategory', {category: 'ALL'})
+              navigation.navigate('ApiaryCategory', {
+                category: 'ALL',
+              })
             }>
-            <SummaryCard label="Вулики" value={summary.totalHives} />
+            <SummaryCard
+              label={t('apiaryDashboard:cards.totalHives')}
+              value={summary.totalHives}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -244,43 +344,63 @@ export const ApiaryScreen = () => {
                 category: 'NO_INSPECTION',
               })
             }>
-            <SummaryCard label="Без огляду" value={summary.noInspectionCount} />
+            <SummaryCard
+              label={t('apiaryDashboard:cards.noInspection')}
+              value={summary.noInspectionCount}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.cardWrapper}
             onPress={() =>
-              navigation.navigate('ApiaryCategory', {category: 'FEEDING'})
+              navigation.navigate('ApiaryCategory', {
+                category: 'FEEDING',
+              })
             }>
-            <SummaryCard label="Підгодівля" value={summary.needsFeedingCount} />
+            <SummaryCard
+              label={t('apiaryDashboard:cards.feeding')}
+              value={summary.needsFeedingCount}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.cardWrapper}
             onPress={() =>
-              navigation.navigate('ApiaryCategory', {category: 'PROBLEMS'})
+              navigation.navigate('ApiaryCategory', {
+                category: 'PROBLEMS',
+              })
             }>
-            <SummaryCard label="Проблеми" value={summary.problemHivesCount} />
+            <SummaryCard
+              label={t('apiaryDashboard:cards.problems')}
+              value={summary.problemHivesCount}
+            />
           </TouchableOpacity>
         </View>
 
+        {/* ACTIONS */}
+
         <TouchableOpacity style={styles.syncButton} onPress={handleStartVoice}>
-          <Text style={styles.syncText}>🎤 Почати огляд</Text>
+          <Text style={styles.syncText}>
+            🎤 {t('apiaryDashboard:actions.startInspection')}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.syncButton}
-          // onPress={() => navigation.navigate('TasksList', {})}>
           onPress={() => {
             testLoad();
           }}>
-          <Text style={styles.syncText}>📅 Відкрити список завдань</Text>
+          <Text style={styles.syncText}>
+            📅 {t('apiaryDashboard:actions.openTasks')}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.syncButton}
           onPress={() => navigation.navigate('HiveCreate')}>
-          <Text style={styles.syncText}>➕ Додати вулик</Text>
+          <Text style={styles.syncText}>
+            ➕ {t('apiaryDashboard:actions.addHive')}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -288,23 +408,34 @@ export const ApiaryScreen = () => {
           onPress={handleManualSync}
           disabled={syncing}>
           <Text style={styles.syncText}>
-            {syncing ? '🔄 Синхронізація...' : '🔄 Оновити дані'}
+            {syncing
+              ? `🔄 ${t('apiaryDashboard:actions.syncing')}`
+              : `🔄 ${t('apiaryDashboard:actions.refreshData')}`}
           </Text>
         </TouchableOpacity>
+
+        {/* STATUS */}
 
         <View
           style={[
             styles.statusBox,
+
             status === 'good' && styles.statusGood,
+
             status === 'warning' && styles.statusWarning,
+
             status === 'critical' && styles.statusCritical,
           ]}>
           <Text style={styles.statusText}>
-            {status === 'good' && '🟢 Пасіка в хорошому стані'}
-            {status === 'warning' && '🟡 Потрібна увага'}
-            {status === 'critical' && '🔴 Критичний стан'}
+            {status === 'good' && '🟢 '}
+            {status === 'warning' && '🟡 '}
+            {status === 'critical' && '🔴 '}
+
+            {getApiaryStatusLabel(status, t)}
           </Text>
         </View>
+
+        {/* CHART */}
 
         {chartData && (
           <LineChart
@@ -313,8 +444,11 @@ export const ApiaryScreen = () => {
             height={220}
             chartConfig={{
               backgroundGradientFrom: 'rgba(255, 248, 220, 1)',
+
               backgroundGradientTo: 'rgba(255, 248, 220, 1)',
+
               decimalPlaces: 0,
+
               color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
             }}
             bezier
@@ -328,81 +462,121 @@ export const ApiaryScreen = () => {
   );
 };
 
-function SummaryCard({label, value}: {label: string; value: number}) {
+// --------------------------------------------------
+// SUMMARY CARD
+// --------------------------------------------------
+
+function SummaryCard({
+  label,
+  value,
+}: {
+  label: string;
+
+  value: number;
+}) {
   return (
     <View style={styles.card}>
       <Text style={styles.cardValue}>{value}</Text>
+
       <Text style={styles.cardLabel}>{label}</Text>
     </View>
   );
 }
 
+// --------------------------------------------------
+// STYLES
+// --------------------------------------------------
+
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+
     paddingBottom: 32,
+
     flexGrow: 1,
   },
 
   title: {
     fontSize: 24,
+
     fontWeight: '600',
+
     marginBottom: 16,
   },
 
   grid: {
     flexDirection: 'row',
+
     flexWrap: 'wrap',
+
     justifyContent: 'space-between',
   },
 
   cardWrapper: {
     width: '48%',
+
     marginBottom: 12,
   },
 
   card: {
     backgroundColor: 'rgba(255, 248, 220, 1)',
+
     borderRadius: 12,
+
     padding: 16,
   },
 
   cardValue: {
     fontSize: 22,
+
     fontWeight: '700',
   },
 
   cardLabel: {
     fontSize: 14,
+
     color: '#666',
+
     marginTop: 4,
   },
 
   voiceButton: {
     marginTop: 20,
+
     marginBottom: 12,
+
     backgroundColor: '#222',
+
     padding: 16,
+
     borderRadius: 12,
+
     alignItems: 'center',
   },
 
   voiceText: {
     color: '#fff',
+
     fontSize: 16,
+
     fontWeight: '600',
   },
 
   statusBox: {
     marginTop: 16,
+
     marginBottom: 12,
+
     padding: 14,
+
     borderRadius: 12,
+
     backgroundColor: 'rgba(255, 248, 220, 1)',
   },
 
   statusText: {
     fontSize: 15,
+
     fontWeight: '600',
   },
 
@@ -420,25 +594,33 @@ const styles = StyleSheet.create({
 
   chart: {
     marginTop: 8,
+
     borderRadius: 12,
   },
 
   center: {
     flex: 1,
+
     justifyContent: 'center',
+
     alignItems: 'center',
   },
 
   syncButton: {
     marginTop: 10,
+
     backgroundColor: '#1976D2',
+
     padding: 14,
+
     borderRadius: 12,
+
     alignItems: 'center',
   },
 
   syncText: {
     color: '#fff',
+
     fontWeight: '600',
   },
 });

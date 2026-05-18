@@ -27,6 +27,7 @@ import splitEn from './locales/en/split';
 import hiveEn from './locales/en/hive';
 import inspectionHistoryEn from './locales/en/inspectionHistory';
 import apiaryEn from './locales/en/apiary';
+import apiaryDashboardEn from './locales/en/apiaryDashboard';
 
 // UK
 import ukCommon from './locales/uk/common';
@@ -50,6 +51,7 @@ import splitUk from './locales/uk/split';
 import hiveUk from './locales/uk/hive';
 import inspectionHistoryUk from './locales/uk/inspectionHistory';
 import apiaryUk from './locales/uk/apiary';
+import apiaryDashboardUk from './locales/uk/apiaryDashboard';
 
 // DE
 import deCommon from './locales/de/common';
@@ -73,6 +75,7 @@ import splitDe from './locales/de/split';
 import hiveDe from './locales/de/hive';
 import inspectionHistoryDe from './locales/de/inspectionHistory';
 import apiaryDe from './locales/de/apiary';
+import apiaryDashboardDe from './locales/de/apiaryDashboard';
 
 import {AppLanguage} from './types';
 // ========================================
@@ -102,6 +105,7 @@ const resources = {
     hive: hiveEn,
     inspectionHistory: inspectionHistoryEn,
     apiary: apiaryEn,
+    apiaryDashboard: apiaryDashboardEn,
   },
 
   uk: {
@@ -126,6 +130,7 @@ const resources = {
     hive: hiveUk,
     inspectionHistory: inspectionHistoryUk,
     apiary: apiaryUk,
+    apiaryDashboard: apiaryDashboardUk,
   },
 
   de: {
@@ -150,6 +155,7 @@ const resources = {
     hive: hiveDe,
     inspectionHistory: inspectionHistoryDe,
     apiary: apiaryDe,
+    apiaryDashboard: apiaryDashboardDe,
   },
 };
 
@@ -203,6 +209,7 @@ export async function initLocalization() {
       'hive',
       'inspectionHistory',
       'apiary',
+      'apiaryDashboard',
     ],
 
     interpolation: {
