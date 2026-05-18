@@ -22,6 +22,7 @@ import {RootStackParamList} from '../navigation/types';
 import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {InfoRow} from '../components/common/InfoRow';
+import {SectionTitle} from '../components/common/SectionTitle';
 
 import {formatDate} from '../localization/helpers/formatDate';
 import {getQueenSummary} from '../localization/helpers/getQueenSummary';
@@ -150,7 +151,7 @@ export const HiveScreen = () => {
 
       {/* STATUS */}
 
-      <Text style={styles.section}>{t('hive:sections.status')}</Text>
+      <SectionTitle>{t('hive:sections.status')}</SectionTitle>
 
       {context?.lastInspection ? (
         <>
@@ -174,7 +175,7 @@ export const HiveScreen = () => {
 
       {/* SIGNS */}
 
-      <Text style={styles.section}>{t('hive:sections.signs')}</Text>
+      <SectionTitle>{t('hive:sections.signs')}</SectionTitle>
 
       <Text>
         {t('hive:fields.swarm')}: {getSwarmSummary(context?.swarm, t)}
@@ -186,7 +187,7 @@ export const HiveScreen = () => {
 
       {/* LAST INSPECTION */}
 
-      <Text style={styles.section}>{t('hive:sections.lastInspection')}</Text>
+      <SectionTitle>{t('hive:sections.lastInspection')}</SectionTitle>
 
       {context?.lastInspection ? (
         <Text>{formatDate(context.lastInspection.date, currentLanguage)}</Text>
@@ -218,12 +219,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  section: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 4,
-  },
+  // section: {
+  //   fontSize: 18,
+  //   fontWeight: '600',
+  //   marginTop: 16,
+  //   marginBottom: 4,
+  // },
 
   button: {
     marginTop: 25,
