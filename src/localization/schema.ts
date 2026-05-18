@@ -18,6 +18,7 @@ import diseaseEn from './locales/en/disease';
 import splitEn from './locales/en/split';
 import hiveEn from './locales/en/hive';
 import inspectionHistoryEn from './locales/en/inspectionHistory';
+import apiaryEn from './locales/en/apiary';
 
 export const defaultResources = {
   en: {
@@ -41,5 +42,6 @@ export const defaultResources = {
     split: splitEn,
     hive: hiveEn,
     inspectionHistory: inspectionHistoryEn,
+    apiary: apiaryEn,
   },
 } as const;
