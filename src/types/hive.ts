@@ -26,14 +26,14 @@ export type HiveContext = {
 
   // 🔴 SWARM
   swarm?: {
-    hasSwarmSigns: boolean | 'так' | 'ні';
+    hasSwarmSigns: boolean;
     queenEmergence?: boolean;
     lastSwarmCheck?: number;
   };
 
   // 🟣 DISEASE
   disease?: {
-    hasDiseaseSigns: boolean | 'так' | 'ні';
+    hasDiseaseSigns: boolean;
     lastDiseaseCheck?: number;
   };
 
