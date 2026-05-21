@@ -3,13 +3,7 @@ import {SplitSession} from './splitSession';
 import {parseNumber} from '../../voice/numberParser';
 import {createConfirmStep} from '../createConfirmStep';
 
-const YES = ['так', 'да', 'yes', 'ага'];
-const NO = ['ні', 'нет', 'no'];
-
-const isYes = (v: string) => YES.some(word => v.includes(word));
-const isNo = (v: string) => NO.some(word => v.includes(word));
-
-const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
+import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 export const splitFlow: ConversationFlow<SplitSession> = {
   id: 'split',
@@ -29,18 +23,14 @@ export const splitFlow: ConversationFlow<SplitSession> = {
 
       question: 'Чи є ця сімʼя відводком?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -84,18 +74,14 @@ export const splitFlow: ConversationFlow<SplitSession> = {
 
       question: 'Чи хочете використати цю сімʼю для формування відводків?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (!yes) {
           const data = {
@@ -139,9 +125,9 @@ export const splitFlow: ConversationFlow<SplitSession> = {
 
       question: 'Скільки рамок розплоду потрібно відібрати?',
 
-      normalize: v => parseNumber(String(v)),
+      normalize: (v) => parseNumber(String(v)),
 
-      validate: v => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 20,
+      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 20,
 
       retryMessage: 'Назвіть число від 0 до 20.',
 
@@ -157,12 +143,13 @@ export const splitFlow: ConversationFlow<SplitSession> = {
         };
       },
     },
+
     createConfirmStep(
       'CONFIRM_BROOD_FRAMES',
 
-      session => `${session.data.broodFrames} рамки розплоду. Правильно?`,
+      (session) => `${session.data.broodFrames} рамки розплоду. Правильно?`,
 
-      () => [], // ❗ нічого не зберігаємо
+      () => [],
     ),
 
     // -------------------------
@@ -173,9 +160,9 @@ export const splitFlow: ConversationFlow<SplitSession> = {
 
       question: 'Скільки кормових рамок потрібно відібрати?',
 
-      normalize: v => parseNumber(String(v)),
+      normalize: (v) => parseNumber(String(v)),
 
-      validate: v => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 20,
+      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 20,
 
       retryMessage: 'Назвіть число від 0 до 20.',
 
@@ -187,12 +174,13 @@ export const splitFlow: ConversationFlow<SplitSession> = {
         },
       }),
     },
+
     createConfirmStep(
       'CONFIRM_FOOD_FRAMES',
 
-      session => `${session.data.foodFrames} кормові рамки. Правильно?`,
+      (session) => `${session.data.foodFrames} кормові рамки. Правильно?`,
 
-      session => [
+      (session) => [
         {
           type: 'SPLIT_RECORDED',
           payload: {

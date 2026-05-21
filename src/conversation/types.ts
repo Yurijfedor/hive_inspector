@@ -1,3 +1,5 @@
+import {DiseaseType} from '../domain/constants/disease';
+
 export type FlowEffect =
   | {
       type: 'STRENGTH_RECORDED';
@@ -64,12 +66,7 @@ export type FlowEffect =
       type: 'DISEASE_RECORDED';
       payload: {
         hiveNumber: number;
-        disease:
-          | 'NOSEMA'
-          | 'VARROA'
-          | 'VARROA_OR_DWV'
-          | 'BROOD_DISEASE'
-          | 'NONE';
+        disease: DiseaseType;
         diarrhea?: boolean;
         deformedWings?: boolean;
         mitesVisible?: boolean;

@@ -1,14 +1,7 @@
 import {ConversationFlow} from '../conversationFlow';
 import {SwarmSession} from './swarmSession';
 
-const YES = ['так', 'да', 'yes', 'ага'];
-const NO = ['ні', 'нет', 'no'];
-
-const isYes = (v: string) => YES.some(word => v.includes(word));
-
-const isNo = (v: string) => NO.some(word => v.includes(word));
-
-const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
+import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 export const swarmFlow: ConversationFlow<SwarmSession> = {
   id: 'swarm',
@@ -28,18 +21,14 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
       question: 'Чи є виходи маток з маточників?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -58,6 +47,7 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
                 type: 'SWARM_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
+
                   ...data,
                 },
               },
@@ -83,18 +73,14 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
       question: 'Чи є печатні маточники?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -113,6 +99,7 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
                 type: 'SWARM_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
+
                   ...data,
                 },
               },
@@ -138,18 +125,14 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
       question: 'Чи є відкриті маточники?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -168,6 +151,7 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
                 type: 'SWARM_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
+
                   ...data,
                 },
               },
@@ -195,18 +179,14 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
       question: 'Чи є яйця в маточниках?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         const data = {
           ...session.data,
@@ -224,6 +204,7 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
               type: 'SWARM_RECORDED',
               payload: {
                 hiveNumber: session.hiveNumber,
+
                 ...data,
               },
             },

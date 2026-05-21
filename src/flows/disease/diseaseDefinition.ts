@@ -1,13 +1,9 @@
 import {ConversationFlow} from '../conversationFlow';
 import {DiseaseSession} from './diseaseSession';
 
-const YES = ['так', 'да', 'yes', 'ага'];
-const NO = ['ні', 'нет', 'no'];
+import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
-const isYes = (v: string) => YES.some(word => v.includes(word));
-const isNo = (v: string) => NO.some(word => v.includes(word));
-
-const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
+import {DISEASE_TYPES} from '../../domain/constants/disease';
 
 export const diseaseFlow: ConversationFlow<DiseaseSession> = {
   id: 'disease',
@@ -27,18 +23,14 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
       question: 'Чи є сліди поносу на рамках або стінках?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -57,7 +49,9 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
                 type: 'DISEASE_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
-                  disease: 'NOSEMA',
+
+                  disease: DISEASE_TYPES.NOSEMA,
+
                   ...data,
                 },
               },
@@ -83,18 +77,14 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
       question: 'Чи є бджоли з деформованими крилами?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -113,7 +103,9 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
                 type: 'DISEASE_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
-                  disease: 'VARROA_OR_DWV',
+
+                  disease: DISEASE_TYPES.VARROA_OR_DWV,
+
                   ...data,
                 },
               },
@@ -139,18 +131,14 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
       question: 'Чи видно кліщів на бджолах або в піддоні?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           const data = {
@@ -169,7 +157,9 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
                 type: 'DISEASE_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
-                  disease: 'VARROA',
+
+                  disease: DISEASE_TYPES.VARROA,
+
                   ...data,
                 },
               },
@@ -195,18 +185,14 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
       question: 'Чи є дірявий або слабкий розплід?',
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         const data = {
           ...session.data,
@@ -224,7 +210,9 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
               type: 'DISEASE_RECORDED',
               payload: {
                 hiveNumber: session.hiveNumber,
-                disease: yes ? 'BROOD_DISEASE' : 'NONE',
+
+                disease: yes ? DISEASE_TYPES.BROOD_DISEASE : DISEASE_TYPES.NONE,
+
                 ...data,
               },
             },

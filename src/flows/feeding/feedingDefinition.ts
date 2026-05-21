@@ -2,13 +2,7 @@ import {ConversationFlow} from '../conversationFlow';
 import {parseNumber} from '../../voice/numberParser';
 import type {FeedingSession} from './feedingSession';
 
-const YES = ['так', 'да', 'yes', 'ага'];
-const NO = ['ні', 'нет', 'no'];
-
-const isYes = (v: string) => YES.some(w => v.includes(w));
-const isNo = (v: string) => NO.some(w => v.includes(w));
-
-const normalizeText = (v: unknown) => String(v).toLowerCase().trim();
+import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 export const feedingFlow: ConversationFlow<FeedingSession> = {
   id: 'feeding',
@@ -28,9 +22,9 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
 
       question: 'Скільки літрів сиропу додати?',
 
-      normalize: v => parseNumber(String(v)),
+      normalize: (v) => parseNumber(String(v)),
 
-      validate: v => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
+      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
 
       retryMessage: 'Назвіть кількість літрів числом.',
 
@@ -55,21 +49,17 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
     {
       id: 'CONFIRM_FEEDING',
 
-      question: session =>
+      question: (session) =>
         `Додати ${session.data.syrupLiters} літрів сиропу у вулик ${session.hiveNumber}?`,
 
-      normalize: normalizeText,
+      normalize: (v) => String(v),
 
-      validate: v => {
-        const val = normalizeText(v);
-        return isYes(val) || isNo(val);
-      },
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const val = normalizeText(value);
-        const yes = isYes(val);
+        const yes = normalizeBoolean(value) === true;
 
         if (yes) {
           return {
