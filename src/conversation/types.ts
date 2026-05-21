@@ -1,4 +1,5 @@
 import {DiseaseType} from '../domain/constants/disease';
+import {QueenStatus, QueenBreed} from '../types/queen';
 
 export type FlowEffect =
   | {
@@ -17,11 +18,16 @@ export type FlowEffect =
     }
   | {
       type: 'UPDATE_QUEEN';
+
       hiveNumber: number;
+
       payload: {
-        status: 'present' | 'absent' | 'unknown';
-        breed?: 'карніка' | 'бакфаст' | 'місцева' | 'невідомо';
+        status: QueenStatus;
+
+        breed?: QueenBreed;
+
         birthYear?: number;
+
         marked?: boolean;
       };
     }

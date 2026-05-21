@@ -1,36 +1,34 @@
 import {inspectionFlow} from './inspectionDefinition';
 import {executeStep, resolveStep} from '../flowRuntime';
+
 import {FlowEffect} from '../../conversation/types';
 
-/**
- * 🔥 Hive context (дані з Firebase)
- */
-type HiveQueen = {
-  status?: 'present' | 'absent';
-  breed?: string;
-  birthYear?: number;
-};
+import type {QueenBreed, QueenStatus} from '../../types/queen';
 
-type HiveContext = {
-  queen?: HiveQueen;
-};
+import type {HiveContext} from '../../types/hive';
 
 /**
  * 🧠 Inspection session
  */
 export type InspectionSession = {
   hiveNumber: number;
+
   stepIndex: number;
 
-  // 🔥 НОВЕ — контекст вулика
+  // 🔥 hive context from Firebase/cache
   hiveContext?: HiveContext;
 
   data: {
     strength?: number;
+
     broodFrames?: number;
-    queen?: 'present' | 'absent';
-    queenBreed?: string;
+
+    queen?: QueenStatus;
+
+    queenBreed?: QueenBreed;
+
     queenYear?: number;
+
     honeyKg?: number;
   };
 };
@@ -38,18 +36,21 @@ export type InspectionSession = {
 export type ApplyAnswerResult =
   | {
       type: 'INVALID';
+
       message: string;
+
       session: InspectionSession;
     }
   | {
       type: 'NEXT';
+
       session: InspectionSession;
+
       effects?: FlowEffect[];
     };
 
 /**
  * Create new inspection session
- * 🔥 тепер приймає hiveContext
  */
 export function createInspectionSession(
   hiveNumber: number,
@@ -57,14 +58,17 @@ export function createInspectionSession(
 ): InspectionSession {
   return {
     hiveNumber,
+
     stepIndex: 0,
-    hiveContext, // 👈 прокинули контекст
+
+    hiveContext,
+
     data: {},
   };
 }
 
 /**
- * Universal declarative applyAnswer (DAY 16)
+ * Universal declarative applyAnswer
  */
 export function applyAnswer(
   session: InspectionSession,
@@ -75,16 +79,19 @@ export function applyAnswer(
   if (!resolved) {
     return {
       type: 'INVALID',
+
       message: 'Flow завершено',
+
       session,
     };
   }
 
   const {step, index} = resolved;
 
-  // 🔥 ВАЖЛИВО — синхронізація stepIndex
+  // 🔥 sync runtime index
   const alignedSession: InspectionSession = {
     ...session,
+
     stepIndex: index,
   };
 
@@ -93,17 +100,22 @@ export function applyAnswer(
   if (result.type === 'RETRY') {
     return {
       type: 'INVALID',
+
       message: result.message,
+
       session: alignedSession,
     };
   }
 
   return {
     type: 'NEXT',
+
     session: {
       ...result.session,
+
       stepIndex: index + 1,
     },
+
     effects: result.effects,
   };
 }

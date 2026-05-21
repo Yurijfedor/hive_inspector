@@ -1,3 +1,7 @@
+import {QUEEN_BREEDS} from '../domain/constants/queen';
+
+import type {QueenBreed} from '../types/queen';
+
 import {normalizeText, similarity} from '../utils/voiceParser/voiceParser';
 
 function includesFuzzy(
@@ -8,41 +12,46 @@ function includesFuzzy(
   return tokens.some((t) => similarity(t, target) >= threshold);
 }
 
-export function parseQueenBreed(input: unknown): string | null {
-  if (!input) return null;
-
-  const raw = String(input);
-  const text = normalizeText(raw);
-  const tokens = text.split(' ');
-
-  // 🔴 1. МІСЦЕВА (найстабільніше слово → перевіряємо першим)
-  if (
-    tokens.some((t) => t.startsWith('місц')) ||
-    includesFuzzy(tokens, 'місцева')
-  ) {
-    return 'місцева';
+export function parseQueenBreed(input: unknown): QueenBreed | null {
+  if (!input) {
+    return null;
   }
 
-  // 🔵 2. КАРНІКА (часто спотворюється)
+  const raw = String(input);
+
+  const text = normalizeText(raw);
+
+  const tokens = text.split(' ');
+
+  // LOCAL
+  if (
+    tokens.some((t) => t.startsWith('місц')) ||
+    includesFuzzy(tokens, 'місцева') ||
+    includesFuzzy(tokens, 'local')
+  ) {
+    return QUEEN_BREEDS.LOCAL;
+  }
+
+  // CARNICA
   if (
     tokens.some((t) => t.startsWith('карн')) ||
     includesFuzzy(tokens, 'карніка') ||
-    includesFuzzy(tokens, 'карника') // без і
+    includesFuzzy(tokens, 'карника') ||
+    includesFuzzy(tokens, 'carnica')
   ) {
-    return 'карніка';
+    return QUEEN_BREEDS.CARNICA;
   }
 
-  // 🟠 3. БАКФАСТ (найбільше шуму)
+  // BUCKFAST
   if (
-    tokens.some((t) => t.startsWith('бак')) || // бак, бакф, бакс…
+    tokens.some((t) => t.startsWith('бак')) ||
     includesFuzzy(tokens, 'бакфаст') ||
     includesFuzzy(tokens, 'бакфас') ||
+    includesFuzzy(tokens, 'buckfast') ||
     includesFuzzy(tokens, 'фаст') ||
-    includesFuzzy(tokens, 'фаст') ||
-    includesFuzzy(tokens, 'фас') ||
-    includesFuzzy(tokens, 'фауст') // часта помилка
+    includesFuzzy(tokens, 'фауст')
   ) {
-    return 'бакфаст';
+    return QUEEN_BREEDS.BUCKFAST;
   }
 
   return null;

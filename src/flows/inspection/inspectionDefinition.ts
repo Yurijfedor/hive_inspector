@@ -1,17 +1,17 @@
 import {ConversationFlow} from '../conversationFlow';
 import {InspectionSession} from './inspectionSession';
+
 import {parseNumber} from '../../voice/numberParser';
 import {parseQueenBreed} from '../../voice/queenParser';
 import {parseYear} from '../../voice/yearParser';
+
 import {createConfirmStep} from '../createConfirmStep';
 
-const QUEEN_BREEDS = ['карніка', 'бакфаст', 'місцева', 'невідомо'] as const;
+import {QUEEN_STATUS} from '../../domain/constants/queen';
 
-type QueenBreed = (typeof QUEEN_BREEDS)[number];
+import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
-function isQueenBreed(v: unknown): v is QueenBreed {
-  return typeof v === 'string' && QUEEN_BREEDS.includes(v as QueenBreed);
-}
+import type {QueenBreed} from '../../types/queen';
 
 export const inspectionFlow: ConversationFlow<InspectionSession> = {
   id: 'inspection',
@@ -48,7 +48,9 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
     createConfirmStep(
       'CONFIRM_STRENGTH',
+
       (session) => `${session.data.strength} рамок сили. Правильно?`,
+
       (session) => [
         {
           type: 'STRENGTH_RECORDED',
@@ -61,9 +63,8 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     ),
 
     // -------------------------
-    // BROOT
+    // BROOD
     // -------------------------
-
     {
       id: 'BROOD',
 
@@ -86,7 +87,9 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
     createConfirmStep(
       'CONFIRM_BROOD',
+
       (session) => `${session.data.broodFrames} рамок розплоду. Правильно?`,
+
       (session) => [
         {
           type: 'BROOD_RECORDED',
@@ -106,15 +109,16 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       question: 'Чи є матка?',
 
-      normalize: (v) => String(v).toLowerCase(),
+      normalize: (v) => String(v),
 
-      validate: (v) => v === 'так' || v === 'ні',
+      validate: (v) => normalizeBoolean(v) !== null,
 
       retryMessage: 'Скажіть "так" або "ні".',
 
       apply: (session, value) => {
-        const hasQueen = value === 'так';
-        const status = hasQueen ? 'present' : 'absent';
+        const hasQueen = normalizeBoolean(value) === true;
+
+        const status = hasQueen ? QUEEN_STATUS.PRESENT : QUEEN_STATUS.ABSENT;
 
         return {
           session: {
@@ -124,17 +128,25 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
               queen: status,
             },
           },
+
           effects: [
             {
               type: 'UPDATE_QUEEN',
+
               hiveNumber: session.hiveNumber,
-              payload: {status},
+
+              payload: {
+                status,
+              },
             },
+
             {
-              type: 'QUEEN_STATUS_UPDATED', // 🔥 ДОДАЛИ
+              type: 'QUEEN_STATUS_UPDATED',
+
               payload: {
                 hiveNumber: session.hiveNumber,
-                hasQueen: status === 'present',
+
+                hasQueen: status === QUEEN_STATUS.PRESENT,
               },
             },
           ],
@@ -152,13 +164,19 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       shouldSkip: (session) => {
         // ❌ якщо немає матки
-        if (session.data?.queen !== 'present') return true;
+        if (session.data?.queen !== QUEEN_STATUS.PRESENT) {
+          return true;
+        }
 
-        // ✅ якщо вже ввели в цьому flow → не skip
-        if (session.data?.queenBreed) return false;
+        // ✅ якщо вже ввели в цьому flow
+        if (session.data?.queenBreed) {
+          return false;
+        }
 
-        // 🔥 якщо є в Firebase → skip
-        if (session.hiveContext?.queen?.breed) return true;
+        // 🔥 якщо вже є в hiveContext
+        if (session.hiveContext?.queen?.breed) {
+          return true;
+        }
 
         return false;
       },
@@ -170,25 +188,31 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       retryMessage: 'Скажіть: карніка, бакфаст або місцева.',
 
       apply: (session, value) => {
-        if (!isQueenBreed(value)) {
+        if (!value) {
           return session;
         }
 
         return {
           session: {
             ...session,
+
             data: {
               ...session.data,
-              queenBreed: value,
+
+              queenBreed: value as QueenBreed,
             },
           },
+
           effects: [
             {
               type: 'UPDATE_QUEEN',
+
               hiveNumber: session.hiveNumber,
+
               payload: {
-                status: 'present',
-                breed: value,
+                status: QUEEN_STATUS.PRESENT,
+
+                breed: value as QueenBreed,
               },
             },
           ],
@@ -205,11 +229,17 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       question: 'Якого року матка?',
 
       shouldSkip: (session) => {
-        if (session.data?.queen !== 'present') return true;
+        if (session.data?.queen !== QUEEN_STATUS.PRESENT) {
+          return true;
+        }
 
-        if (session.data?.queenYear) return false;
+        if (session.data?.queenYear) {
+          return false;
+        }
 
-        if (session.hiveContext?.queen?.birthYear) return true;
+        if (session.hiveContext?.queen?.birthYear) {
+          return true;
+        }
 
         return false;
       },
@@ -229,17 +259,23 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         return {
           session: {
             ...session,
+
             data: {
               ...session.data,
+
               queenYear: value,
             },
           },
+
           effects: [
             {
               type: 'UPDATE_QUEEN',
+
               hiveNumber: session.hiveNumber,
+
               payload: {
-                status: 'present',
+                status: QUEEN_STATUS.PRESENT,
+
                 birthYear: value,
               },
             },
@@ -264,8 +300,10 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       apply: (session, value) => ({
         ...session,
+
         data: {
           ...session.data,
+
           honeyKg: value as number,
         },
       }),
@@ -273,17 +311,23 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
     createConfirmStep(
       'CONFIRM_HONEY',
+
       (session) => `${session.data.honeyKg} кілограм меду. Правильно?`,
+
       (session) => [
         {
           type: 'HONEY_RECORDED',
+
           payload: {
             hiveNumber: session.hiveNumber,
+
             honeyKg: session.data.honeyKg!,
           },
         },
+
         {
           type: 'SAVE_INSPECTION',
+
           payload: {
             hiveNumber: session.hiveNumber,
           },
