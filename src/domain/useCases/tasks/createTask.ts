@@ -2,10 +2,7 @@ import database from '@react-native-firebase/database';
 
 import {Task, CreateTaskInput} from '../../../types/task';
 import {TaskRepository} from '../../repositories/taskRepository';
-
-// function generateId() {
-//   return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-// }
+import {TASK_SOURCES} from '../../constants/task';
 
 export async function createTask(uid: string, input: CreateTaskInput) {
   const repo = new TaskRepository();
@@ -25,7 +22,7 @@ export async function createTask(uid: string, input: CreateTaskInput) {
     priority: input.priority,
 
     updatedAt: Date.now(),
-    source: 'USER',
+    source: TASK_SOURCES.USER,
   };
 
   const updated = [...existing, newTask];

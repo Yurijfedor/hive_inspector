@@ -1,6 +1,6 @@
 import {Task} from '../../../types/task';
 import {TaskRepository} from '../../repositories/taskRepository';
-// import {markTaskUpdated} from '../../tasks/taskFactory';
+import {TASK_SOURCES} from '../../constants/task';
 
 export async function updateTask(uid: string, task: Task) {
   const repo = new TaskRepository();
@@ -25,7 +25,7 @@ export async function updateTask(uid: string, task: Task) {
       ? {
           ...task,
           updatedAt: now,
-          source: 'USER' as const,
+          source: TASK_SOURCES.USER,
         }
       : t,
   );

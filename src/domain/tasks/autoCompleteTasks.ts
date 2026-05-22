@@ -1,4 +1,5 @@
 import {Task} from '../../types/task';
+import {TASK_SOURCES} from '../constants/task';
 
 export type EventType =
   | 'FEEDING'
@@ -36,7 +37,7 @@ export const autoCompleteTasks = (
       ...task,
       completed: true,
       updatedAt: now,
-      source: 'SYSTEM',
+      source: TASK_SOURCES.SYSTEM,
     };
   });
 };

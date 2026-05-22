@@ -1,4 +1,5 @@
 import {TaskRepository} from '../../repositories/taskRepository';
+import {TASK_SOURCES} from '../../constants/task';
 
 export async function toggleTask(uid: string, taskId: string) {
   const repo = new TaskRepository();
@@ -13,7 +14,7 @@ export async function toggleTask(uid: string, taskId: string) {
           ...t,
           completed: !t.completed,
           updatedAt: now,
-          source: 'USER' as const,
+          source: TASK_SOURCES.USER,
         }
       : t,
   );

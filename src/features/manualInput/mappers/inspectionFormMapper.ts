@@ -1,43 +1,57 @@
 import {InspectionFormUI} from '../types';
 
+import {QUEEN_STATUS} from '../../../domain/constants/queen';
+
 export function mapInspectionToFlowSequence(data: InspectionFormUI): unknown[] {
+  const inspection = data.inspection;
+
+  if (!inspection) {
+    return [];
+  }
+
   const sequence: unknown[] = [];
 
-  const queen = normalizeQueen(data.queen);
+  const queen = inspection.queen;
 
-  // STRENGTH
-  sequence.push(data.strength);
-  sequence.push('так');
+  // -------------------------
+  // strength
+  // -------------------------
 
-  // BROOD
-  sequence.push(data.broodFrames);
-  sequence.push('так');
+  sequence.push(inspection.strength);
 
-  // QUEEN
+  sequence.push(true);
+
+  // -------------------------
+  // brood
+  // -------------------------
+
+  sequence.push(inspection.broodFrames);
+
+  sequence.push(true);
+
+  // -------------------------
+  // queen
+  // -------------------------
+
   sequence.push(queen);
 
-  if (queen === 'так') {
-    if (data.queenBreed) {
-      sequence.push(data.queenBreed);
+  if (queen === QUEEN_STATUS.PRESENT) {
+    if (inspection.queenBreed) {
+      sequence.push(inspection.queenBreed);
     }
 
-    if (data.queenYear) {
-      sequence.push(data.queenYear);
+    if (inspection.queenYear) {
+      sequence.push(inspection.queenYear);
     }
   }
 
-  // HONEY
-  sequence.push(data.honeyKg);
-  sequence.push('так');
+  // -------------------------
+  // honey
+  // -------------------------
+
+  sequence.push(inspection.honeyKg);
+
+  sequence.push(true);
 
   return sequence;
-}
-
-function normalizeQueen(value: string): 'так' | 'ні' {
-  const v = value.toLowerCase();
-
-  if (v === 'так' || v === 'yes') return 'так';
-  if (v === 'ні' || v === 'no') return 'ні';
-
-  throw new Error('Некоректне значення queen');
 }

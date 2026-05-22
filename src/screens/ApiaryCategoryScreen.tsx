@@ -113,12 +113,10 @@ export const ApiaryCategoryScreen = () => {
           const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
 
           const hasRecentDisease =
-            ctx.disease?.lastDiseaseCheck &&
-            now - ctx.disease.lastDiseaseCheck < RECENT_DAYS;
+            ctx.disease?.updatedAt && now - ctx.disease.updatedAt < RECENT_DAYS;
 
           const hasRecentSwarm =
-            ctx.swarm?.lastSwarmCheck &&
-            now - ctx.swarm.lastSwarmCheck < RECENT_DAYS;
+            ctx.swarm?.updatedAt && now - ctx.swarm.updatedAt < RECENT_DAYS;
 
           if (hasRecentDisease || hasRecentSwarm) {
             result.push(hiveNumber);

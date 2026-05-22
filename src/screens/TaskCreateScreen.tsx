@@ -14,6 +14,8 @@ import {
 
 import {useNavigation} from '@react-navigation/native';
 
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {useAuth} from '../auth/AuthProvider';
@@ -24,7 +26,11 @@ import {HiveSelector} from '../components/HiveSelector';
 
 import {createTask} from '../domain/useCases/tasks/createTask';
 
-import {TaskType, TaskPriority} from '../types/task';
+import type {TaskType, TaskPriority} from '../types/task';
+
+import type {RootStackParamList} from '../navigation/types';
+
+import {TASK_TYPES, TASK_PRIORITIES} from '../domain/constants/task';
 
 import {parseDateUA} from '../utils/date/parseDate';
 
@@ -38,23 +44,32 @@ import {getTaskPriorityLabel} from '../localization/helpers/getTaskPriorityLabel
 
 import {getDeviceLocale} from '../localization/helpers/getDeviceLocale';
 
-// 🔥 TASK TYPES
+// -------------------------
+// options
+// -------------------------
 
-const TASK_TYPES: TaskType[] = [
-  'FEEDING',
-  'INSPECTION',
-  'DISEASE',
-  'SWARM',
-  'SPLIT',
-  'OTHER',
+const TASK_TYPE_OPTIONS: TaskType[] = [
+  TASK_TYPES.FEEDING,
+  TASK_TYPES.INSPECTION,
+  TASK_TYPES.DISEASE,
+  TASK_TYPES.SWARM,
+  TASK_TYPES.SPLIT,
+  TASK_TYPES.OTHER,
 ];
 
-// ⚡ PRIORITIES
+const TASK_PRIORITY_OPTIONS: TaskPriority[] = [
+  TASK_PRIORITIES.PRIMARY,
+  TASK_PRIORITIES.SECONDARY,
+];
 
-const PRIORITIES: TaskPriority[] = ['PRIMARY', 'SECONDARY'];
+// -------------------------
+// navigation
+// -------------------------
+
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'TaskCreate'>;
 
 export const TaskCreateScreen = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<Navigation>();
 
   const {user} = useAuth();
 
@@ -62,17 +77,23 @@ export const TaskCreateScreen = () => {
 
   const {t, currentLanguage} = useAppTranslation();
 
-  // 📝 FORM
+  // -------------------------
+  // form
+  // -------------------------
 
   const [title, setTitle] = useState('');
 
   const [hiveNumber, setHiveNumber] = useState<number | null>(null);
 
-  const [type, setType] = useState<TaskType>('INSPECTION');
+  const [type, setType] = useState<TaskType>(TASK_TYPES.INSPECTION);
 
-  const [priority, setPriority] = useState<TaskPriority>('PRIMARY');
+  const [priority, setPriority] = useState<TaskPriority>(
+    TASK_PRIORITIES.PRIMARY,
+  );
 
-  // 📅 DATE
+  // -------------------------
+  // date
+  // -------------------------
 
   const [date, setDate] = useState(Date.now());
 
@@ -82,7 +103,9 @@ export const TaskCreateScreen = () => {
 
   const [showPicker, setShowPicker] = useState(false);
 
-  // 💾 CREATE
+  // -------------------------
+  // create
+  // -------------------------
 
   const handleCreate = async () => {
     if (!user) {
@@ -90,11 +113,7 @@ export const TaskCreateScreen = () => {
     }
 
     if (!title.trim() || !hiveNumber) {
-      Alert.alert(
-        'Error',
-
-        t('taskCreate:validationError'),
-      );
+      Alert.alert('Error', t('taskCreate:validationError'));
 
       return;
     }
@@ -113,14 +132,10 @@ export const TaskCreateScreen = () => {
       });
 
       navigation.goBack();
-    } catch (e) {
-      console.log('❌ CREATE TASK FAILED', e);
+    } catch (error) {
+      console.log('❌ CREATE TASK FAILED', error);
 
-      Alert.alert(
-        'Error',
-
-        t('taskCreate:createError'),
-      );
+      Alert.alert('Error', t('taskCreate:createError'));
     }
   };
 
@@ -131,11 +146,11 @@ export const TaskCreateScreen = () => {
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled">
-        {/* TITLE */}
+        {/* title */}
 
         <Text style={styles.title}>➕ {t('taskCreate:title')}</Text>
 
-        {/* TASK TITLE */}
+        {/* task title */}
 
         <Text style={styles.label}>📌 {t('taskCreate:taskName')}</Text>
 
@@ -146,7 +161,7 @@ export const TaskCreateScreen = () => {
           placeholder={t('taskCreate:taskPlaceholder')}
         />
 
-        {/* HIVE */}
+        {/* hive */}
 
         <Text style={styles.label}>🐝 {t('tasks:hive')}</Text>
 
@@ -156,12 +171,12 @@ export const TaskCreateScreen = () => {
           hives={hives}
         />
 
-        {/* TYPE */}
+        {/* type */}
 
         <Text style={styles.label}>📂 {t('taskCreate:type')}</Text>
 
         <View style={styles.chipContainer}>
-          {TASK_TYPES.map((taskType) => {
+          {TASK_TYPE_OPTIONS.map((taskType) => {
             const active = type === taskType;
 
             return (
@@ -175,12 +190,12 @@ export const TaskCreateScreen = () => {
           })}
         </View>
 
-        {/* PRIORITY */}
+        {/* priority */}
 
         <Text style={styles.label}>⚡ {t('tasks:priority')}</Text>
 
         <View style={styles.chipContainer}>
-          {PRIORITIES.map((priorityValue) => {
+          {TASK_PRIORITY_OPTIONS.map((priorityValue) => {
             const active = priority === priorityValue;
 
             return (
@@ -194,7 +209,7 @@ export const TaskCreateScreen = () => {
           })}
         </View>
 
-        {/* DATE */}
+        {/* date */}
 
         <Text style={styles.label}>📅 {t('taskCreate:date')}</Text>
 
@@ -219,7 +234,7 @@ export const TaskCreateScreen = () => {
           </Text>
         </View>
 
-        {/* ACTION */}
+        {/* action */}
 
         <View
           style={{
@@ -231,7 +246,7 @@ export const TaskCreateScreen = () => {
           />
         </View>
 
-        {/* DATE PICKER */}
+        {/* date picker */}
 
         {showPicker && (
           <DateTimePicker

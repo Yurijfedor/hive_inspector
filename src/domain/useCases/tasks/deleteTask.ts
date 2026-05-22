@@ -1,5 +1,7 @@
 import {TaskRepository} from '../../repositories/taskRepository';
 
+import {TASK_SOURCES} from '../../constants/task';
+
 export async function deleteTask(uid: string, taskId: string) {
   const repo = new TaskRepository();
 
@@ -9,9 +11,12 @@ export async function deleteTask(uid: string, taskId: string) {
     t.id === taskId
       ? {
           ...t,
+
           deleted: true,
+
           updatedAt: Date.now(),
-          source: 'USER' as const,
+
+          source: TASK_SOURCES.USER,
         }
       : t,
   );

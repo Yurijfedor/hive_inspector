@@ -125,19 +125,12 @@ export const InspectionHistoryScreen = () => {
 
       <Text>
         👑 {t('inspectionHistory:fields.queen')}:{' '}
-        {typeof item.queen === 'object'
-          ? getQueenSummary(
-              {
-                status:
-                  item.queen.present === true
-                    ? 'present'
-                    : item.queen.present === false
-                    ? 'absent'
-                    : 'unknown',
-              },
-              t,
-            )
-          : item.queen}
+        {getQueenSummary(
+          {
+            status: item.queen ?? 'unknown',
+          },
+          t,
+        )}
       </Text>
     </View>
   );
