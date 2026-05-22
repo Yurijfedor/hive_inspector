@@ -1,62 +1,128 @@
-export type HiveQueen = {
-  status?: 'present' | 'absent';
-  breed?: string;
-  birthYear?: number;
+import type {Queen} from './queen';
+
+import type {DiseaseType} from './disease';
+
+export type HiveInspectionSummary = {
+  date: number;
+
+  strength: number;
+
+  honeyKg: number;
+
+  broodFrames?: number;
+
+  queenStatus?: Queen['status'];
+};
+
+export type HiveFeedingState = {
+  hasFeeding: boolean;
+
+  syrupLiters?: number;
+
+  lastFeedingAt?: number;
+};
+
+export type HiveDiseaseState = {
+  disease?: DiseaseType;
+
+  hasDiseaseSigns: boolean;
+
+  diarrhea: boolean;
+
+  deformedWings: boolean;
+
+  mitesVisible: boolean;
+
+  weakBrood: boolean;
+
+  updatedAt?: number;
+};
+
+export type HiveSwarmState = {
+  hasSwarmSigns: boolean;
+
+  queenEmergence: boolean;
+
+  sealedCells: boolean;
+
+  openCells: boolean;
+
+  eggsInCells: boolean;
+
+  updatedAt?: number;
+};
+
+export type HiveSplitState = {
+  isSplit: boolean;
+
+  usedForSplits: boolean;
+
+  broodFrames?: number;
+
+  foodFrames?: number;
+
+  totalBroodFrames: number;
+
+  totalFoodFrames: number;
+
+  updatedAt?: number;
+};
+
+export type HiveMeta = {
+  // -------------------------
+  // timestamps
+  // -------------------------
+  lastInspectionAt?: number;
+
+  lastFeedingAt?: number;
+
+  lastDiseaseCheckAt?: number;
+
+  lastSwarmCheckAt?: number;
+
+  lastSplitActionAt?: number;
+
+  // -------------------------
+  // quick dashboard flags
+  // -------------------------
+  hasFeeding: boolean;
+
+  hasDiseaseSigns: boolean;
+
+  hasSwarmSigns: boolean;
+
+  isSplit: boolean;
+
+  usedForSplits: boolean;
+
+  // -------------------------
+  // quick metrics
+  // -------------------------
+  lastStrength?: number;
+
+  lastBroodFrames?: number;
+
+  totalBroodFrames: number;
+
+  totalFoodFrames: number;
+
+  currentDiseaseType?: DiseaseType;
 };
 
 export type HiveContext = {
   hiveNumber: number;
 
-  queen?: HiveQueen;
+  queen?: Queen;
 
-  lastInspection: {
-    date: number;
-    strength: number;
-    honeyKg: number;
-    broodFrames?: number;
-    hasQueen: boolean;
-  } | null;
+  lastInspection?: HiveInspectionSummary;
 
-  // 🟡 FEEDING
-  feeding?: {
-    hasFeeding: boolean;
-    syrupLiters?: number;
-    lastFeedingAt?: number;
-  };
+  feeding?: HiveFeedingState;
 
-  // 🔴 SWARM
-  swarm?: {
-    hasSwarmSigns: boolean;
-    queenEmergence?: boolean;
-    lastSwarmCheck?: number;
-  };
+  disease?: HiveDiseaseState;
 
-  // 🟣 DISEASE
-  disease?: {
-    hasDiseaseSigns: boolean;
-    lastDiseaseCheck?: number;
-  };
+  swarm?: HiveSwarmState;
 
-  // 🔵 SPLIT
-  split?: {
-    isSplit: boolean;
-    usedForSplits: boolean;
-    totalBroodFrames?: number;
-    totalFoodFrames?: number;
-    lastSplitActionAt?: number;
-  };
+  split?: HiveSplitState;
 
-  // ⚫ META
-  meta?: {
-    lastInspectionAt?: number;
-    lastFeedingAt?: number;
-    lastDiseaseCheckAt?: number;
-    lastSplitActionAt?: number;
-
-    hasFeeding?: boolean;
-    hasDiseaseSigns?: boolean;
-    hasSwarmSigns?: boolean;
-    lastBroodFrames?: number;
-    lastStrength?: number;
-  };
+  meta?: HiveMeta;
 };
