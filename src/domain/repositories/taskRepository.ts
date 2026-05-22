@@ -1,6 +1,7 @@
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 
+import {TASK_PRIORITIES, TASK_SOURCES, TASK_TYPES} from '../constants/task';
 import {Task} from '../../types/task';
 import {loadTasks, saveTasks} from '../../services/tasks/tasksStorage';
 import {mergeTasks} from '../services/taskMergeService';
@@ -39,7 +40,7 @@ export class TaskRepository {
       }
 
       // ✅ 4. BUILD UPDATE
-      const updates: Record<string, any> = {};
+      const updates: Record<string, unknown> = {};
 
       const user = auth().currentUser;
       const token = await user?.getIdToken();
@@ -63,7 +64,7 @@ export class TaskRepository {
           date: task.date,
           completed: task.completed,
           priority: task.priority ?? null,
-          source: 'LOCAL',
+          source: TASK_SOURCES.LOCAL,
           updatedAt: task.updatedAt ?? Date.now(),
         };
       }
@@ -111,7 +112,7 @@ export class TaskRepository {
     const withTimestamps = newTasks.map((t) => ({
       ...t,
       updatedAt: Date.now(),
-      source: 'USER' as const,
+      source: TASK_SOURCES.AI,
     }));
 
     const merged = mergeTasks(existing, withTimestamps);
@@ -131,7 +132,7 @@ export class TaskRepository {
 
     const updated = tasks.map((t) =>
       t.id === taskId
-        ? {...t, completed: true, updatedAt: now, source: 'USER' as const}
+        ? {...t, completed: true, updatedAt: now, source: TASK_SOURCES.USER}
         : t,
     );
 
@@ -162,11 +163,11 @@ export class TaskRepository {
             id: taskId,
             hiveNumber: Number(hiveNumber),
             title: t.title ?? '',
-            type: t.type ?? 'UNKNOWN',
+            type: t.type ?? TASK_TYPES.OTHER,
             date: t.date ?? '',
             completed: t.completed ?? false,
-            priority: t.priority ?? 'normal',
-            source: 'CLOUD',
+            priority: t.priority ?? TASK_PRIORITIES.SECONDARY,
+            source: TASK_SOURCES.CLOUD,
             updatedAt: t.updatedAt ?? 0,
           });
         }
