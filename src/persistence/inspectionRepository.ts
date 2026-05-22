@@ -24,8 +24,8 @@ export async function saveInspection(uid: string, command: InspectionCommand) {
  * Creates or updates current inspection
  */
 async function upsertInspection(uid: string, command: InspectionCommand) {
-  const updates: Record<string, any> = {};
-  console.log('🔥 COMMAND:', command); // 👈 ДОДАЙ
+  const updates: Record<string, unknown> = {};
+  console.log('🔥 COMMAND:', command);
   updates[`users/${uid}/hives/${command.hiveNumber}/meta/lastInspectionAt`] =
     database.ServerValue.TIMESTAMP;
 
@@ -184,7 +184,7 @@ export async function loadHiveContextsFromFirebase(
 
     console.log('🐝 HIVE:', hiveNumber, hive);
 
-    let lastInspection = null;
+    let lastInspection: HiveContext['lastInspection'];
 
     if (hive?.inspections) {
       const inspectionsArray = Object.values(
@@ -208,7 +208,7 @@ export async function loadHiveContextsFromFirebase(
           strength: last.strength ?? 0,
           honeyKg: last.honeyKg ?? 0,
           broodFrames: last.broodFrames ?? 0,
-          hasQueen: last.queen.present === true,
+          queenStatus: last.queen ?? 'unknown',
         };
       }
     }
@@ -219,20 +219,26 @@ export async function loadHiveContextsFromFirebase(
     // 🟢 1. основне джерело (root hive)
     if (hive.queen) {
       queen = {
-        status: hive.queen.status,
+        status: hive.queen.status ?? 'unknown',
+
         breed: hive.queen.breed,
+
         birthYear: hive.queen.birthYear,
+
+        marked: hive.queen.marked ?? false,
+
+        lastSeenAt: hive.queen.lastSeenAt,
+
+        updatedAt: hive.queen.updatedAt ?? 0,
       };
     }
 
     // 🟡 2. fallback з останнього огляду
     if (!queen && lastInspection) {
-      const status: 'present' | 'absent' = lastInspection.hasQueen
-        ? 'present'
-        : 'absent';
-
       queen = {
-        status,
+        status: lastInspection.queenStatus ?? 'unknown',
+
+        updatedAt: 0,
       };
     }
 
@@ -255,42 +261,88 @@ export async function loadHiveContextsFromFirebase(
       swarm: hive.currentSwarm
         ? {
             hasSwarmSigns: hive.currentSwarm.hasSwarmSigns,
+
             queenEmergence: hive.currentSwarm.queenEmergence ?? false,
-            lastSwarmCheck:
-              hive.meta?.lastSwarmCheck ?? hive.currentSwarm.updatedAt,
+
+            sealedCells: hive.currentSwarm.sealedCells ?? false,
+
+            openCells: hive.currentSwarm.openCells ?? false,
+
+            eggsInCells: hive.currentSwarm.eggsInCells ?? false,
+
+            updatedAt: hive.currentSwarm.updatedAt,
           }
         : undefined,
 
       // 🟣 DISEASE
       disease: hive.currentDisease
         ? {
+            disease: hive.currentDisease.disease,
+
             hasDiseaseSigns: hive.currentDisease.hasDiseaseSigns,
-            lastDiseaseCheck:
-              hive.meta?.lastDiseaseCheckAt ?? hive.currentDisease.updatedAt,
+
+            diarrhea: hive.currentDisease.diarrhea ?? false,
+
+            deformedWings: hive.currentDisease.deformedWings ?? false,
+
+            mitesVisible: hive.currentDisease.mitesVisible ?? false,
+
+            weakBrood: hive.currentDisease.weakBrood ?? false,
+
+            updatedAt: hive.currentDisease.updatedAt,
           }
         : undefined,
 
       // 🔵 SPLIT
       split: hive.currentSplit
         ? {
-            isSplit: hive.currentSplit.isSplit,
-            usedForSplits: hive.currentSplit.usedForSplits,
-            totalBroodFrames: hive.currentSplit.totalBroodFrames,
-            totalFoodFrames: hive.currentSplit.totalFoodFrames,
-            lastSplitActionAt:
-              hive.meta?.lastSplitActionAt ?? hive.currentSplit.updatedAt,
+            isSplit: hive.currentSplit.isSplit ?? false,
+
+            usedForSplits: hive.currentSplit.usedForSplits ?? false,
+
+            broodFrames: hive.currentSplit.broodFrames,
+
+            foodFrames: hive.currentSplit.foodFrames,
+
+            totalBroodFrames: hive.currentSplit.totalBroodFrames ?? 0,
+
+            totalFoodFrames: hive.currentSplit.totalFoodFrames ?? 0,
+
+            updatedAt: hive.currentSplit.updatedAt,
           }
         : undefined,
 
       // ⚫ META
       meta: {
         lastInspectionAt: hive.meta?.lastInspectionAt,
+
         lastFeedingAt: hive.meta?.lastFeedingAt,
-        hasFeeding: hive.meta?.hasFeeding,
-        hasSwarmSigns: hive.meta?.hasSwarmSigns,
-        hasDiseaseSigns: hive.meta?.hasDiseaseSigns,
+
+        lastDiseaseCheckAt: hive.meta?.lastDiseaseCheckAt,
+
+        lastSwarmCheckAt: hive.meta?.lastSwarmCheckAt,
+
+        lastSplitActionAt: hive.meta?.lastSplitActionAt,
+
+        hasFeeding: hive.meta?.hasFeeding ?? false,
+
+        hasDiseaseSigns: hive.meta?.hasDiseaseSigns ?? false,
+
+        hasSwarmSigns: hive.meta?.hasSwarmSigns ?? false,
+
+        isSplit: hive.meta?.isSplit ?? false,
+
+        usedForSplits: hive.meta?.usedForSplits ?? false,
+
         lastStrength: hive.meta?.lastStrength,
+
         lastBroodFrames: hive.meta?.lastBroodFrames,
+
+        totalBroodFrames: hive.meta?.totalBroodFrames ?? 0,
+
+        totalFoodFrames: hive.meta?.totalFoodFrames ?? 0,
+
+        currentDiseaseType: hive.meta?.currentDiseaseType,
       },
     });
   }

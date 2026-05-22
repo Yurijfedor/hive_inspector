@@ -1,18 +1,20 @@
 import {BaseEvent} from './baseEvent';
 
+import type {DiseaseType} from '../../types/disease';
+
 export type DiseaseEvent =
   | ({
       type: 'UPDATE_DISEASE';
+
       payload: {
-        disease?:
-          | 'NOSEMA'
-          | 'VARROA'
-          | 'VARROA_OR_DWV'
-          | 'BROOD_DISEASE'
-          | 'NONE'; // 👈 ДОДАТИ
+        disease?: DiseaseType;
+
         diarrhea?: boolean;
+
         deformedWings?: boolean;
+
         mitesVisible?: boolean;
+
         weakBrood?: boolean;
       };
     } & BaseEvent)
