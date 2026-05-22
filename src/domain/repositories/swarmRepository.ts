@@ -2,34 +2,50 @@ import database from '@react-native-firebase/database';
 
 export async function saveSwarm(
   uid: string,
+
   data: {
     hiveNumber: number;
+
     queenEmergence?: boolean;
+
     sealedCells?: boolean;
+
     openCells?: boolean;
+
     eggsInCells?: boolean;
   },
 ) {
-  const updates: Record<string, any> = {};
+  const updates: Record<string, unknown> = {};
 
   const basePath = `users/${uid}/hives/${data.hiveNumber}`;
 
-  // 🔥 агрегований сигнал роїння
+  // 🔥 aggregated swarm signal
   const hasSwarmSigns =
-    data.queenEmergence ||
-    data.sealedCells ||
-    data.openCells ||
-    data.eggsInCells ||
-    false;
+    data.queenEmergence === true ||
+    data.sealedCells === true ||
+    data.openCells === true ||
+    data.eggsInCells === true;
 
-  // 🔹 поточний стан
+  // -------------------------
+  // current swarm state
+  // -------------------------
   updates[`${basePath}/currentSwarm`] = {
-    ...data,
-    hasSwarmSigns, // 👉 додаємо сюди
+    queenEmergence: data.queenEmergence ?? false,
+
+    sealedCells: data.sealedCells ?? false,
+
+    openCells: data.openCells ?? false,
+
+    eggsInCells: data.eggsInCells ?? false,
+
+    hasSwarmSigns,
+
     updatedAt: database.ServerValue.TIMESTAMP,
   };
 
-  // 🔹 meta (швидкий доступ)
+  // -------------------------
+  // meta
+  // -------------------------
   updates[`${basePath}/meta/hasSwarmSigns`] = hasSwarmSigns;
 
   updates[`${basePath}/meta/lastSwarmCheckAt`] = database.ServerValue.TIMESTAMP;
