@@ -11,7 +11,7 @@ export type InspectionFormData = {
 
   queenYear?: number;
 
-  honeyKg: number;
+  honeyKg?: number;
 };
 
 export type InspectionFormUI = {
@@ -20,11 +20,11 @@ export type InspectionFormUI = {
   // -------------------
 
   inspection?: {
-    strength: number;
+    strength?: number;
 
-    broodFrames: number;
+    broodFrames?: number;
 
-    honeyKg: number;
+    honeyKg?: number;
 
     queen: QueenStatus;
 
@@ -70,8 +70,8 @@ export type InspectionFormUI = {
 
     usedForSplits: boolean;
 
-    broodFrames: number;
+    broodFrames?: number;
 
-    foodFrames: number;
+    foodFrames?: number;
   };
 };

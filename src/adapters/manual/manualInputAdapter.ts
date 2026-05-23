@@ -1,32 +1,43 @@
 export function mapManualToFlowInput(
   flowId: string,
-  data: Record<string, any>,
-): string[] {
+  data: Record<string, unknown>,
+): unknown[] {
   switch (flowId) {
     case 'swarm':
       return [
-        data.queenEmergence ? 'так' : 'ні',
-        data.sealedCells ? 'так' : 'ні',
-        data.openCells ? 'так' : 'ні',
-        data.eggsInCells ? 'так' : 'ні',
+        Boolean(data.queenEmergence),
+
+        Boolean(data.sealedCells),
+
+        Boolean(data.openCells),
+
+        Boolean(data.eggsInCells),
       ];
 
     case 'disease':
       return [
-        data.diarrhea ? 'так' : 'ні',
-        data.deformedWings ? 'так' : 'ні',
-        data.mitesVisible ? 'так' : 'ні',
-        data.weakBrood ? 'так' : 'ні',
+        Boolean(data.diarrhea),
+
+        Boolean(data.deformedWings),
+
+        Boolean(data.mitesVisible),
+
+        Boolean(data.weakBrood),
       ];
 
     case 'split':
       return [
-        data.isSplit ? 'так' : 'ні',
-        data.usedForSplits ? 'так' : 'ні',
-        String(data.broodFrames ?? 0),
-        'так', // confirm brood
-        String(data.foodFrames ?? 0),
-        'так', // confirm food
+        Boolean(data.isSplit),
+
+        Boolean(data.usedForSplits),
+
+        Number(data.broodFrames ?? 0),
+
+        true, // confirm brood
+
+        Number(data.foodFrames ?? 0),
+
+        true, // confirm food
       ];
 
     default:

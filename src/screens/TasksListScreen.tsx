@@ -38,17 +38,21 @@ import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 import {getTaskPriorityLabel} from '../localization/helpers/getTaskPriorityLabel';
 
 // 👉 constants
+import {TASK_TYPES, TASK_PRIORITIES} from '../domain/constants/task';
 
-const TASK_TYPES: TaskType[] = [
-  'FEEDING',
-  'INSPECTION',
-  'DISEASE',
-  'SWARM',
-  'SPLIT',
-  'OTHER',
+const TASK_TYPE_OPTIONS: TaskType[] = [
+  TASK_TYPES.FEEDING,
+  TASK_TYPES.INSPECTION,
+  TASK_TYPES.DISEASE,
+  TASK_TYPES.SWARM,
+  TASK_TYPES.SPLIT,
+  TASK_TYPES.OTHER,
 ];
 
-const PRIORITIES: TaskPriority[] = ['PRIMARY', 'SECONDARY'];
+const TASK_PRIORITY_OPTIONS: TaskPriority[] = [
+  TASK_PRIORITIES.PRIMARY,
+  TASK_PRIORITIES.SECONDARY,
+];
 
 export const TasksListScreen = () => {
   const {user} = useAuth();
@@ -217,7 +221,7 @@ export const TasksListScreen = () => {
         <Text style={styles.filterTitle}>📂 {t('tasks:type')}</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {TASK_TYPES.map((type) => (
+          {TASK_TYPE_OPTIONS.map((type) => (
             <Chip
               key={type}
               label={getTaskTypeLabel(type, t)}
@@ -251,7 +255,7 @@ export const TasksListScreen = () => {
         <Text style={styles.filterTitle}>⚡ {t('tasks:priority')}</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {PRIORITIES.map((priority) => (
+          {TASK_PRIORITY_OPTIONS.map((priority) => (
             <Chip
               key={priority}
               label={getTaskPriorityLabel(priority, t)}

@@ -34,12 +34,15 @@ import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 
 // 🔥 TASK TYPES
 
-const TASK_TYPES: TaskType[] = [
-  'FEEDING',
-  'INSPECTION',
-  'DISEASE',
-  'SWARM',
-  'SPLIT',
+import {TASK_TYPES} from '../domain/constants/task';
+
+const TASK_TYPE_OPTIONS: TaskType[] = [
+  TASK_TYPES.FEEDING,
+  TASK_TYPES.INSPECTION,
+  TASK_TYPES.DISEASE,
+  TASK_TYPES.SWARM,
+  TASK_TYPES.SPLIT,
+  TASK_TYPES.OTHER,
 ];
 
 export const TaskEditScreen = () => {
@@ -173,7 +176,7 @@ export const TaskEditScreen = () => {
         <Text style={styles.label}>📂 {t('taskEdit:selectType')}</Text>
 
         <View style={styles.typeContainer}>
-          {TASK_TYPES.map((taskType) => {
+          {TASK_TYPE_OPTIONS.map((taskType) => {
             const active = type === taskType;
 
             return (

@@ -60,12 +60,11 @@ export async function getApiarySummary(_uid: string): Promise<ApiarySummary> {
     const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
 
     const hasRecentDisease =
-      context.disease?.lastDiseaseCheck &&
-      now - context.disease.lastDiseaseCheck < RECENT_DAYS;
+      context.disease?.updatedAt &&
+      now - context.disease.updatedAt < RECENT_DAYS;
 
     const hasRecentSwarm =
-      context.swarm?.lastSwarmCheck &&
-      now - context.swarm.lastSwarmCheck < RECENT_DAYS;
+      context.swarm?.updatedAt && now - context.swarm.updatedAt < RECENT_DAYS;
 
     if (hasRecentDisease || hasRecentSwarm) {
       problemHivesCount++;
