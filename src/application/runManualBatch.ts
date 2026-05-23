@@ -1,36 +1,41 @@
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {updateQueen} from '../domain/repositories/queenRepository';
 
+import type {InspectionFormUI} from '../features/manualInput/types';
+
 export const runManualBatch = async (
   uid: string,
   hiveNumber: number,
-  data: any,
+  data: InspectionFormUI,
 ) => {
-  // ✅ 1. Спочатку оновлюємо queen
+  // ✅ 1. update queen aggregate
   if (data.inspection?.queen) {
     console.log('🐝 QUEEN DATA:', data.inspection.queen);
+
     await updateQueen(uid, hiveNumber, {
-      status: data.inspection.queen.present ? 'present' : 'absent',
-      breed: data.inspection.queen.name,
-      birthYear: data.inspection.queen.year,
+      status: data.inspection.queen,
+
+      breed: data.inspection.queenBreed,
+
+      birthYear: data.inspection.queenYear,
     });
   }
 
-  // ✅ 2. Потім будуємо events
+  // ✅ 2. build events
   const events = buildEvents(hiveNumber, data);
 
-  // ✅ 3. Обробляємо events
+  // ✅ 3. process events
   for (const event of events) {
     await handleDomainEvent(uid, event);
   }
 };
 
-// 🔥 тимчасово тут (потім винесемо)в
-const buildEvents = (hiveNumber: number, data: any) => {
-  const events: any[] = [];
+// ========================================
+// build domain events
+// ========================================
 
-  // const {queen, ...inspectionWithoutQueen} = data.inspection;
-  // console.log(queen);
+const buildEvents = (hiveNumber: number, data: InspectionFormUI) => {
+  const events: any[] = [];
 
   // -------------------------
   // INSPECTION
@@ -39,8 +44,11 @@ const buildEvents = (hiveNumber: number, data: any) => {
   if (data.inspection) {
     events.push({
       type: 'UPDATE_INSPECTION',
+
       hiveNumber,
+
       payload: data.inspection,
+
       context: {
         source: 'manual',
       },
@@ -48,7 +56,9 @@ const buildEvents = (hiveNumber: number, data: any) => {
 
     events.push({
       type: 'STOP_INSPECTION',
+
       hiveNumber,
+
       context: {
         source: 'manual',
       },
@@ -62,12 +72,15 @@ const buildEvents = (hiveNumber: number, data: any) => {
   if (data.swarm) {
     events.push({
       type: 'UPDATE_SWARM',
+
       hiveNumber,
+
       payload: data.swarm,
     });
 
     events.push({
       type: 'STOP_SWARM',
+
       hiveNumber,
     });
   }
@@ -79,12 +92,15 @@ const buildEvents = (hiveNumber: number, data: any) => {
   if (data.disease) {
     events.push({
       type: 'UPDATE_DISEASE',
+
       hiveNumber,
+
       payload: data.disease,
     });
 
     events.push({
       type: 'STOP_DISEASE',
+
       hiveNumber,
     });
   }
@@ -96,12 +112,15 @@ const buildEvents = (hiveNumber: number, data: any) => {
   if (data.split) {
     events.push({
       type: 'UPDATE_SPLIT',
+
       hiveNumber,
+
       payload: data.split,
     });
 
     events.push({
       type: 'STOP_SPLIT',
+
       hiveNumber,
     });
   }
