@@ -3,7 +3,11 @@ import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
-import {logout, switchGoogleAccount} from '../services/authService';
+import {
+  logout,
+  switchGoogleAccount,
+  signInWithGoogle,
+} from '../services/authService';
 import {useAppTranslation} from '../hooks/useAppTranslation';
 import {setAppLanguage} from '../localization/i18n';
 
@@ -24,6 +28,14 @@ export const ProfileScreen = () => {
       await switchGoogleAccount();
     } catch (e) {
       console.log('❌ SWITCH FAILED', e);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (e) {
+      console.log('❌ GOOGLE LOGIN FAILED', e);
     }
   };
 
@@ -96,18 +108,28 @@ export const ProfileScreen = () => {
       </View>
 
       {/* ACTIONS */}
-      {!isAnonymous && (
+      {isAnonymous ? (
         <TouchableOpacity
-          style={styles.switchButton}
-          onPress={handleSwitchAccount}>
-          <Text style={styles.buttonText}>🔄 {t('profile:switchAccount')}</Text>
+          style={styles.loginButton}
+          onPress={handleGoogleLogin}>
+          <Text style={styles.buttonText}>
+            🔐 {t('profile:signInWithGoogle')}
+          </Text>
         </TouchableOpacity>
-      )}
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.switchButton}
+            onPress={handleSwitchAccount}>
+            <Text style={styles.buttonText}>
+              🔄 {t('profile:switchAccount')}
+            </Text>
+          </TouchableOpacity>
 
-      {!user?.isAnonymous && (
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.buttonText}>🚪 {t('profile:logout')}</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.buttonText}>🚪 {t('profile:logout')}</Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
@@ -147,6 +169,14 @@ const styles = StyleSheet.create({
   uid: {
     fontSize: 12,
     color: '#999',
+  },
+
+  loginButton: {
+    backgroundColor: '#2E7D32',
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 
   switchButton: {
