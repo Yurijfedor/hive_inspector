@@ -9,4 +9,13 @@ export default {
     absent: 'відсутня',
     unknown: 'невідомо',
   },
+  breeds: {
+    carnica: 'Карніка',
+
+    buckfast: 'Бакфаст',
+
+    local: 'Місцева',
+
+    unknown: 'Невідомо',
+  },
 };

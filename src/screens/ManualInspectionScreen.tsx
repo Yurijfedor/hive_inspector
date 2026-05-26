@@ -10,11 +10,12 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-
+import {Picker} from '@react-native-picker/picker';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
 import {runManualBatch} from '../application/runManualBatch';
 import {normalizeManualForm} from '../features/manualInput/mappers/normalizeManualForm';
+import {ManualInspectionFormState} from '../features/manualInput/types';
 
 import {useAuth} from '../auth/AuthProvider';
 import {runFullSync} from '../sync/runFullSync';
@@ -37,13 +38,13 @@ export const ManualInspectionScreen = () => {
 
   const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ManualInspectionFormState>({
     inspection: {
       strength: '10',
       broodFrames: '5',
       honeyKg: '20',
       queen: true,
-      queenBreed: 'карніка',
+      queenBreed: 'carnica',
       queenYear: '2024',
     },
 
@@ -215,13 +216,28 @@ export const ManualInspectionScreen = () => {
               <>
                 <Text>{t('queen:breed')}</Text>
 
-                <TextInput
-                  value={form.inspection.queenBreed}
-                  onChangeText={(v: string) =>
+                <Picker
+                  selectedValue={form.inspection.queenBreed}
+                  onValueChange={(v) =>
                     handleChange('inspection', 'queenBreed', v)
-                  }
-                  style={styles.input}
-                />
+                  }>
+                  <Picker.Item
+                    label={t('queen:breeds.carnica')}
+                    value="carnica"
+                  />
+
+                  <Picker.Item
+                    label={t('queen:breeds.buckfast')}
+                    value="buckfast"
+                  />
+
+                  <Picker.Item label={t('queen:breeds.local')} value="local" />
+
+                  <Picker.Item
+                    label={t('queen:breeds.unknown')}
+                    value="unknown"
+                  />
+                </Picker>
 
                 <Text>{t('queen:year')}</Text>
 

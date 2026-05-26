@@ -1,4 +1,4 @@
-import type {InspectionFormUI} from '../types';
+import type {InspectionFormUI, ManualInspectionFormState} from '../types';
 
 import {QUEEN_STATUS} from '../../../domain/constants/queen';
 
@@ -8,10 +8,10 @@ import type {QueenStatus} from '../../../types/queen';
 // helpers
 // -------------------------
 
-function toNumber(value: unknown): number | undefined {
+function toNumber(value: unknown): number {
   const n = Number(value);
 
-  return Number.isNaN(n) ? undefined : n;
+  return Number.isNaN(n) ? 0 : n;
 }
 
 function normalizeQueenStatus(value: unknown): QueenStatus {
@@ -38,8 +38,14 @@ function normalizeQueenStatus(value: unknown): QueenStatus {
 // normalize form
 // -------------------------
 
-export function normalizeManualForm(form: InspectionFormUI): InspectionFormUI {
+export function normalizeManualForm(
+  form: ManualInspectionFormState,
+): InspectionFormUI {
   return {
+    // -------------------------
+    // inspection
+    // -------------------------
+
     inspection: form.inspection
       ? {
           ...form.inspection,

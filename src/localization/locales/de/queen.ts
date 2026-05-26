@@ -9,4 +9,13 @@ export default {
     absent: 'nicht vorhanden',
     unknown: 'unbekannt',
   },
+  breeds: {
+    carnica: 'Carnica',
+
+    buckfast: 'Buckfast',
+
+    local: 'Lokal',
+
+    unknown: 'Unbekannt',
+  },
 };
