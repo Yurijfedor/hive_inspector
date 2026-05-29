@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useState} from 'react';
-
 import {
   ScrollView,
   View,
@@ -8,38 +7,26 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-
 import {useNavigation} from '@react-navigation/native';
-
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-
 import {LineChart} from 'react-native-chart-kit';
+import {Calendar} from 'react-native-calendars';
 
+import {setCalendarLocale} from '../localization/calendarLocale';
 import {RootStackParamList} from '../navigation/types';
-
 import {TaskRepository} from '../domain/repositories/taskRepository';
-
 import {Task} from '../types/task';
-
 import {
   buildApiaryDynamics,
   getApiaryStatus,
 } from '../services/analytics/apiaryAnalytics';
-
 import {loadInspections} from '../persistence/inspectionRepository';
-
 import {buildTimeline} from '../services/tasks/buildTimeline';
-
 import {groupTasksByType} from '../services/tasks/taskUtils';
-
 import {useAuth} from '../auth/AuthProvider';
-
 import {useAppTranslation} from '../hooks/useAppTranslation';
-
 import {formatDate} from '../localization/helpers/formatDate';
-
 import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
-
 import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
@@ -66,6 +53,7 @@ export const TodayScreen = () => {
   const screenWidth = Dimensions.get('window').width;
 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // 📦 LOAD TASKS
 
@@ -144,6 +132,20 @@ export const TodayScreen = () => {
 
     loadAnalytics();
   }, [uid, t]);
+
+  useEffect(() => {
+    if (currentLanguage.startsWith('uk')) {
+      setCalendarLocale('uk');
+      return;
+    }
+
+    if (currentLanguage.startsWith('de')) {
+      setCalendarLocale('de');
+      return;
+    }
+
+    setCalendarLocale('en');
+  }, [currentLanguage]);
 
   // 📅 TASKS
 
@@ -254,6 +256,21 @@ export const TodayScreen = () => {
           {status === 'critical' && `🔴 ${t('analytics:apiaryCritical')}`}
         </Text>
       </View>
+
+      <Calendar
+        onDayPress={(day) => {
+          setSelectedDate(day.dateString);
+        }}
+        markedDates={
+          selectedDate
+            ? {
+                [selectedDate]: {
+                  selected: true,
+                },
+              }
+            : undefined
+        }
+      />
 
       {/* 📊 CHART */}
 
