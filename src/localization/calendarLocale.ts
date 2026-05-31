@@ -138,6 +138,7 @@ LocaleConfig.locales.de = {
   today: 'Heute',
 };
 
-export const setCalendarLocale = (language: 'uk' | 'en' | 'de') => {
-  LocaleConfig.defaultLocale = language;
+export const setCalendarLocale = (locale: string) => {
+  LocaleConfig.defaultLocale =
+    locale === 'uk' || locale === 'de' || locale === 'en' ? locale : 'en';
 };

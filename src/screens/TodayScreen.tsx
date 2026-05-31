@@ -28,6 +28,8 @@ import {useAppTranslation} from '../hooks/useAppTranslation';
 import {formatDate} from '../localization/helpers/formatDate';
 import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
 import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
+import {buildMarkedDates} from '../services/tasks/calendar/buildMarkedDates';
+import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -54,7 +56,16 @@ export const TodayScreen = () => {
 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
+  const tasksByDay = useMemo(() => {
+    return groupTasksByDay(tasks);
+  }, [tasks]);
+  const markedDates = useMemo(() => {
+    return buildMarkedDates(tasks, selectedDate);
+  }, [tasks, selectedDate]);
+  const selectedTasks = selectedDate ? tasksByDay[selectedDate] ?? [] : [];
+  // const setCalendarLocale = (locale: string) => {
+  //   LocaleConfig.defaultLocale = locale;
+  // };
   // 📦 LOAD TASKS
 
   useEffect(() => {
@@ -147,6 +158,10 @@ export const TodayScreen = () => {
     setCalendarLocale('en');
   }, [currentLanguage]);
 
+  useEffect(() => {
+    setCalendarLocale(currentLanguage);
+  }, [currentLanguage]);
+
   // 📅 TASKS
 
   const timeline = buildTimeline(tasks, 5);
@@ -163,7 +178,7 @@ export const TodayScreen = () => {
     });
   };
 
-  const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
+  // const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
 
   const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
 
@@ -258,20 +273,11 @@ export const TodayScreen = () => {
       </View>
 
       <Calendar
+        markedDates={markedDates}
         onDayPress={(day) => {
           setSelectedDate(day.dateString);
         }}
-        markedDates={
-          selectedDate
-            ? {
-                [selectedDate]: {
-                  selected: true,
-                },
-              }
-            : undefined
-        }
       />
-
       {/* 📊 CHART */}
 
       {chartData && (
