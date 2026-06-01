@@ -54,7 +54,7 @@ export const TodayScreen = () => {
 
   const screenWidth = Dimensions.get('window').width;
 
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  // const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const tasksByDay = useMemo(() => {
     return groupTasksByDay(tasks);
@@ -62,7 +62,17 @@ export const TodayScreen = () => {
   const markedDates = useMemo(() => {
     return buildMarkedDates(tasks, selectedDate);
   }, [tasks, selectedDate]);
-  const selectedTasks = selectedDate ? tasksByDay[selectedDate] ?? [] : [];
+  const selectedTasks = useMemo(() => {
+    if (!selectedDate) {
+      return [];
+    }
+
+    return tasksByDay[selectedDate] ?? [];
+  }, [tasksByDay, selectedDate]);
+
+  const groupedSelectedTasks = useMemo(() => {
+    return groupTasksByType(selectedTasks);
+  }, [selectedTasks]);
   // const setCalendarLocale = (locale: string) => {
   //   LocaleConfig.defaultLocale = locale;
   // };
@@ -77,6 +87,16 @@ export const TodayScreen = () => {
 
     load();
   }, [repo]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    setSelectedDate(today);
+  }, [selectedDate]);
 
   // 📊 LOAD ANALYTICS
 
@@ -169,7 +189,9 @@ export const TodayScreen = () => {
   const today = buildTimeline(tasks, 1)[0];
 
   const handleOpenDay = (day: {date: number}) => {
-    setSelectedDay(day.date);
+    const key = new Date(day.date).toISOString().split('T')[0];
+
+    setSelectedDate(key);
   };
 
   const handleOpenHive = (hiveNumber: number) => {
@@ -180,7 +202,7 @@ export const TodayScreen = () => {
 
   // const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
 
-  const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
+  // const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -213,7 +235,8 @@ export const TodayScreen = () => {
             style={[
               styles.groupTitle,
 
-              selectedDay === day.date && styles.groupActive,
+              selectedDate === new Date(day.date).toISOString().split('T')[0] &&
+                styles.groupActive,
             ]}>
             {getRelativeDateLabel(day.date, t)} ({day.tasks.length})
           </Text>
@@ -222,16 +245,16 @@ export const TodayScreen = () => {
 
       {/* 📋 SELECTED DAY */}
 
-      {selectedTasks && selectedDay && (
+      {selectedDate && (
         <View style={styles.details}>
           <Text style={styles.sectionTitle}>
-            📋 {formatDate(selectedDay, currentLanguage)}
+            📋 {formatDate(selectedDate, currentLanguage)}
           </Text>
 
           {selectedTasks.length === 0 ? (
             <Text style={styles.empty}>{t('tasks:noTasks')}</Text>
           ) : (
-            Object.entries(grouped!).map(([type, groupTasks]) => (
+            Object.entries(groupedSelectedTasks).map(([type, groupTasks]) => (
               <View key={type} style={styles.group}>
                 <Text style={styles.groupTitle}>
                   {getTaskTypeLabel(type as any, t)} ({groupTasks.length})
@@ -240,10 +263,13 @@ export const TodayScreen = () => {
                 {groupTasks.map((task) => (
                   <TouchableOpacity
                     key={task.id}
+                    style={styles.taskCard}
                     onPress={() => handleOpenHive(task.hiveNumber)}>
-                    <Text style={styles.task}>
+                    <Text style={styles.taskHive}>
                       🐝 {t('tasks:hive')} #{task.hiveNumber}
                     </Text>
+
+                    <Text style={styles.taskTitle}>{task.title}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -251,6 +277,13 @@ export const TodayScreen = () => {
           )}
         </View>
       )}
+
+      <Calendar
+        markedDates={markedDates}
+        onDayPress={(day) => {
+          setSelectedDate(day.dateString);
+        }}
+      />
 
       {/* 📅 OPEN FULL TASK LIST */}
 
@@ -272,12 +305,6 @@ export const TodayScreen = () => {
         </Text>
       </View>
 
-      <Calendar
-        markedDates={markedDates}
-        onDayPress={(day) => {
-          setSelectedDate(day.dateString);
-        }}
-      />
       {/* 📊 CHART */}
 
       {chartData && (
@@ -348,6 +375,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
 
     marginBottom: 6,
+  },
+
+  taskCard: {
+    backgroundColor: '#f7f7f7',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+  },
+
+  taskHive: {
+    fontWeight: '600',
+    fontSize: 16,
+  },
+
+  taskTitle: {
+    marginTop: 4,
+    color: '#666',
   },
 
   groupActive: {
