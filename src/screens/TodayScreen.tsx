@@ -10,7 +10,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {LineChart} from 'react-native-chart-kit';
-import {Calendar} from 'react-native-calendars';
+// import {Calendar} from 'react-native-calendars';
 
 import {setCalendarLocale} from '../localization/calendarLocale';
 import {RootStackParamList} from '../navigation/types';
@@ -30,6 +30,8 @@ import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel
 import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 import {buildMarkedDates} from '../services/tasks/calendar/buildMarkedDates';
 import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
+
+import {TaskCalendar} from '../components/today/TaskCalendar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -278,13 +280,7 @@ export const TodayScreen = () => {
         </View>
       )}
 
-      <Calendar
-        markedDates={markedDates}
-        onDayPress={(day) => {
-          setSelectedDate(day.dateString);
-        }}
-      />
-
+      <TaskCalendar markedDates={markedDates} onSelectDate={setSelectedDate} />
       {/* 📅 OPEN FULL TASK LIST */}
 
       <TouchableOpacity
