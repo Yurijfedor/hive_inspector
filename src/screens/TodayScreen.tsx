@@ -26,13 +26,14 @@ import {buildTimeline} from '../services/tasks/buildTimeline';
 import {useAuth} from '../auth/AuthProvider';
 import {useAppTranslation} from '../hooks/useAppTranslation';
 // import {formatDate} from '../localization/helpers/formatDate';
-import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
+// import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
 // import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 import {buildMarkedDates} from '../services/tasks/calendar/buildMarkedDates';
 import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
 
 import {TaskCalendar} from '../components/today/TaskCalendar';
 import {SelectedDayTasks} from '../components/today/SelectedDayTasks';
+import {UpcomingTasks} from '../components/today/UpcomingTasks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -191,11 +192,11 @@ export const TodayScreen = () => {
 
   const today = buildTimeline(tasks, 1)[0];
 
-  const handleOpenDay = (day: {date: number}) => {
-    const key = new Date(day.date).toISOString().split('T')[0];
+  // const handleOpenDay = (day: {date: number}) => {
+  //   const key = new Date(day.date).toISOString().split('T')[0];
 
-    setSelectedDate(key);
-  };
+  //   setSelectedDate(key);
+  // };
 
   // const handleOpenHive = (hiveNumber: number) => {
   //   navigation.navigate('Hive', {
@@ -227,24 +228,12 @@ export const TodayScreen = () => {
 
       {/* 📅 UPCOMING */}
 
-      <Text style={styles.sectionTitle}>📅 {t('today:upcomingTasks')}</Text>
-
-      {timeline.map((day) => (
-        <TouchableOpacity
-          key={day.date}
-          style={styles.group}
-          onPress={() => handleOpenDay(day)}>
-          <Text
-            style={[
-              styles.groupTitle,
-
-              selectedDate === new Date(day.date).toISOString().split('T')[0] &&
-                styles.groupActive,
-            ]}>
-            {getRelativeDateLabel(day.date, t)} ({day.tasks.length})
-          </Text>
-        </TouchableOpacity>
-      ))}
+      <UpcomingTasks
+        timeline={timeline}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        t={t}
+      />
 
       {/* 📋 SELECTED DAY */}
 
