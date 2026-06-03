@@ -1,14 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {
-  ScrollView,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import {ScrollView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {LineChart} from 'react-native-chart-kit';
 
 import {setCalendarLocale} from '../localization/calendarLocale';
 import {RootStackParamList} from '../navigation/types';
@@ -29,6 +22,7 @@ import {TaskCalendar} from '../components/today/TaskCalendar';
 import {SelectedDayTasks} from '../components/today/SelectedDayTasks';
 import {UpcomingTasks} from '../components/today/UpcomingTasks';
 import {ApiaryStatusCard} from '../components/today/ApiaryStatusCard';
+import {AnalyticsChart} from '../components/today/AnalyticsChart';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -50,8 +44,6 @@ export const TodayScreen = () => {
   const [chartData, setChartData] = useState<any>(null);
 
   const [status, setStatus] = useState<'good' | 'warning' | 'critical'>('good');
-
-  const screenWidth = Dimensions.get('window').width;
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const tasksByDay = useMemo(() => {
@@ -228,23 +220,7 @@ export const TodayScreen = () => {
 
       {/* 📊 CHART */}
 
-      {chartData && (
-        <LineChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={{
-            backgroundGradientFrom: '#fff',
-
-            backgroundGradientTo: '#fff',
-
-            decimalPlaces: 0,
-
-            color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-          }}
-          bezier
-        />
-      )}
+      <AnalyticsChart chartData={chartData} />
     </ScrollView>
   );
 };
