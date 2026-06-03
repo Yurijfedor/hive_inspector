@@ -10,7 +10,6 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {LineChart} from 'react-native-chart-kit';
-// import {Calendar} from 'react-native-calendars';
 
 import {setCalendarLocale} from '../localization/calendarLocale';
 import {RootStackParamList} from '../navigation/types';
@@ -22,12 +21,8 @@ import {
 } from '../services/analytics/apiaryAnalytics';
 import {loadInspections} from '../persistence/inspectionRepository';
 import {buildTimeline} from '../services/tasks/buildTimeline';
-// import {groupTasksByType} from '../services/tasks/taskUtils';
 import {useAuth} from '../auth/AuthProvider';
 import {useAppTranslation} from '../hooks/useAppTranslation';
-// import {formatDate} from '../localization/helpers/formatDate';
-// import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
-// import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 import {buildMarkedDates} from '../services/tasks/calendar/buildMarkedDates';
 import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
 
@@ -58,7 +53,6 @@ export const TodayScreen = () => {
 
   const screenWidth = Dimensions.get('window').width;
 
-  // const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const tasksByDay = useMemo(() => {
     return groupTasksByDay(tasks);
@@ -74,12 +68,6 @@ export const TodayScreen = () => {
     return tasksByDay[selectedDate] ?? [];
   }, [tasksByDay, selectedDate]);
 
-  // const groupedSelectedTasks = useMemo(() => {
-  //   return groupTasksByType(selectedTasks);
-  // }, [selectedTasks]);
-  // const setCalendarLocale = (locale: string) => {
-  //   LocaleConfig.defaultLocale = locale;
-  // };
   // 📦 LOAD TASKS
 
   useEffect(() => {
@@ -188,25 +176,11 @@ export const TodayScreen = () => {
 
   // 📅 TASKS
 
-  const timeline = buildTimeline(tasks, 5);
+  const timeline = useMemo(() => {
+    return buildTimeline(tasks, 5);
+  }, [tasks]);
 
-  const today = buildTimeline(tasks, 1)[0];
-
-  // const handleOpenDay = (day: {date: number}) => {
-  //   const key = new Date(day.date).toISOString().split('T')[0];
-
-  //   setSelectedDate(key);
-  // };
-
-  // const handleOpenHive = (hiveNumber: number) => {
-  //   navigation.navigate('Hive', {
-  //     hiveNumber,
-  //   });
-  // };
-
-  // const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
-
-  // const grouped = selectedTasks ? groupTasksByType(selectedTasks) : null;
+  const today = timeline[0];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -296,24 +270,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  sectionTitle: {
-    fontSize: 20,
-
-    fontWeight: 'bold',
-
-    marginTop: 16,
-
-    marginBottom: 8,
-  },
-
   empty: {
     fontSize: 16,
 
     marginBottom: 16,
-  },
-
-  group: {
-    marginBottom: 12,
   },
 
   groupTitle: {
@@ -322,43 +282,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  details: {
-    marginTop: 16,
-  },
-
   task: {
     fontSize: 16,
 
     marginBottom: 6,
-  },
-
-  taskCard: {
-    backgroundColor: '#f7f7f7',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-  },
-
-  taskHive: {
-    fontWeight: '600',
-    fontSize: 16,
-  },
-
-  taskTitle: {
-    marginTop: 4,
-    color: '#666',
-  },
-
-  groupActive: {
-    backgroundColor: '#e3f2fd',
-
-    borderRadius: 8,
-
-    padding: 6,
-
-    fontWeight: 'bold',
-
-    color: '#1976d2',
   },
 
   statusBox: {
