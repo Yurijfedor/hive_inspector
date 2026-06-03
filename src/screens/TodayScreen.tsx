@@ -22,16 +22,17 @@ import {
 } from '../services/analytics/apiaryAnalytics';
 import {loadInspections} from '../persistence/inspectionRepository';
 import {buildTimeline} from '../services/tasks/buildTimeline';
-import {groupTasksByType} from '../services/tasks/taskUtils';
+// import {groupTasksByType} from '../services/tasks/taskUtils';
 import {useAuth} from '../auth/AuthProvider';
 import {useAppTranslation} from '../hooks/useAppTranslation';
-import {formatDate} from '../localization/helpers/formatDate';
+// import {formatDate} from '../localization/helpers/formatDate';
 import {getRelativeDateLabel} from '../localization/helpers/getRelativeDateLabel';
-import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
+// import {getTaskTypeLabel} from '../localization/helpers/getTaskTypeLabel';
 import {buildMarkedDates} from '../services/tasks/calendar/buildMarkedDates';
 import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
 
 import {TaskCalendar} from '../components/today/TaskCalendar';
+import {SelectedDayTasks} from '../components/today/SelectedDayTasks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -72,9 +73,9 @@ export const TodayScreen = () => {
     return tasksByDay[selectedDate] ?? [];
   }, [tasksByDay, selectedDate]);
 
-  const groupedSelectedTasks = useMemo(() => {
-    return groupTasksByType(selectedTasks);
-  }, [selectedTasks]);
+  // const groupedSelectedTasks = useMemo(() => {
+  //   return groupTasksByType(selectedTasks);
+  // }, [selectedTasks]);
   // const setCalendarLocale = (locale: string) => {
   //   LocaleConfig.defaultLocale = locale;
   // };
@@ -196,11 +197,11 @@ export const TodayScreen = () => {
     setSelectedDate(key);
   };
 
-  const handleOpenHive = (hiveNumber: number) => {
-    navigation.navigate('Hive', {
-      hiveNumber,
-    });
-  };
+  // const handleOpenHive = (hiveNumber: number) => {
+  //   navigation.navigate('Hive', {
+  //     hiveNumber,
+  //   });
+  // };
 
   // const selectedTasks = timeline.find((d) => d.date === selectedDay)?.tasks;
 
@@ -247,38 +248,7 @@ export const TodayScreen = () => {
 
       {/* 📋 SELECTED DAY */}
 
-      {selectedDate && (
-        <View style={styles.details}>
-          <Text style={styles.sectionTitle}>
-            📋 {formatDate(selectedDate, currentLanguage)}
-          </Text>
-
-          {selectedTasks.length === 0 ? (
-            <Text style={styles.empty}>{t('tasks:noTasks')}</Text>
-          ) : (
-            Object.entries(groupedSelectedTasks).map(([type, groupTasks]) => (
-              <View key={type} style={styles.group}>
-                <Text style={styles.groupTitle}>
-                  {getTaskTypeLabel(type as any, t)} ({groupTasks.length})
-                </Text>
-
-                {groupTasks.map((task) => (
-                  <TouchableOpacity
-                    key={task.id}
-                    style={styles.taskCard}
-                    onPress={() => handleOpenHive(task.hiveNumber)}>
-                    <Text style={styles.taskHive}>
-                      🐝 {t('tasks:hive')} #{task.hiveNumber}
-                    </Text>
-
-                    <Text style={styles.taskTitle}>{task.title}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))
-          )}
-        </View>
-      )}
+      <SelectedDayTasks selectedDate={selectedDate} tasks={selectedTasks} />
 
       <TaskCalendar markedDates={markedDates} onSelectDate={setSelectedDate} />
       {/* 📅 OPEN FULL TASK LIST */}
