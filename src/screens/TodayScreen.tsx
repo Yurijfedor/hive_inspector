@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {
   ScrollView,
-  View,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -29,6 +28,7 @@ import {groupTasksByDay} from '../services/tasks/calendar/groupTasksByDay';
 import {TaskCalendar} from '../components/today/TaskCalendar';
 import {SelectedDayTasks} from '../components/today/SelectedDayTasks';
 import {UpcomingTasks} from '../components/today/UpcomingTasks';
+import {ApiaryStatusCard} from '../components/today/ApiaryStatusCard';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hive'>;
 
@@ -224,15 +224,7 @@ export const TodayScreen = () => {
 
       {/* 🟢 STATUS */}
 
-      <View style={styles.statusBox}>
-        <Text style={styles.statusText}>
-          {status === 'good' && `🟢 ${t('analytics:apiaryGood')}`}
-
-          {status === 'warning' && `🟡 ${t('analytics:apiaryWarning')}`}
-
-          {status === 'critical' && `🔴 ${t('analytics:apiaryCritical')}`}
-        </Text>
-      </View>
+      <ApiaryStatusCard status={status} />
 
       {/* 📊 CHART */}
 
@@ -286,20 +278,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
 
     marginBottom: 6,
-  },
-
-  statusBox: {
-    padding: 12,
-
-    borderRadius: 10,
-
-    backgroundColor: '#eef6ff',
-
-    marginTop: 12,
-  },
-
-  statusText: {
-    fontWeight: '600',
   },
 
   syncButton: {
