@@ -9,12 +9,11 @@ import {
   signInWithGoogle,
 } from '../services/authService';
 import {useAppTranslation} from '../hooks/useAppTranslation';
-import {setAppLanguage} from '../localization/i18n';
 
 export const ProfileScreen = () => {
   const {user} = useAuth();
   const navigation = useNavigation<any>();
-  const {t, i18n} = useAppTranslation();
+  const {t} = useAppTranslation();
 
   const isAnonymous = user?.isAnonymous;
 
@@ -55,38 +54,6 @@ export const ProfileScreen = () => {
         <Text style={styles.name}>
           {user?.displayName || t('profile:user')}
         </Text>
-      </View>
-      <View style={styles.languageContainer}>
-        <Text style={styles.languageLabel}>{t('profile:language')}</Text>
-
-        <View style={styles.languageButtons}>
-          <TouchableOpacity
-            style={[
-              styles.languageButton,
-              i18n.language === 'en' && styles.activeLanguageButton,
-            ]}
-            onPress={() => setAppLanguage('en')}>
-            <Text>EN</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.languageButton,
-              i18n.language === 'uk' && styles.activeLanguageButton,
-            ]}
-            onPress={() => setAppLanguage('uk')}>
-            <Text>UA</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.languageButton,
-              i18n.language === 'de' && styles.activeLanguageButton,
-            ]}
-            onPress={() => setAppLanguage('de')}>
-            <Text>DE</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       {/* USER INFO */}

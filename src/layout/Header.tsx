@@ -4,6 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {ProfileAvatar} from '../components/ProfileAvatar';
 import {UserBadge} from '../components/UserBadge';
+import {LanguageSwitcher} from '../components/LanguageSwitcher';
 
 export const Header = ({onMenuPress}: {onMenuPress: () => void}) => {
   const navigation = useNavigation<any>();
@@ -22,6 +23,7 @@ export const Header = ({onMenuPress}: {onMenuPress: () => void}) => {
 
       <View style={styles.right}>
         <UserBadge />
+        <LanguageSwitcher />
         <ProfileAvatar />
       </View>
     </View>
