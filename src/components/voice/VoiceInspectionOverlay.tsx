@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Modal, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from 'react-native';
 
 import {
   getVoiceUiState,
@@ -23,6 +30,8 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
 
   const [progress, setProgress] = useState(getVoiceUiContext());
 
+  const pulse = useState(() => new Animated.Value(1))[0];
+
   useEffect(() => {
     const unsubscribeState = subscribeVoiceUiState(setState);
 
@@ -33,6 +42,35 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
       unsubscribeProgress();
     };
   }, []);
+
+  useEffect(() => {
+    if (state.type !== 'LISTENING') {
+      pulse.setValue(1);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1.15,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [state.type, pulse]);
 
   const renderStatus = () => {
     switch (state.type) {
@@ -84,9 +122,22 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
 
         <Text style={styles.status}>{renderStatus()}</Text>
 
-        <View style={styles.microphone}>
+        {/* <View style={styles.microphone}>
           <Text style={styles.micText}>🎤</Text>
-        </View>
+        </View> */}
+        <Animated.View
+          style={[
+            styles.microphone,
+            {
+              transform: [
+                {
+                  scale: pulse,
+                },
+              ],
+            },
+          ]}>
+          <Text style={styles.micText}>🎤</Text>
+        </Animated.View>
 
         <TouchableOpacity style={styles.stopButton} onPress={onStop}>
           <Text style={styles.stopText}>⏹ Stop Inspection</Text>
