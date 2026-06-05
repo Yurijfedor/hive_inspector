@@ -14,6 +14,7 @@ import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
 import {setVoiceUiState} from '../state/voiceUiStateMachine';
 import {setVoiceUiContext} from '../state/voiceUiContext';
+import {AudioCues} from '../voice/audioCues';
 
 const {Vosk} = NativeModules;
 
@@ -219,6 +220,8 @@ export class DevVoiceRuntime {
         type: 'LISTENING',
       });
 
+      AudioCues.listening();
+
       console.log('🎤 VOSK START (safe)');
 
       try {
@@ -301,6 +304,8 @@ export class DevVoiceRuntime {
       const text = typeof e === 'string' ? e : e?.text ?? e?.result?.text ?? '';
 
       console.log('👤 USER:', text);
+
+      AudioCues.accepted();
 
       setVoiceUiState({
         type: 'PROCESSING',

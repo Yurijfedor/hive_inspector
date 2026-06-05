@@ -26,8 +26,6 @@ export const DevScreen = () => {
   const {VoiceService} = NativeModules;
   const emitterRef = useRef(new NativeEventEmitter(VoiceService));
 
-  console.log('AUDIO CUE MODULE', NativeModules.AudioCue);
-
   useEffect(() => {
     const emitter = emitterRef.current;
 

@@ -24,8 +24,8 @@ class AudioCueModule(
         )
 
         tone.startTone(
-            ToneGenerator.TONE_PROP_BEEP,
-            120
+            ToneGenerator.TONE_CDMA_ONE_MIN_BEEP,
+            300
         )
     }
 
@@ -38,17 +38,17 @@ class AudioCueModule(
         )
 
         tone.startTone(
-            ToneGenerator.TONE_PROP_BEEP,
-            120
+            ToneGenerator.TONE_CDMA_ONE_MIN_BEEP,
+            250
         )
 
         Thread {
             try {
-                Thread.sleep(180)
+                Thread.sleep(350)
 
                 tone.startTone(
-                    ToneGenerator.TONE_PROP_BEEP,
-                    120
+                    ToneGenerator.TONE_CDMA_ONE_MIN_BEEP,
+                    250
                 )
             } catch (_: Exception) {
             }

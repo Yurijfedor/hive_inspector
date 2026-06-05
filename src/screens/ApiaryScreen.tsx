@@ -46,7 +46,6 @@ import {enableFieldMode, disableFieldMode} from '../native/brightness';
 import {FieldModeOverlay} from '../FieldModeOverlay';
 
 import {VoiceInspectionOverlay} from '../components/voice/VoiceInspectionOverlay';
-// import {voiceUiActions} from '../state/voiceUiActions';
 
 // 🌍 LOCALIZATION
 
@@ -230,9 +229,6 @@ export const ApiaryScreen = () => {
     setFieldMode(true);
 
     runtime.start();
-    // voiceUiActions.listening();
-    // voiceUiActions.processing();
-    // voiceUiActions.question('Яка сила сімʼї?');
   };
 
   // --------------------------------------------------
