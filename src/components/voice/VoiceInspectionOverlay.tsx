@@ -37,8 +37,8 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
       case 'ERROR':
         return `❌ ${state.message}`;
 
-      case 'PROGRESS':
-        return `📋 ${state.current}/${state.total}`;
+      // case 'PROGRESS':
+      //   return `📋 ${state.current}/${state.total}`;
 
       default:
         return '';
@@ -49,6 +49,12 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
     <Modal visible={visible} transparent={false} animationType="fade">
       <View style={styles.container}>
         <Text style={styles.title}>🐝 Voice Inspection</Text>
+
+        {state.type === 'QUESTION' && state.current && state.total && (
+          <Text style={styles.progress}>
+            Question {state.current} / {state.total}
+          </Text>
+        )}
 
         <Text style={styles.status}>{renderStatus()}</Text>
 
@@ -115,5 +121,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: '700',
+  },
+
+  progress: {
+    color: '#999',
+    fontSize: 18,
+    marginBottom: 20,
   },
 });
