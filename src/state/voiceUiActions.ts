@@ -33,11 +33,11 @@ export const voiceUiActions = {
     });
   },
 
-  progress(current: number, total: number) {
-    setVoiceUiState({
-      type: 'PROGRESS',
-      current,
-      total,
-    });
-  },
+  // progress(current: number, total: number) {
+  //   setVoiceUiState({
+  //     type: 'PROGRESS',
+  //     current,
+  //     total,
+  //   });
+  // },
 };

@@ -220,7 +220,6 @@ export class ConversationDriver {
     const flow = getFlow(active.flowId);
     if (!flow) return;
 
-    // const step = flow.steps[active.session.stepIndex];
     const resolved = resolveStep(flow, active.session);
 
     if (!resolved) {
@@ -237,6 +236,16 @@ export class ConversationDriver {
       this.finishActiveFlow();
       return;
     }
+
+    // --------------------------------------------------
+    // FLOW PROGRESS
+    // --------------------------------------------------
+
+    this.bus.emit({
+      type: 'FLOW_PROGRESS',
+      current: index + 1,
+      total: flow.steps.length,
+    });
 
     const question =
       typeof step.question === 'function'

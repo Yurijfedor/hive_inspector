@@ -13,6 +13,7 @@ import {PorcupineEngine} from '../voice/porcupineEngine';
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
 import {setVoiceUiState} from '../state/voiceUiStateMachine';
+import {setVoiceUiContext} from '../state/voiceUiContext';
 
 const {Vosk} = NativeModules;
 
@@ -272,6 +273,13 @@ export class DevVoiceRuntime {
       } catch (err) {
         console.error('❌ DOMAIN HANDLER ERROR', err);
       }
+    });
+
+    this.bus.on('FLOW_PROGRESS', (e) => {
+      setVoiceUiContext({
+        currentStep: e.current,
+        totalSteps: e.total,
+      });
     });
   }
 

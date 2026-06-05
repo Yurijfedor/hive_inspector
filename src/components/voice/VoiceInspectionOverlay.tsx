@@ -6,6 +6,11 @@ import {
   subscribeVoiceUiState,
 } from '../../state/voiceUiStateMachine';
 
+import {
+  getVoiceUiContext,
+  subscribeVoiceUiContext,
+} from '../../state/voiceUiContext';
+
 import {VoiceUiState} from '../../state/voiceUiState';
 
 type Props = {
@@ -16,8 +21,17 @@ type Props = {
 export function VoiceInspectionOverlay({visible, onStop}: Props) {
   const [state, setState] = useState<VoiceUiState>(getVoiceUiState());
 
+  const [progress, setProgress] = useState(getVoiceUiContext());
+
   useEffect(() => {
-    return subscribeVoiceUiState(setState);
+    const unsubscribeState = subscribeVoiceUiState(setState);
+
+    const unsubscribeProgress = subscribeVoiceUiContext(setProgress);
+
+    return () => {
+      unsubscribeState();
+      unsubscribeProgress();
+    };
   }, []);
 
   const renderStatus = () => {
@@ -37,9 +51,6 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
       case 'ERROR':
         return `❌ ${state.message}`;
 
-      // case 'PROGRESS':
-      //   return `📋 ${state.current}/${state.total}`;
-
       default:
         return '';
     }
@@ -50,10 +61,25 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
       <View style={styles.container}>
         <Text style={styles.title}>🐝 Voice Inspection</Text>
 
-        {state.type === 'QUESTION' && state.current && state.total && (
-          <Text style={styles.progress}>
-            Question {state.current} / {state.total}
-          </Text>
+        {progress.totalSteps > 0 && (
+          <>
+            <Text style={styles.progressText}>
+              Question {progress.currentStep} / {progress.totalSteps}
+            </Text>
+
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${
+                      (progress.currentStep / progress.totalSteps) * 100
+                    }%`,
+                  },
+                ]}
+              />
+            </View>
+          </>
         )}
 
         <Text style={styles.status}>{renderStatus()}</Text>
@@ -83,13 +109,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 28,
     fontWeight: '700',
-    marginBottom: 30,
+    marginBottom: 24,
+  },
+
+  progressText: {
+    color: '#999',
+    fontSize: 18,
+    marginBottom: 8,
+  },
+
+  progressBar: {
+    width: '100%',
+    height: 10,
+    backgroundColor: '#333',
+    borderRadius: 5,
+    marginBottom: 24,
+    overflow: 'hidden',
+  },
+
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
   },
 
   status: {
     color: '#fff',
     fontSize: 22,
     textAlign: 'center',
+    minHeight: 60,
     marginBottom: 40,
   },
 
@@ -121,11 +168,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: '700',
-  },
-
-  progress: {
-    color: '#999',
-    fontSize: 18,
-    marginBottom: 20,
   },
 });

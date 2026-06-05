@@ -10,6 +10,11 @@ export type ConversationEvent =
   | {type: 'CONVERSATION_FINISHED'}
   | {type: 'CONVERSATION_PAUSED'}
   | {
+      type: 'FLOW_PROGRESS';
+      current: number;
+      total: number;
+    }
+  | {
       type: 'FLOW_EFFECT';
       effect: FlowEffect | RuntimeEffect;
     }
