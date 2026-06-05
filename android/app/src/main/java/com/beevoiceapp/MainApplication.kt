@@ -14,6 +14,7 @@ import com.facebook.soloader.SoLoader
 import org.reactnative.camera.RNCameraPackage
 import com.beevoiceapp.voice.VoiceServicePackage
 import com.beevoiceapp.brightness.BrightnessPackage
+import com.beevoiceapp.audio.AudioCuePackage
 
 
 class MainApplication : Application(), ReactApplication {
@@ -24,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
                add(VoiceServicePackage())
                add(BrightnessPackage())
+               add(AudioCuePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
