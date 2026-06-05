@@ -12,6 +12,8 @@ import {PorcupineEngine} from '../voice/porcupineEngine';
 
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
+import {setVoiceUiState} from '../state/voiceUiStateMachine';
+
 const {Vosk} = NativeModules;
 
 export class DevVoiceRuntime {
@@ -187,6 +189,10 @@ export class DevVoiceRuntime {
       this.speaking = true;
 
       console.log('🗣 SYSTEM:', e.text);
+      setVoiceUiState({
+        type: 'QUESTION',
+        text: e.text,
+      });
 
       // 🔥 блокуємо self listening
       this.blockListeningUntil = Date.now() + 3000;
@@ -208,6 +214,10 @@ export class DevVoiceRuntime {
         await new Promise((r) => setTimeout(r, wait));
       }
 
+      setVoiceUiState({
+        type: 'LISTENING',
+      });
+
       console.log('🎤 VOSK START (safe)');
 
       try {
@@ -226,6 +236,10 @@ export class DevVoiceRuntime {
         await Vosk.stop();
       } catch {}
 
+      setVoiceUiState({
+        type: 'IDLE',
+      });
+
       await this.wakeController.onConversationFinished();
     });
 
@@ -233,6 +247,10 @@ export class DevVoiceRuntime {
       console.log('🛑 FULL STOP INSPECTION');
 
       this.stopped = true;
+
+      setVoiceUiState({
+        type: 'IDLE',
+      });
 
       try {
         await Vosk.stop();
@@ -276,6 +294,10 @@ export class DevVoiceRuntime {
 
       console.log('👤 USER:', text);
 
+      setVoiceUiState({
+        type: 'PROCESSING',
+      });
+
       if (!text) return;
 
       await Vosk.stop();
@@ -301,5 +323,13 @@ export class DevVoiceRuntime {
     }
 
     await this.driver.handleExternalInput(text);
+  }
+
+  public async stopInspection() {
+    if (this.stopped) {
+      return;
+    }
+
+    await this.driver.handleExternalInput('завершити огляд');
   }
 }

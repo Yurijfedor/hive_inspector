@@ -46,7 +46,7 @@ import {enableFieldMode, disableFieldMode} from '../native/brightness';
 import {FieldModeOverlay} from '../FieldModeOverlay';
 
 import {VoiceInspectionOverlay} from '../components/voice/VoiceInspectionOverlay';
-import {voiceUiActions} from '../state/voiceUiActions';
+// import {voiceUiActions} from '../state/voiceUiActions';
 
 // 🌍 LOCALIZATION
 
@@ -210,7 +210,6 @@ export const ApiaryScreen = () => {
   // --------------------------------------------------
   // 🎤 START VOICE
   // --------------------------------------------------
-
   const handleStartVoice = () => {
     if (!runtime) {
       console.log('❌ Runtime not ready');
@@ -230,8 +229,8 @@ export const ApiaryScreen = () => {
 
     setFieldMode(true);
 
-    // runtime.start();
-    voiceUiActions.listening();
+    runtime.start();
+    // voiceUiActions.listening();
     // voiceUiActions.processing();
     // voiceUiActions.question('Яка сила сімʼї?');
   };
@@ -423,8 +422,7 @@ export const ApiaryScreen = () => {
         <VoiceInspectionOverlay
           visible={fieldMode}
           onStop={() => {
-            disableFieldMode();
-            setFieldMode(false);
+            runtime?.stopInspection();
           }}
         />
 
