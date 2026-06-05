@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   Modal,
   View,
@@ -27,6 +27,8 @@ type Props = {
 
 export function VoiceInspectionOverlay({visible, onStop}: Props) {
   const [state, setState] = useState<VoiceUiState>(getVoiceUiState());
+  const [holdingStop, setHoldingStop] = useState(false);
+  const stopTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const [progress, setProgress] = useState(getVoiceUiContext());
 
@@ -94,6 +96,23 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
     }
   };
 
+  const startStopHold = () => {
+    setHoldingStop(true);
+
+    stopTimeout.current = setTimeout(() => {
+      onStop?.();
+    }, 2000);
+  };
+
+  const cancelStopHold = () => {
+    setHoldingStop(false);
+
+    if (stopTimeout.current) {
+      clearTimeout(stopTimeout.current);
+      stopTimeout.current = null;
+    }
+  };
+
   return (
     <Modal visible={visible} transparent={false} animationType="fade">
       <View style={styles.container}>
@@ -139,8 +158,14 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
           <Text style={styles.micText}>🎤</Text>
         </Animated.View>
 
-        <TouchableOpacity style={styles.stopButton} onPress={onStop}>
-          <Text style={styles.stopText}>⏹ Stop Inspection</Text>
+        <TouchableOpacity
+          style={styles.stopButton}
+          activeOpacity={0.9}
+          onPressIn={startStopHold}
+          onPressOut={cancelStopHold}>
+          <Text style={styles.stopText}>
+            {holdingStop ? '⏹ Keep holding...' : '⏹ Hold to Stop'}
+          </Text>
         </TouchableOpacity>
       </View>
     </Modal>
