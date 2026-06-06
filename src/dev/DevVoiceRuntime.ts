@@ -20,6 +20,8 @@ import i18n from '../localization/i18n';
 import {loadVoiceModel} from '../voice/modelLoader';
 import {getVoiceLanguage} from '../voice/getVoiceLanguage';
 import {voiceModels} from '../voice/voiceLanguage';
+// import {getModelsRootPath} from '../voice/modelStorage';
+import {VoiceModelManager} from '../voice/VoiceModelManager';
 
 const {Vosk} = NativeModules;
 
@@ -126,6 +128,10 @@ export class DevVoiceRuntime {
 
       const voiceLanguage = getVoiceLanguage(language);
 
+      const hasModel = await VoiceModelManager.hasModel(voiceLanguage);
+
+      console.log('📦 MODEL INSTALLED:', hasModel);
+
       const modelPath = voiceModels[voiceLanguage];
 
       console.log('🌍 APP LANGUAGE:', language);
@@ -133,6 +139,7 @@ export class DevVoiceRuntime {
       console.log('📦 VOICE MODEL:', modelPath);
 
       await loadVoiceModel(modelPath);
+      // console.log('📂 MODELS ROOT:', getModelsRootPath());
 
       this.modelLoaded = true;
     }
