@@ -228,7 +228,7 @@ export class DevVoiceRuntime {
       try {
         await Vosk.start({
           sampleRate: 16000,
-          grammar: e.grammar,
+          // grammar: e.grammar,
         });
       } catch (e) {
         console.log('❌ VOSK START FAILED', e);
@@ -322,12 +322,34 @@ export class DevVoiceRuntime {
       await this.driver.handleExternalInput(text);
     });
 
-    this.voskEmitter.addListener('onPartialResult', (e) => {
+    this.voskEmitter.addListener('onPartialResult', async (e) => {
       if (this.stopped) return;
 
       if (Date.now() < this.blockListeningUntil) return;
 
+      const text = String(e ?? '')
+        .trim()
+        .toLowerCase();
+
       console.log('PARTIAL RAW:', JSON.stringify(e));
+
+      if (text === 'так') {
+        console.log('🔥 ACCEPT PARTIAL YES');
+
+        try {
+          await Vosk.stop();
+        } catch {}
+
+        setVoiceUiState({
+          type: 'PROCESSING',
+        });
+
+        await this.driver.handleExternalInput('так');
+      }
+    });
+
+    this.voskEmitter.addListener('onFinalResult', (e) => {
+      console.log('🏁 FINAL RAW:', JSON.stringify(e));
     });
   }
 

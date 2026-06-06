@@ -34,14 +34,14 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
     {
       id: 'CONFIRM',
 
-      grammar: ['так', 'ні'],
+      grammar: ['так'],
 
       question: (session) =>
         `Вулик ${session.hiveNumber}? Скажіть "так" або "ні".`,
 
       normalize: (v) => String(v).toLowerCase().trim(),
 
-      validate: (v) => ['так', 'ні'].includes(v as string),
+      // validate: (v) => ['так', 'ні'].includes(v as string),
 
       retryMessage: 'Скажіть "так" або "ні".',
 
