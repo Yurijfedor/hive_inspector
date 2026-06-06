@@ -15,6 +15,7 @@ import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 import {setVoiceUiState} from '../state/voiceUiStateMachine';
 import {setVoiceUiContext} from '../state/voiceUiContext';
 import {AudioCues} from '../voice/audioCues';
+import {loadVoiceModel} from '../voice/modelLoader';
 
 const {Vosk} = NativeModules;
 
@@ -118,7 +119,7 @@ export class DevVoiceRuntime {
 
     if (!this.modelLoaded) {
       console.log('📦 LOAD VOSK MODEL');
-      await Vosk.loadModel('model');
+      await loadVoiceModel('model');
       this.modelLoaded = true;
     }
 
@@ -228,7 +229,6 @@ export class DevVoiceRuntime {
       try {
         await Vosk.start({
           sampleRate: 16000,
-          // grammar: e.grammar,
         });
       } catch (e) {
         console.log('❌ VOSK START FAILED', e);
