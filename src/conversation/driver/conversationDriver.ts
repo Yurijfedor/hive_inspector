@@ -255,6 +255,7 @@ export class ConversationDriver {
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
       text: question,
+      grammar: step.grammar,
     });
 
     // this.bus.emit({type: 'START_LISTENING'});

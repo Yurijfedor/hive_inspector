@@ -22,7 +22,10 @@ export type StepRuntimeEffect<TSession> = (
 
 export type StepDefinition<TSession> = {
   id: string;
+
   question?: string | ((session: TSession) => string);
+
+  grammar?: string[];
 
   normalize?: (value: unknown) => unknown;
 
@@ -37,10 +40,8 @@ export type StepDefinition<TSession> = {
     value: unknown,
   ) => TSession | StepApplyResult<TSession>;
 
-  /** domain effects */
   afterAccept?: StepEffect<TSession>;
 
-  /** runtime effects */
   runtimeEffects?: StepRuntimeEffect<TSession>;
 };
 

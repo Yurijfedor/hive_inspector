@@ -3,7 +3,11 @@ import {RuntimeEffect} from '../types';
 import {DomainEvent} from '../../domain/events/domainEvents';
 
 export type ConversationEvent =
-  | {type: 'SYSTEM_SPEAK'; text: string}
+  | {
+      type: 'SYSTEM_SPEAK';
+      text: string;
+      grammar?: string[];
+    }
   | {type: 'START_LISTENING'}
   | {type: 'STOP_LISTENING'}
   | {type: 'USER_INPUT'; text: string}

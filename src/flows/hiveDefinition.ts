@@ -19,9 +19,9 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
 
       question: 'Скажіть номер вулика.',
 
-      normalize: v => parseHiveNumber(String(v)),
+      normalize: (v) => parseHiveNumber(String(v)),
 
-      validate: v => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 500,
+      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 500,
 
       retryMessage: 'Я не зрозумів номер. Скажіть номер ще раз.',
 
@@ -34,12 +34,14 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
     {
       id: 'CONFIRM',
 
-      question: session =>
+      grammar: ['так', 'ні'],
+
+      question: (session) =>
         `Вулик ${session.hiveNumber}? Скажіть "так" або "ні".`,
 
-      normalize: v => String(v).toLowerCase().trim(),
+      normalize: (v) => String(v).toLowerCase().trim(),
 
-      validate: v => ['так', 'ні'].includes(v as string),
+      validate: (v) => ['так', 'ні'].includes(v as string),
 
       retryMessage: 'Скажіть "так" або "ні".',
 

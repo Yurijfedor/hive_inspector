@@ -223,9 +223,13 @@ export class DevVoiceRuntime {
       AudioCues.listening();
 
       console.log('🎤 VOSK START (safe)');
+      console.log('🎯 GRAMMAR:', e.grammar);
 
       try {
-        await Vosk.start({sampleRate: 16000});
+        await Vosk.start({
+          sampleRate: 16000,
+          grammar: e.grammar,
+        });
       } catch (e) {
         console.log('❌ VOSK START FAILED', e);
       }
