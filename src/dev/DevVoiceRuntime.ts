@@ -16,6 +16,8 @@ import {setVoiceUiState} from '../state/voiceUiStateMachine';
 import {setVoiceUiContext} from '../state/voiceUiContext';
 import {AudioCues} from '../voice/audioCues';
 import {loadVoiceModel} from '../voice/modelLoader';
+import {getVoiceLanguage} from '../voice/getVoiceLanguage';
+import {voiceModels} from '../voice/voiceLanguage';
 
 const {Vosk} = NativeModules;
 
@@ -119,7 +121,14 @@ export class DevVoiceRuntime {
 
     if (!this.modelLoaded) {
       console.log('📦 LOAD VOSK MODEL');
-      await loadVoiceModel('model');
+      const voiceLanguage = getVoiceLanguage('uk');
+
+      const modelPath = voiceModels[voiceLanguage];
+
+      console.log('🌍 Voice language:', voiceLanguage);
+      console.log('📦 Voice model:', modelPath);
+
+      await loadVoiceModel(modelPath);
       this.modelLoaded = true;
     }
 
