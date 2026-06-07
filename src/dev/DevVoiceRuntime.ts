@@ -128,9 +128,9 @@ export class DevVoiceRuntime {
 
       const voiceLanguage = getVoiceLanguage(language);
 
-      const hasModel = await VoiceModelManager.hasModel(voiceLanguage);
+      const testModelPath = await VoiceModelManager.getModelPath(voiceLanguage);
 
-      console.log('📦 MODEL INSTALLED:', hasModel);
+      console.log('📂 MODEL PATH:', testModelPath);
 
       const modelPath = voiceModels[voiceLanguage];
 

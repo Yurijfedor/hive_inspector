@@ -2,7 +2,7 @@ import RNFS from 'react-native-fs';
 
 import {VoiceLanguage} from './voiceLanguage';
 import {modelFolderNames} from './modelFolderNames';
-import {getModelPath} from './modelStorage';
+import {ensureModelDirectory, getModelPath} from './modelStorage';
 
 export class VoiceModelManager {
   static getModelFolderName(language: VoiceLanguage): string {
@@ -21,5 +21,11 @@ export class VoiceModelManager {
     const folderName = this.getModelFolderName(language);
 
     return getModelPath(folderName);
+  }
+
+  static async prepareModelDirectory(language: VoiceLanguage): Promise<string> {
+    const folderName = this.getModelFolderName(language);
+
+    return ensureModelDirectory(folderName);
   }
 }
