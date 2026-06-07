@@ -31,3 +31,17 @@ export async function ensureModelDirectory(
 
   return modelPath;
 }
+
+export function getDownloadsPath(): string {
+  return `${getModelsRootPath()}/downloads`;
+}
+
+export async function ensureDownloadsDirectory(): Promise<void> {
+  const path = getDownloadsPath();
+
+  const exists = await RNFS.exists(path);
+
+  if (!exists) {
+    await RNFS.mkdir(path);
+  }
+}

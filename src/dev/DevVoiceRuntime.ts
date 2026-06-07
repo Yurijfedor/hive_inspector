@@ -125,21 +125,36 @@ export class DevVoiceRuntime {
 
     if (!this.modelLoaded) {
       const language = i18n.language;
-
       const voiceLanguage = getVoiceLanguage(language);
-
-      const testModelPath = await VoiceModelManager.getModelPath(voiceLanguage);
-
-      console.log('📂 MODEL PATH:', testModelPath);
-
-      const modelPath = voiceModels[voiceLanguage];
 
       console.log('🌍 APP LANGUAGE:', language);
       console.log('🎤 VOICE LANGUAGE:', voiceLanguage);
-      console.log('📦 VOICE MODEL:', modelPath);
 
-      await loadVoiceModel(modelPath);
-      // console.log('📂 MODELS ROOT:', getModelsRootPath());
+      // --------------------------------------------------
+      // NEW MODEL STORAGE (future architecture)
+      // --------------------------------------------------
+
+      const modelDirectory = await VoiceModelManager.prepareModelDirectory(
+        voiceLanguage,
+      );
+
+      const localModelPath = await VoiceModelManager.getModelPath(
+        voiceLanguage,
+      );
+
+      console.log('📁 MODEL DIRECTORY:', modelDirectory);
+
+      console.log('📂 LOCAL MODEL PATH:', localModelPath);
+
+      // --------------------------------------------------
+      // CURRENT ASSETS MODEL (temporary)
+      // --------------------------------------------------
+
+      const assetModelPath = voiceModels[voiceLanguage];
+
+      console.log('📦 ASSET MODEL:', assetModelPath);
+
+      await loadVoiceModel(assetModelPath);
 
       this.modelLoaded = true;
     }
