@@ -1,4 +1,5 @@
 import RNFS from 'react-native-fs';
+import {VoiceLanguage} from './voiceLanguage';
 
 export function getModelsRootPath(): string {
   return `${RNFS.DocumentDirectoryPath}/models`;
@@ -44,4 +45,22 @@ export async function ensureDownloadsDirectory(): Promise<void> {
   if (!exists) {
     await RNFS.mkdir(path);
   }
+}
+
+export function getTempDirectory(): string {
+  return `${getModelsRootPath()}/temp`;
+}
+
+export async function ensureTempDirectory(): Promise<void> {
+  const path = getTempDirectory();
+
+  const exists = await RNFS.exists(path);
+
+  if (!exists) {
+    await RNFS.mkdir(path);
+  }
+}
+
+export function getTempZipPath(language: VoiceLanguage): string {
+  return `${getTempDirectory()}/${language}.zip`;
 }
