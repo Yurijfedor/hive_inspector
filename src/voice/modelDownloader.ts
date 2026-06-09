@@ -5,6 +5,9 @@ export async function downloadFile(
   destination: string,
   onProgress?: (progress: number) => void,
 ): Promise<void> {
+  console.log('⬇️ START DOWNLOAD');
+  console.log('🌐 URL:', url);
+  console.log('💾 DEST:', destination);
   const result = RNFS.downloadFile({
     fromUrl: url,
     toFile: destination,
@@ -20,5 +23,11 @@ export async function downloadFile(
     },
   });
 
+  console.log(result);
+
+  console.log('📥 JOB ID:', result.jobId);
+
   await result.promise;
+
+  console.log('✅ DOWNLOAD FINISHED');
 }

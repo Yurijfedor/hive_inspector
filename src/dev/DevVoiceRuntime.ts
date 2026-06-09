@@ -1,5 +1,6 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
 import Tts from 'react-native-tts';
+import RNFS from 'react-native-fs';
 
 import {EventBus} from '../conversation/driver/eventBus';
 import {ConversationDriver} from '../conversation/driver/conversationDriver';
@@ -145,6 +146,21 @@ export class DevVoiceRuntime {
       console.log('📁 MODEL DIRECTORY:', modelDirectory);
 
       console.log('📂 LOCAL MODEL PATH:', localModelPath);
+
+      const zipPath = await VoiceModelManager.downloadModel(
+        voiceLanguage,
+        (progress) => {
+          console.log(`⬇️ Download: ${(progress * 100).toFixed(0)}%`);
+        },
+      );
+
+      console.log('✅ ZIP DOWNLOADED:', zipPath);
+
+      const exists = await RNFS.exists(zipPath);
+
+      console.log('📦 ZIP EXISTS:', exists);
+
+      return;
 
       // --------------------------------------------------
       // CURRENT ASSETS MODEL (temporary)
