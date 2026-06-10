@@ -159,8 +159,9 @@ export class DevVoiceRuntime {
       const exists = await RNFS.exists(zipPath);
 
       console.log('📦 ZIP EXISTS:', exists);
+      const zipStats = exists ? await RNFS.stat(zipPath) : null;
 
-      return;
+      console.log('📊 ZIP STATS:', zipStats);
 
       // --------------------------------------------------
       // CURRENT ASSETS MODEL (temporary)
