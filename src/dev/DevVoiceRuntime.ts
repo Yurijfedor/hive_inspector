@@ -23,6 +23,7 @@ import {getVoiceLanguage} from '../voice/getVoiceLanguage';
 import {voiceModels} from '../voice/voiceLanguage';
 // import {getModelsRootPath} from '../voice/modelStorage';
 import {VoiceModelManager} from '../voice/VoiceModelManager';
+import {installModel} from '../voice/modelInstaller';
 
 const {Vosk} = NativeModules;
 
@@ -156,9 +157,14 @@ export class DevVoiceRuntime {
 
       console.log('✅ ZIP DOWNLOADED:', zipPath);
 
+      await installModel(zipPath, localModelPath);
+
+      console.log('📦 MODEL UNPACKED');
+
       const exists = await RNFS.exists(zipPath);
 
       console.log('📦 ZIP EXISTS:', exists);
+
       const zipStats = exists ? await RNFS.stat(zipPath) : null;
 
       console.log('📊 ZIP STATS:', zipStats);
@@ -167,13 +173,30 @@ export class DevVoiceRuntime {
       // CURRENT ASSETS MODEL (temporary)
       // --------------------------------------------------
 
-      const assetModelPath = voiceModels[voiceLanguage];
+      // const assetModelPath = voiceModels[voiceLanguage];
 
-      console.log('📦 ASSET MODEL:', assetModelPath);
+      console.log('📦 LOADING LOCAL MODEL:', localModelPath);
 
-      await loadVoiceModel(assetModelPath);
+      const files = await RNFS.readDir(localModelPath);
 
-      this.modelLoaded = true;
+      console.log(
+        '📂 MODEL CONTENT:',
+        files.map((f) => ({
+          name: f.name,
+          isDirectory: f.isDirectory(),
+        })),
+      );
+
+      try {
+        await loadVoiceModel(`${localModelPath}/vosk-model-small-en-us-0.15`);
+
+        console.log('✅ LOCAL MODEL LOADED');
+
+        this.modelLoaded = true;
+      } catch (error) {
+        console.error('❌ LOCAL MODEL LOAD FAILED', error);
+        return;
+      }
     }
 
     this.bindDriverEvents();
