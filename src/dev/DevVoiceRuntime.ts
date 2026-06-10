@@ -1,6 +1,6 @@
 import {NativeModules, NativeEventEmitter} from 'react-native';
 import Tts from 'react-native-tts';
-import RNFS from 'react-native-fs';
+// import RNFS from 'react-native-fs';
 
 import {EventBus} from '../conversation/driver/eventBus';
 import {ConversationDriver} from '../conversation/driver/conversationDriver';
@@ -20,10 +20,10 @@ import {AudioCues} from '../voice/audioCues';
 import i18n from '../localization/i18n';
 import {loadVoiceModel} from '../voice/modelLoader';
 import {getVoiceLanguage} from '../voice/getVoiceLanguage';
-import {voiceModels} from '../voice/voiceLanguage';
+// import {voiceModels} from '../voice/voiceLanguage';
 // import {getModelsRootPath} from '../voice/modelStorage';
 import {VoiceModelManager} from '../voice/VoiceModelManager';
-import {installModel} from '../voice/modelInstaller';
+// import {installModel} from '../voice/modelInstaller';
 
 const {Vosk} = NativeModules;
 
@@ -132,63 +132,17 @@ export class DevVoiceRuntime {
       console.log('🌍 APP LANGUAGE:', language);
       console.log('🎤 VOICE LANGUAGE:', voiceLanguage);
 
-      // --------------------------------------------------
-      // NEW MODEL STORAGE (future architecture)
-      // --------------------------------------------------
-
-      const modelDirectory = await VoiceModelManager.prepareModelDirectory(
-        voiceLanguage,
-      );
-
-      const localModelPath = await VoiceModelManager.getModelPath(
-        voiceLanguage,
-      );
-
-      console.log('📁 MODEL DIRECTORY:', modelDirectory);
-
-      console.log('📂 LOCAL MODEL PATH:', localModelPath);
-
-      const zipPath = await VoiceModelManager.downloadModel(
+      const modelPath = await VoiceModelManager.installModel(
         voiceLanguage,
         (progress) => {
           console.log(`⬇️ Download: ${(progress * 100).toFixed(0)}%`);
         },
       );
 
-      console.log('✅ ZIP DOWNLOADED:', zipPath);
-
-      await installModel(zipPath, localModelPath);
-
-      console.log('📦 MODEL UNPACKED');
-
-      const exists = await RNFS.exists(zipPath);
-
-      console.log('📦 ZIP EXISTS:', exists);
-
-      const zipStats = exists ? await RNFS.stat(zipPath) : null;
-
-      console.log('📊 ZIP STATS:', zipStats);
-
-      // --------------------------------------------------
-      // CURRENT ASSETS MODEL (temporary)
-      // --------------------------------------------------
-
-      // const assetModelPath = voiceModels[voiceLanguage];
-
-      console.log('📦 LOADING LOCAL MODEL:', localModelPath);
-
-      const files = await RNFS.readDir(localModelPath);
-
-      console.log(
-        '📂 MODEL CONTENT:',
-        files.map((f) => ({
-          name: f.name,
-          isDirectory: f.isDirectory(),
-        })),
-      );
+      console.log('📦 LOADING LOCAL MODEL:', modelPath);
 
       try {
-        await loadVoiceModel(`${localModelPath}/vosk-model-small-en-us-0.15`);
+        await loadVoiceModel(modelPath);
 
         console.log('✅ LOCAL MODEL LOADED');
 
