@@ -67,11 +67,13 @@ export class VoiceModelManager {
     language: VoiceLanguage,
     onProgress?: (progress: number) => void,
   ): Promise<string> {
+    // Model already installed
     if (await this.hasModel(language)) {
       const installDirectory = await this.getModelPath(language);
 
       return findModelRoot(installDirectory);
     }
+
     const modelDirectory = await this.prepareModelDirectory(language);
 
     console.log('📁 MODEL DIRECTORY:', modelDirectory);
@@ -88,14 +90,18 @@ export class VoiceModelManager {
 
     console.log('📦 MODEL UNPACKED');
 
-    const exists = await RNFS.exists(zipPath);
+    const modelPath = await findModelRoot(localModelPath);
 
-    console.log('📦 ZIP EXISTS:', exists);
+    try {
+      if (await RNFS.exists(zipPath)) {
+        await RNFS.unlink(zipPath);
 
-    const zipStats = exists ? await RNFS.stat(zipPath) : null;
+        console.log('🗑️ ZIP REMOVED');
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to remove ZIP', error);
+    }
 
-    console.log('📊 ZIP STATS:', zipStats);
-
-    return await findModelRoot(localModelPath);
+    return modelPath;
   }
 }
