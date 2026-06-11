@@ -16,13 +16,9 @@ import {installModel as installModelArchive} from './modelInstaller';
 // import {findModelRoot} from './modelStorage';
 
 export class VoiceModelManager {
-  static getModelFolderName(language: VoiceLanguage): string {
-    return modelFolderNames[language];
-  }
-
   static async hasModel(language: VoiceLanguage): Promise<boolean> {
     try {
-      const installDirectory = await this.getModelPath(language);
+      const installDirectory = this.getInstallDirectory(language);
 
       await findModelRoot(installDirectory);
 
@@ -32,19 +28,52 @@ export class VoiceModelManager {
     }
   }
 
-  static async getModelPath(language: VoiceLanguage): Promise<string> {
-    const folderName = this.getModelFolderName(language);
+  static async installModel(
+    language: VoiceLanguage,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    if (await this.hasModel(language)) {
+      return findModelRoot(this.getInstallDirectory(language));
+    }
 
-    return getModelPath(folderName);
+    const installDirectory = await this.prepareModelDirectory(language);
+
+    console.log('📁 MODEL DIRECTORY:', installDirectory);
+
+    const zipPath = await this.downloadModel(language, onProgress);
+
+    console.log('✅ ZIP DOWNLOADED:', zipPath);
+
+    await installModelArchive(zipPath, installDirectory);
+
+    console.log('📦 MODEL UNPACKED');
+
+    const modelPath = await findModelRoot(installDirectory);
+
+    try {
+      if (await RNFS.exists(zipPath)) {
+        await RNFS.unlink(zipPath);
+
+        console.log('🗑️ ZIP REMOVED');
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to remove ZIP', error);
+    }
+
+    return modelPath;
   }
 
-  static async prepareModelDirectory(language: VoiceLanguage): Promise<string> {
-    const folderName = this.getModelFolderName(language);
-
-    return ensureModelDirectory(folderName);
+  private static getInstallDirectory(language: VoiceLanguage): string {
+    return getModelPath(modelFolderNames[language]);
   }
 
-  static async downloadModel(
+  private static async prepareModelDirectory(
+    language: VoiceLanguage,
+  ): Promise<string> {
+    return ensureModelDirectory(modelFolderNames[language]);
+  }
+
+  private static async downloadModel(
     language: VoiceLanguage,
     onProgress?: (progress: number) => void,
   ): Promise<string> {
@@ -61,47 +90,5 @@ export class VoiceModelManager {
     await downloadFile(model.url, zipPath, onProgress);
 
     return zipPath;
-  }
-
-  static async installModel(
-    language: VoiceLanguage,
-    onProgress?: (progress: number) => void,
-  ): Promise<string> {
-    // Model already installed
-    if (await this.hasModel(language)) {
-      const installDirectory = await this.getModelPath(language);
-
-      return findModelRoot(installDirectory);
-    }
-
-    const modelDirectory = await this.prepareModelDirectory(language);
-
-    console.log('📁 MODEL DIRECTORY:', modelDirectory);
-
-    const localModelPath = await this.getModelPath(language);
-
-    console.log('📂 LOCAL MODEL PATH:', localModelPath);
-
-    const zipPath = await this.downloadModel(language, onProgress);
-
-    console.log('✅ ZIP DOWNLOADED:', zipPath);
-
-    await installModelArchive(zipPath, localModelPath);
-
-    console.log('📦 MODEL UNPACKED');
-
-    const modelPath = await findModelRoot(localModelPath);
-
-    try {
-      if (await RNFS.exists(zipPath)) {
-        await RNFS.unlink(zipPath);
-
-        console.log('🗑️ ZIP REMOVED');
-      }
-    } catch (error) {
-      console.warn('⚠️ Failed to remove ZIP', error);
-    }
-
-    return modelPath;
   }
 }
