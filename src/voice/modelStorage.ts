@@ -68,16 +68,14 @@ export function getTempZipPath(language: VoiceLanguage): string {
 export async function findModelRoot(installDirectory: string): Promise<string> {
   const entries = await RNFS.readDir(installDirectory);
 
-  const directories = entries.filter((item) => item.isDirectory());
+  const directories = entries.filter((entry) => entry.isDirectory());
 
   if (directories.length === 0) {
-    throw new Error(`No model directory found inside ${installDirectory}`);
+    throw new Error(`No model directory found in ${installDirectory}`);
   }
 
   if (directories.length > 1) {
-    throw new Error(
-      `Multiple model directories found inside ${installDirectory}`,
-    );
+    throw new Error(`Multiple model directories found in ${installDirectory}`);
   }
 
   return directories[0].path;

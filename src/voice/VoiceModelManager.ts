@@ -7,6 +7,7 @@ import {
   getModelPath,
   getTempZipPath,
   ensureTempDirectory,
+  findModelRoot,
 } from './modelStorage';
 import {modelRegistry} from './modelRegistry';
 import {downloadFile} from './modelDownloader';
@@ -20,11 +21,15 @@ export class VoiceModelManager {
   }
 
   static async hasModel(language: VoiceLanguage): Promise<boolean> {
-    const folderName = this.getModelFolderName(language);
+    try {
+      const installDirectory = await this.getModelPath(language);
 
-    const modelPath = getModelPath(folderName);
+      await findModelRoot(installDirectory);
 
-    return RNFS.exists(modelPath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   static async getModelPath(language: VoiceLanguage): Promise<string> {
@@ -62,6 +67,11 @@ export class VoiceModelManager {
     language: VoiceLanguage,
     onProgress?: (progress: number) => void,
   ): Promise<string> {
+    if (await this.hasModel(language)) {
+      const installDirectory = await this.getModelPath(language);
+
+      return findModelRoot(installDirectory);
+    }
     const modelDirectory = await this.prepareModelDirectory(language);
 
     console.log('📁 MODEL DIRECTORY:', modelDirectory);
@@ -86,6 +96,6 @@ export class VoiceModelManager {
 
     console.log('📊 ZIP STATS:', zipStats);
 
-    return `${localModelPath}/vosk-model-small-en-us-0.15`;
+    return await findModelRoot(localModelPath);
   }
 }
