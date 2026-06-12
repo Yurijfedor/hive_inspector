@@ -14,4 +14,9 @@ export const enPack: VoiceLanguagePack = {
 
     stopVerbs: [],
   },
+
+  flow: {
+    inspectionWords: [],
+    feedingWords: [],
+  },
 };

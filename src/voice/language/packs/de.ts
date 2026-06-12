@@ -14,4 +14,9 @@ export const dePack: VoiceLanguagePack = {
 
     stopVerbs: [],
   },
+
+  flow: {
+    inspectionWords: [],
+    feedingWords: [],
+  },
 };

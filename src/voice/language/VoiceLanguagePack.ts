@@ -13,4 +13,11 @@ export interface VoiceLanguagePack {
   language: VoiceLanguage;
 
   control: ControlVocabulary;
+
+  flow: FlowVocabulary;
+}
+
+export interface FlowVocabulary {
+  inspectionWords: string[];
+  feedingWords: string[];
 }

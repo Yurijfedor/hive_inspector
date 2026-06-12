@@ -14,4 +14,9 @@ export const ukPack: VoiceLanguagePack = {
 
     stopVerbs: ['заверш', 'закінч', 'стоп', 'припини', 'верш'],
   },
+
+  flow: {
+    inspectionWords: ['огляд'],
+    feedingWords: ['годівл'],
+  },
 };
