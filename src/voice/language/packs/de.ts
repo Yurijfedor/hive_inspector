@@ -3,20 +3,23 @@ import {VoiceLanguagePack} from '../VoiceLanguagePack';
 export const dePack: VoiceLanguagePack = {
   language: 'de',
 
-  control: {
-    pauseWords: [],
+  vocabulary: {
+    control: {
+      pauseWords: [],
 
-    resumeWords: [],
+      resumeWords: [],
 
-    cancelWords: [],
+      cancelWords: [],
 
-    stopKeywords: [],
+      stopKeywords: [],
 
-    stopVerbs: [],
-  },
+      stopVerbs: [],
+    },
 
-  flow: {
-    inspectionWords: [],
-    feedingWords: [],
+    flow: {
+      inspectionWords: [],
+
+      feedingWords: [],
+    },
   },
 };

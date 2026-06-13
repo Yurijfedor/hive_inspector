@@ -28,7 +28,7 @@ export function detectControlIntent(text: string): ControlIntent {
   );
 
   const {pauseWords, resumeWords, cancelWords, stopKeywords, stopVerbs} =
-    language.control;
+    language.vocabulary.control;
 
   if (isStopInspection(normalized, stopVerbs, stopKeywords)) {
     return 'STOP_INSPECTION';

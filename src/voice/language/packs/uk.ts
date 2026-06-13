@@ -3,20 +3,23 @@ import {VoiceLanguagePack} from '../VoiceLanguagePack';
 export const ukPack: VoiceLanguagePack = {
   language: 'uk',
 
-  control: {
-    pauseWords: ['стоп', 'зупини', 'чекай'],
+  vocabulary: {
+    control: {
+      pauseWords: ['стоп', 'зупини', 'чекай'],
 
-    resumeWords: ['продовж', 'далі', 'можна'],
+      resumeWords: ['продовж', 'далі', 'можна'],
 
-    cancelWords: ['скасувати', 'завершити', 'закінчити'],
+      cancelWords: ['скасувати', 'завершити', 'закінчити'],
 
-    stopKeywords: ['огляд'],
+      stopKeywords: ['огляд'],
 
-    stopVerbs: ['заверш', 'закінч', 'стоп', 'припини', 'верш'],
-  },
+      stopVerbs: ['заверш', 'закінч', 'стоп', 'припини', 'верш'],
+    },
 
-  flow: {
-    inspectionWords: ['огляд'],
-    feedingWords: ['годівл'],
+    flow: {
+      inspectionWords: ['огляд'],
+
+      feedingWords: ['годівл'],
+    },
   },
 };

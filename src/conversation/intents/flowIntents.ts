@@ -35,14 +35,14 @@ export function detectFlowIntent(text: string): FlowIntent {
     (i18n.language as 'uk' | 'en' | 'de') ?? 'uk',
   );
 
-  if (includesAny(normalized, language.flow.feedingWords)) {
+  if (includesAny(normalized, language.vocabulary.flow.feedingWords)) {
     return {
       type: 'START_FLOW',
       flowId: 'feeding',
     };
   }
 
-  if (includesAny(normalized, language.flow.inspectionWords)) {
+  if (includesAny(normalized, language.vocabulary.flow.inspectionWords)) {
     return {
       type: 'START_FLOW',
       flowId: 'inspection',
