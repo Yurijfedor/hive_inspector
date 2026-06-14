@@ -18,8 +18,8 @@ export function similarity(a: string, b: string): number {
 export function normalizeText(input: string): string {
   return input
     .toLowerCase()
-    .replace(/[ʼ']/g, '') // апострофи
-    .replace(/[^а-яіїєґ0-9\s]/g, ' ') // шум
+    .replace(/[’ʼ'`´]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
