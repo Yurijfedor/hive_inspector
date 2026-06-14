@@ -1,30 +1,32 @@
+import {normalizeText, scoreIntent} from '../../utils/voiceParser/voiceParser';
+
 export type DomainIntent = 'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING' | 'NONE';
 
 // 🔹 normalize (єдина точка для всіх парсерів)
-function normalizeText(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[’ʼ']/g, '')
-    .replace(/[^а-яіїєґ0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+// function normalizeText(text: string): string {
+//   return text
+//     .toLowerCase()
+//     .replace(/[’ʼ']/g, '')
+//     .replace(/[^а-яіїєґ0-9\s]/g, ' ')
+//     .replace(/\s+/g, ' ')
+//     .trim();
+// }
 
 // 🔹 similarity (той самий lightweight)
-function similarity(a: string, b: string): number {
-  if (a === b) return 1;
-  if (!a || !b) return 0;
+// function similarity(a: string, b: string): number {
+//   if (a === b) return 1;
+//   if (!a || !b) return 0;
 
-  const longer = a.length > b.length ? a : b;
-  const shorter = a.length > b.length ? b : a;
+//   const longer = a.length > b.length ? a : b;
+//   const shorter = a.length > b.length ? b : a;
 
-  let matches = 0;
-  for (let i = 0; i < shorter.length; i++) {
-    if (longer.includes(shorter[i])) matches++;
-  }
+//   let matches = 0;
+//   for (let i = 0; i < shorter.length; i++) {
+//     if (longer.includes(shorter[i])) matches++;
+//   }
 
-  return matches / longer.length;
-}
+//   return matches / longer.length;
+// }
 
 // 🔹 словники (трохи почистив під normalize)
 const swarmWords = [
@@ -79,29 +81,29 @@ const feedingWords = [
 ];
 
 // 🔥 scoring функція
-function scoreIntent(tokens: string[], words: string[]): number {
-  let score = 0;
+// function scoreIntent(tokens: string[], words: string[]): number {
+//   let score = 0;
 
-  for (const token of tokens) {
-    if (token.length < 3) continue;
+//   for (const token of tokens) {
+//     if (token.length < 3) continue;
 
-    for (const word of words) {
-      // exact / includes
-      if (token.includes(word)) {
-        score += 2;
-        continue;
-      }
+//     for (const word of words) {
+//       // exact / includes
+//       if (token.includes(word)) {
+//         score += 2;
+//         continue;
+//       }
 
-      // fuzzy
-      const sim = similarity(token, word);
-      if (sim > 0.7) {
-        score += 1.5;
-      }
-    }
-  }
+//       // fuzzy
+//       const sim = similarity(token, word);
+//       if (sim > 0.7) {
+//         score += 1.5;
+//       }
+//     }
+//   }
 
-  return score;
-}
+//   return score;
+// }
 
 export function detectDomainIntent(input: string): DomainIntent {
   if (!input) return 'NONE';
