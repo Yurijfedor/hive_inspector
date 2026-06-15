@@ -21,5 +21,14 @@ export const enPack: VoiceLanguagePack = {
 
       feedingWords: [],
     },
+
+    domain: {
+      intents: {
+        SWARM: [],
+        SPLIT: [],
+        DISEASE: [],
+        FEEDING: [],
+      },
+    },
   },
 };

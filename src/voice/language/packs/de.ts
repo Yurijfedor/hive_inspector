@@ -21,5 +21,14 @@ export const dePack: VoiceLanguagePack = {
 
       feedingWords: [],
     },
+
+    domain: {
+      intents: {
+        SWARM: [],
+        SPLIT: [],
+        DISEASE: [],
+        FEEDING: [],
+      },
+    },
   },
 };

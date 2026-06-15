@@ -17,10 +17,15 @@ export interface FlowVocabulary {
 export interface VoiceVocabulary {
   control: ControlVocabulary;
   flow: FlowVocabulary;
+  domain: DomainVocabulary;
 }
 
 export interface VoiceLanguagePack {
   language: VoiceLanguage;
 
   vocabulary: VoiceVocabulary;
+}
+
+export interface DomainVocabulary {
+  intents: Record<'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING', string[]>;
 }

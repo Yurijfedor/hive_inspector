@@ -1,5 +1,8 @@
 import {normalizeText, scoreIntent} from '../../utils/voiceParser/voiceParser';
 
+import i18n from '../../localization/i18n';
+import {getVoiceLanguagePack} from '../../voice/language/getVoiceLanguagePack';
+
 export type DomainIntent = 'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING' | 'NONE';
 
 // 🔹 normalize (єдина точка для всіх парсерів)
@@ -29,56 +32,56 @@ export type DomainIntent = 'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING' | 'NONE';
 // }
 
 // 🔹 словники (трохи почистив під normalize)
-const swarmWords = [
-  'рій',
-  'роїння',
-  'роїться',
-  'маточн',
-  'маточник',
-  'маточники',
-  'рі',
-  'мат',
-];
+// const swarmWords = [
+//   'рій',
+//   'роїння',
+//   'роїться',
+//   'маточн',
+//   'маточник',
+//   'маточники',
+//   'рі',
+//   'мат',
+// ];
 
-const splitWords = [
-  'відводок',
-  'відводки',
-  'відвод',
-  'відводу',
-  'розділив',
-  'відводи',
-  'вод',
-];
+// const splitWords = [
+//   'відводок',
+//   'відводки',
+//   'відвод',
+//   'відводу',
+//   'розділив',
+//   'відводи',
+//   'вод',
+// ];
 
-const diseaseWords = [
-  'хвороб',
-  'проблем',
-  'вароа',
-  'варооз',
-  'кліщ',
-  'понос',
-  'пронос',
-  'крила',
-  'деформ',
-  'слабкий розплід',
-  'дірявий розплід',
-];
+// const diseaseWords = [
+//   'хвороб',
+//   'проблем',
+//   'вароа',
+//   'варооз',
+//   'кліщ',
+//   'понос',
+//   'пронос',
+//   'крила',
+//   'деформ',
+//   'слабкий розплід',
+//   'дірявий розплід',
+// ];
 
-const feedingWords = [
-  'корм',
-  'кормити',
-  'підгод',
-  'підкорм',
-  'сироп',
-  'цукор',
-  'кормлю',
-  'кормлення',
-  'годівля',
-  'годувати',
-  'годування',
-  'годую',
-  'годуй',
-];
+// const feedingWords = [
+//   'корм',
+//   'кормити',
+//   'підгод',
+//   'підкорм',
+//   'сироп',
+//   'цукор',
+//   'кормлю',
+//   'кормлення',
+//   'годівля',
+//   'годувати',
+//   'годування',
+//   'годую',
+//   'годуй',
+// ];
 
 // 🔥 scoring функція
 // function scoreIntent(tokens: string[], words: string[]): number {
@@ -108,15 +111,21 @@ const feedingWords = [
 export function detectDomainIntent(input: string): DomainIntent {
   if (!input) return 'NONE';
 
+  const language = getVoiceLanguagePack(
+    (i18n.language as 'uk' | 'en' | 'de') ?? 'uk',
+  );
+
+  const intents = language.vocabulary.domain.intents;
+
   const text = normalizeText(input);
   const tokens = text.split(' ');
 
   // 🔥 score кожного інтенду
   const scores = {
-    SWARM: scoreIntent(tokens, swarmWords),
-    SPLIT: scoreIntent(tokens, splitWords),
-    DISEASE: scoreIntent(tokens, diseaseWords),
-    FEEDING: scoreIntent(tokens, feedingWords),
+    SWARM: scoreIntent(tokens, intents.SWARM),
+    SPLIT: scoreIntent(tokens, intents.SPLIT),
+    DISEASE: scoreIntent(tokens, intents.DISEASE),
+    FEEDING: scoreIntent(tokens, intents.FEEDING),
   };
 
   // 🔥 знайти максимум
