@@ -78,17 +78,7 @@ export const ukPack: VoiceLanguagePack = {
     },
 
     numbers: {
-      cardinal: {
-        units: {},
-
-        teens: {},
-
-        tens: {},
-
-        hundreds: {},
-
-        thousands: {},
-      },
+      cardinal: {},
     },
   },
 };

@@ -31,17 +31,7 @@ export const dePack: VoiceLanguagePack = {
       },
     },
     numbers: {
-      cardinal: {
-        units: {},
-
-        teens: {},
-
-        tens: {},
-
-        hundreds: {},
-
-        thousands: {},
-      },
+      cardinal: {},
     },
   },
 };
