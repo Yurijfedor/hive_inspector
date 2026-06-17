@@ -24,6 +24,10 @@ export function normalizeText(input: string): string {
     .trim();
 }
 
+export function tokenize(input: string): string[] {
+  return normalizeText(input).split(/\s+/).filter(Boolean);
+}
+
 // 🔹 fuzzy lookup
 export function fuzzyLookup(
   word: string,
