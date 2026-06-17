@@ -31,8 +31,17 @@ export const dePack: VoiceLanguagePack = {
       },
     },
     numbers: {
-      units: {},
-      tens: {},
+      cardinal: {
+        units: {},
+
+        teens: {},
+
+        tens: {},
+
+        hundreds: {},
+
+        thousands: {},
+      },
     },
   },
 };

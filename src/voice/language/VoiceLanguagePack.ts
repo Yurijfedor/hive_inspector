@@ -31,7 +31,18 @@ export interface DomainVocabulary {
   intents: Record<'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING', string[]>;
 }
 
-export interface NumberVocabulary {
+export interface CardinalNumberVocabulary {
   units: Record<string, number>;
+
+  teens: Record<string, number>;
+
   tens: Record<string, number>;
+
+  hundreds: Record<string, number>;
+
+  thousands: Record<string, number>;
+}
+
+export interface NumberVocabulary {
+  cardinal: CardinalNumberVocabulary;
 }
