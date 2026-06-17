@@ -76,5 +76,10 @@ export const ukPack: VoiceLanguagePack = {
         ],
       },
     },
+
+    numbers: {
+      units: {},
+      tens: {},
+    },
   },
 };

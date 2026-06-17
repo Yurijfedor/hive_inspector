@@ -30,5 +30,9 @@ export const dePack: VoiceLanguagePack = {
         FEEDING: [],
       },
     },
+    numbers: {
+      units: {},
+      tens: {},
+    },
   },
 };
