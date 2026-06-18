@@ -11,7 +11,7 @@ import database from '@react-native-firebase/database';
 import {useNavigation} from '@react-navigation/native';
 
 import {useAuth} from '../auth/AuthProvider';
-import {auth} from '../firebase/firebase';
+// import {auth} from '../firebase/firebase';
 import {DevVoiceRuntime} from '../dev/DevVoiceRuntime';
 import {TaskRepository} from '../domain/repositories/taskRepository';
 import {generateTasksForApiary} from '../services/ai/generateTasks';
@@ -63,16 +63,6 @@ export const DevScreen = () => {
     console.log('🔄 MANUAL SYNC START');
 
     await syncHiveContexts(userId);
-  };
-
-  const handleSignOut = async () => {
-    console.log('SIGN OUT PRESSED');
-
-    try {
-      await auth().signOut();
-    } catch (e) {
-      console.log('SIGN OUT ERROR:', e);
-    }
   };
 
   const testHiveSync = async () => {
@@ -135,10 +125,6 @@ export const DevScreen = () => {
       <Text style={{marginBottom: 20}}>User: {userId}</Text>
 
       <Button title="🔄 Sync Hives" onPress={runTestSync} />
-
-      <View style={{marginTop: 20}}>
-        <Button title="SignOut" onPress={handleSignOut} />
-      </View>
 
       <View style={{marginTop: 20}}>
         <Button title="Test Hive Sync" onPress={testHiveSync} />
