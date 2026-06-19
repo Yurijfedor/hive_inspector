@@ -1,28 +1,12 @@
-import {NumberParseContext, NumberParseResult} from './types';
+import {NumberEngineOptions, NumberParseResult} from './types';
 
 export class NumberEngine {
-  parse(tokens: string[], context: NumberParseContext): NumberParseResult {
-    if (tokens.length === 0) {
-      return {
-        success: false,
-        value: null,
-      };
-    }
+  constructor(private readonly options: NumberEngineOptions) {}
 
-    const token = tokens[0];
-
-    const value = context.lexicon.cardinal[token];
-
-    if (value === undefined) {
-      return {
-        success: false,
-        value: null,
-      };
-    }
-
+  parse(input: string): NumberParseResult {
     return {
-      success: true,
-      value,
+      success: false,
+      value: null,
     };
   }
 }

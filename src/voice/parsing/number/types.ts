@@ -2,7 +2,7 @@ export interface NumberLexicon {
   cardinal: Record<string, number>;
 }
 
-export interface NumberParseContext {
+export interface NumberEngineOptions {
   lexicon: NumberLexicon;
 }
 
