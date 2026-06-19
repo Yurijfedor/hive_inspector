@@ -7,7 +7,5 @@ export interface NumberEngineOptions {
 }
 
 export interface NumberParseResult {
-  success: boolean;
-
   value: number | null;
 }
