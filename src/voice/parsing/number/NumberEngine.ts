@@ -13,10 +13,18 @@ export class NumberEngine {
       };
     }
 
-    const value = this.options.lexicon.cardinal[tokens[0]];
+    for (const token of tokens) {
+      const value = this.options.lexicon.cardinal[token];
+
+      if (value !== undefined) {
+        return {
+          value,
+        };
+      }
+    }
 
     return {
-      value: value ?? null,
+      value: null,
     };
   }
 }
