@@ -11,9 +11,10 @@ export class NumberEngine {
 
   parse(input: string): NumberParseResult {
     const tokens = tokenize(input);
+    const matches = this.strategy.parse(tokens, this.options.lexicon.cardinal);
 
     return {
-      value: this.strategy.parse(tokens, this.options.lexicon.cardinal),
+      value: matches.length ? matches[0].value : null,
     };
   }
 }

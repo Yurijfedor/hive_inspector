@@ -9,3 +9,9 @@ export interface NumberEngineOptions {
 export interface NumberParseResult {
   value: number | null;
 }
+
+export interface NumberToken {
+  token: string;
+
+  value: number;
+}

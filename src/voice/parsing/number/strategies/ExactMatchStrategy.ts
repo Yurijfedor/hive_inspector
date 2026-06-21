@@ -1,15 +1,21 @@
-import {NumberStrategy} from './NumberStrategy';
+import { NumberStrategy } from './NumberStrategy';
+import { NumberToken } from '../types';
 
 export class ExactMatchStrategy implements NumberStrategy {
-  parse(tokens: string[], lexicon: Record<string, number>): number | null {
-    for (const token of tokens) {
-      const value = lexicon[token];
+    parse(tokens: string[], lexicon: Record<string, number>): NumberToken[] {
+        const result: NumberToken[] = [];
 
-      if (value !== undefined) {
-        return value;
-      }
+        for (const token of tokens) {
+            const value = lexicon[token];
+
+            if (value !== undefined) {
+                result.push({
+                    token,
+                    value,
+                });
+            }
+        }
+
+        return result;
     }
-
-    return null;
-  }
 }
