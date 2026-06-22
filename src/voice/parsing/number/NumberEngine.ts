@@ -3,9 +3,12 @@ import {tokenize} from '../../../utils/voiceParser/voiceParser';
 import {ExactMatchStrategy} from './strategies/ExactMatchStrategy';
 
 import {NumberEngineOptions, NumberParseResult} from './types';
+import {NumberRules} from './rules/NumberRules';
 
 export class NumberEngine {
   private readonly strategy = new ExactMatchStrategy();
+
+  private readonly rules = new NumberRules();
 
   constructor(private readonly options: NumberEngineOptions) {}
 
@@ -14,7 +17,7 @@ export class NumberEngine {
     const matches = this.strategy.parse(tokens, this.options.lexicon.cardinal);
 
     return {
-      value: matches.length ? matches[0].value : null,
+      value: this.rules.compose(matches),
     };
   }
 }
