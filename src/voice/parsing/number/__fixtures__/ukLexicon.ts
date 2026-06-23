@@ -1,15 +1,48 @@
 import {createLexicon} from '../createLexicon';
 
 export const ukLexicon = createLexicon({
-  один: 1,
-  одна: 1,
+  один: {
+    value: 1,
+    type: 'UNIT',
+  },
 
-  два: 2,
-  дві: 2,
+  одна: {
+    value: 1,
+    type: 'UNIT',
+  },
 
-  три: 3,
+  два: {
+    value: 2,
+    type: 'UNIT',
+  },
 
-  чотири: 4,
+  дві: {
+    value: 2,
+    type: 'UNIT',
+  },
 
-  "п'ять": 5,
+  три: {
+    value: 3,
+    type: 'UNIT',
+  },
+
+  чотири: {
+    value: 4,
+    type: 'UNIT',
+  },
+
+  "п'ять": {
+    value: 5,
+    type: 'UNIT',
+  },
+
+  двадцять: {
+    value: 20,
+    type: 'TENS',
+  },
+
+  тридцять: {
+    value: 30,
+    type: 'TENS',
+  },
 });

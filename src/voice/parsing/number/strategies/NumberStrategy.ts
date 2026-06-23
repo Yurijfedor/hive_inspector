@@ -1,5 +1,8 @@
-import {NumberToken} from '../types';
+import {NumberToken, NumberTokenDefinition} from '../types';
 
 export interface NumberStrategy {
-  parse(tokens: string[], lexicon: Record<string, number>): NumberToken[];
+  parse(
+    tokens: string[],
+    lexicon: Record<string, NumberTokenDefinition>,
+  ): NumberToken[];
 }

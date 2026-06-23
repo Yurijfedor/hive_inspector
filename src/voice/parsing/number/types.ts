@@ -1,5 +1,5 @@
 export interface NumberLexicon {
-  cardinal: Record<string, number>;
+  cardinal: Record<string, NumberTokenDefinition>;
 }
 
 export interface NumberEngineOptions {
@@ -14,4 +14,14 @@ export interface NumberToken {
   token: string;
 
   value: number;
+
+  type: NumberTokenType;
+}
+
+export type NumberTokenType = 'UNIT' | 'TENS' | 'MULTIPLIER';
+
+export interface NumberTokenDefinition {
+  value: number;
+
+  type: NumberTokenType;
 }

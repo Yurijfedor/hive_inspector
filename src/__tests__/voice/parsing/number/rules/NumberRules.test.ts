@@ -9,6 +9,7 @@ describe('NumberRules', () => {
         {
           token: 'пять',
           value: 5,
+          type: 'UNIT',
         },
       ]),
     ).toBe(5);
@@ -28,10 +29,12 @@ describe('NumberRules', () => {
         {
           token: 'двадцять',
           value: 20,
+          type: 'TENS',
         },
         {
           token: 'один',
           value: 1,
+          type: 'UNIT',
         },
       ]),
     ).toBe(21);
@@ -41,10 +44,12 @@ describe('NumberRules', () => {
         {
           token: 'тридцять',
           value: 30,
+          type: 'TENS',
         },
         {
           token: 'пять',
           value: 5,
+          type: 'UNIT',
         },
       ]),
     ).toBe(35);
