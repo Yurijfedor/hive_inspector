@@ -54,4 +54,66 @@ describe('NumberRules', () => {
       ]),
     ).toBe(35);
   });
+
+  it('composes hundreds', () => {
+    const rules = new NumberRules();
+
+    expect(
+      rules.compose([
+        {
+          token: 'сто',
+          value: 100,
+          type: 'MULTIPLIER',
+        },
+        {
+          token: 'двадцять',
+          value: 20,
+          type: 'TENS',
+        },
+        {
+          token: 'три',
+          value: 3,
+          type: 'UNIT',
+        },
+      ]),
+    ).toBe(123);
+  });
+
+  it('composes hundred and unit', () => {
+    const rules = new NumberRules();
+
+    expect(
+      rules.compose([
+        {
+          token: 'сто',
+          value: 100,
+          type: 'MULTIPLIER',
+        },
+        {
+          token: 'три',
+          value: 3,
+          type: 'UNIT',
+        },
+      ]),
+    ).toBe(103);
+  });
+
+  it('composes hundred and tens', () => {
+    const rules = new NumberRules();
+
+    expect(
+      rules.compose([
+        {
+          token: 'сто',
+          value: 100,
+          type: 'MULTIPLIER',
+        },
+        {
+          token: 'двадцять',
+          value: 20,
+          type: 'TENS',
+        },
+      ]),
+    ).toBe(120);
+  });
 });
