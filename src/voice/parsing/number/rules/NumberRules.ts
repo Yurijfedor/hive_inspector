@@ -6,6 +6,25 @@ export class NumberRules {
       return null;
     }
 
-    return tokens.reduce((sum, token) => sum + token.value, 0);
+    let result = 0;
+
+    for (const token of tokens) {
+      switch (token.type) {
+        case 'UNIT':
+        case 'TENS':
+          result += token.value;
+          break;
+
+        case 'HUNDRED':
+          if (result === 0) {
+            result += token.value;
+          } else {
+            result *= token.value;
+          }
+          break;
+      }
+    }
+
+    return result;
   }
 }

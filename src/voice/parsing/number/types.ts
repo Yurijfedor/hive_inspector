@@ -18,7 +18,7 @@ export interface NumberToken {
   type: NumberTokenType;
 }
 
-export type NumberTokenType = 'UNIT' | 'TENS' | 'MULTIPLIER';
+export type NumberTokenType = 'UNIT' | 'TENS' | 'HUNDRED' | 'SCALE';
 
 export interface NumberTokenDefinition {
   value: number;

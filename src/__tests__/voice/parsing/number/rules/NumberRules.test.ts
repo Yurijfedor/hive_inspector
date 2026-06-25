@@ -63,7 +63,7 @@ describe('NumberRules', () => {
         {
           token: 'сто',
           value: 100,
-          type: 'MULTIPLIER',
+          type: 'HUNDRED',
         },
         {
           token: 'двадцять',
@@ -87,7 +87,7 @@ describe('NumberRules', () => {
         {
           token: 'сто',
           value: 100,
-          type: 'MULTIPLIER',
+          type: 'HUNDRED',
         },
         {
           token: 'три',
@@ -106,7 +106,7 @@ describe('NumberRules', () => {
         {
           token: 'сто',
           value: 100,
-          type: 'MULTIPLIER',
+          type: 'HUNDRED',
         },
         {
           token: 'двадцять',
@@ -115,5 +115,24 @@ describe('NumberRules', () => {
         },
       ]),
     ).toBe(120);
+  });
+
+  it('composes multiplier expressions', () => {
+    const rules = new NumberRules();
+
+    expect(
+      rules.compose([
+        {
+          token: 'два',
+          value: 2,
+          type: 'UNIT',
+        },
+        {
+          token: 'сто',
+          value: 100,
+          type: 'HUNDRED',
+        },
+      ]),
+    ).toBe(200);
   });
 });
