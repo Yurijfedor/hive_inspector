@@ -1,0 +1,1 @@
+export {ukLexicon} from './uk';
