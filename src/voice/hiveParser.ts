@@ -62,26 +62,21 @@ export function parseHiveNumber(input: string): number | null {
   const tokens = input.split(/\s+/);
 
   for (let i = 0; i < tokens.length; i++) {
-    const current = tokens[i];
-    const next = tokens[i + 1];
+    const phrase = tokens.slice(i).join(' ');
 
-    if (next) {
-      const combined = `${current} ${next}`;
+    const value = parseNumber(phrase);
 
-      const value = parseNumber(combined);
-
-      if (value !== null) {
-        return value;
-      }
+    if (value !== null) {
+      return value;
     }
 
-    const single = parseNumber(current);
+    const single = parseNumber(tokens[i]);
 
     if (single !== null) {
       return single;
     }
 
-    const numeric = Number(current);
+    const numeric = Number(tokens[i]);
 
     if (!Number.isNaN(numeric)) {
       return numeric;

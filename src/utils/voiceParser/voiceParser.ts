@@ -61,15 +61,17 @@ export function scoreIntent(tokens: string[], vocabulary: string[]): number {
     }
 
     for (const word of vocabulary) {
-      // exact / includes
       if (token.includes(word)) {
         score += 2;
         continue;
       }
 
-      // fuzzy
-      if (similarity(token, word) > 0.7) {
-        score += 1.5;
+      if (
+        token.length >= 5 &&
+        word.length >= 5 &&
+        similarity(token, word) >= 0.9
+      ) {
+        score += 1;
       }
     }
   }
