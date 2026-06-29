@@ -27,6 +27,18 @@ import {VoiceModelManager} from '../voice/VoiceModelManager';
 
 const {Vosk} = NativeModules;
 
+/**
+ * Voice runtime timing configuration.
+ *
+ * These values are not part of the normal pipeline.
+ * Under normal conditions TTS completion is driven by the
+ * 'tts-finish' event.
+ *
+ * Timeout is only an emergency fallback in case the platform
+ * TTS engine never reports completion.
+ */
+const TTS_TIMEOUT_MS = 10000;
+
 export class DevVoiceRuntime {
   constructor(private uid: string) {}
 
@@ -69,12 +81,16 @@ export class DevVoiceRuntime {
   // --------------------------------------------------
 
   private initTts() {
-    if (this.ttsInitialized) return;
+    if (this.ttsInitialized) {
+      return;
+    }
 
     this.ttsInitialized = true;
 
     Tts.removeAllListeners('tts-finish');
     Tts.removeAllListeners('tts-cancel');
+
+    Tts.addEventListener('tts-start', () => {});
 
     Tts.addEventListener('tts-finish', () => {
       this.ttsResolve?.();
@@ -82,8 +98,14 @@ export class DevVoiceRuntime {
     });
 
     Tts.addEventListener('tts-cancel', () => {
+      console.log('🟡 TTS CANCEL');
+
       this.ttsResolve?.();
       this.ttsResolve = null;
+    });
+
+    Tts.addEventListener('tts-error', (e) => {
+      console.log('🔴 TTS ERROR', e);
     });
   }
 
@@ -108,11 +130,12 @@ export class DevVoiceRuntime {
       // 🔥 fallback
       setTimeout(() => {
         if (!resolved) {
-          console.log('⚠️ TTS fallback resolve');
+          console.warn('⚠️ TTS timeout fallback');
+
           resolved = true;
           resolve();
         }
-      }, 2500);
+      }, TTS_TIMEOUT_MS);
     });
   }
 

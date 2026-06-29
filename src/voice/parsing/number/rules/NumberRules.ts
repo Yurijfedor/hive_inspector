@@ -24,6 +24,7 @@ export class NumberRules {
           break;
       }
     }
+    console.log('🔢 RESULT:', result);
 
     return result;
   }

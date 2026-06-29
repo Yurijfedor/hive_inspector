@@ -6,7 +6,7 @@ export async function handleInspection(
   command: InspectionCommand,
 ): Promise<InspectionEvent> {
   validateInspectionCommand(command, (hiveNumber) => {
-    return hiveNumber >= 1 && hiveNumber <= 100;
+    return hiveNumber >= 1 && hiveNumber <= 1000;
   });
 
   if (command.stop) {

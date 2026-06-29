@@ -21,7 +21,8 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
 
       normalize: (v) => parseHiveNumber(String(v)),
 
-      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 500,
+      validate: (v) =>
+        typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 1000,
 
       retryMessage: 'Я не зрозумів номер. Скажіть номер ще раз.',
 

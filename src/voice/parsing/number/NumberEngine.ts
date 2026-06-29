@@ -16,6 +16,9 @@ export class NumberEngine {
     const tokens = tokenize(input);
     const matches = this.strategy.parse(tokens, this.options.lexicon.cardinal);
 
+    console.log('🔢 TOKENS:', tokens);
+    console.log('🔢 MATCHES:', matches);
+
     return {
       value: this.rules.compose(matches),
     };
