@@ -32,6 +32,10 @@ export const enPack: VoiceLanguagePack = {
     },
     numbers: {
       cardinal: {},
+
+      keywords: {
+        thousand: ['thousand'],
+      },
     },
   },
 };

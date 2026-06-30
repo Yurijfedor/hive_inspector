@@ -18,7 +18,7 @@ export interface VoiceVocabulary {
   control: ControlVocabulary;
   flow: FlowVocabulary;
   domain: DomainVocabulary;
-  numbers: NumberLexicon;
+  numbers: NumberVocabulary;
 }
 
 export interface VoiceLanguagePack {
@@ -29,6 +29,14 @@ export interface VoiceLanguagePack {
 
 export interface DomainVocabulary {
   intents: Record<'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING', string[]>;
+}
+
+export interface NumberVocabulary {
+  cardinal: Record<string, number>;
+
+  keywords: {
+    thousand: string[];
+  };
 }
 
 export interface NumberLexicon {

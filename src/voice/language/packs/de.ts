@@ -32,6 +32,10 @@ export const dePack: VoiceLanguagePack = {
     },
     numbers: {
       cardinal: {},
+
+      keywords: {
+        thousand: ['tausend'],
+      },
     },
   },
 };

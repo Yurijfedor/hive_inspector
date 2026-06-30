@@ -1,68 +1,52 @@
-import {
-  normalizeText,
-  similarity,
-  fuzzyLookup,
-} from '../utils/voiceParser/voiceParser';
+import i18n from '../localization/i18n';
+import {getVoiceLanguagePack} from './language/getVoiceLanguagePack';
+
+import {similarity} from '../utils/voiceParser/voiceParser';
+
+import {NumberEngine} from './parsing/number';
+import {tokenize} from '../utils/voiceParser/voiceParser';
+import {ukLexicon} from './parsing/number/lexicons/uk';
+
+const engine = new NumberEngine({
+  lexicon: ukLexicon,
+});
 
 export function parseYear(input: unknown): number | null {
-  if (!input) return null;
+  if (!input) {
+    return null;
+  }
 
-  const raw = String(input);
-  const text = normalizeText(raw);
+  const text = String(input);
 
-  // 🔢 пряме число (але тільки якщо адекватне)
+  // пряме число
   const direct = Number(text);
-  if (!isNaN(direct) && direct > 1900 && direct < 2100) {
+
+  if (!Number.isNaN(direct) && direct > 1900 && direct < 2100) {
     return direct;
   }
 
-  const map: Record<string, number> = {
-    нуль: 0,
-    один: 1,
-    одна: 1,
-    два: 2,
-    дві: 2,
-    три: 3,
-    чотири: 4,
-    пять: 5,
-    шість: 6,
-    сім: 7,
-    вісім: 8,
-    девять: 9,
-    десять: 10,
-    одинадцять: 11,
-    дванадцять: 12,
-    тринадцять: 13,
-    чотирнадцять: 14,
-    пятнадцять: 15,
-    шістнадцять: 16,
-    сімнадцять: 17,
-    вісімнадцять: 18,
-    девятнадцять: 19,
-    двадцять: 20,
-    тридцять: 30,
-  };
+  const tokens = tokenize(text);
 
-  // 🔹 токени (ВАЖЛИВО для ASR)
-  const tokens = text.split(' ');
+  const language = getVoiceLanguagePack(
+    (i18n.language as 'uk' | 'en' | 'de') ?? 'uk',
+  );
 
-  // 👉 fuzzy detection "тисяч"
-  const hasThousands = tokens.some((t) => similarity(t, 'тисяч') > 0.6);
+  const thousandWords = language.vocabulary.numbers.keywords.thousand;
 
-  if (!hasThousands) return null;
+  const index = tokens.findIndex((token) =>
+    thousandWords.some((word) => similarity(token, word) > 0.6),
+  );
 
-  let year = 2000;
+  if (index === -1) {
+    return null;
+  }
+  const tail = tokens.slice(index + 1).join(' ');
 
-  // беремо все після "тисяч"
-  const index = tokens.findIndex((t) => similarity(t, 'тисяч') > 0.6);
-  const rest = tokens.slice(index + 1);
+  const result = engine.parse(tail);
 
-  for (const word of rest) {
-    const value = fuzzyLookup(word, map);
-    if (value !== null) {
-      year += value;
-    }
+  if (result.value === null) {
+    return null;
   }
 
-  return year;
+  return 2000 + result.value;
 }

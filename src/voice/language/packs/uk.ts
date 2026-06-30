@@ -79,6 +79,10 @@ export const ukPack: VoiceLanguagePack = {
 
     numbers: {
       cardinal: {},
+
+      keywords: {
+        thousand: ['тисяча', 'тисячі', 'тисяч'],
+      },
     },
   },
 };
