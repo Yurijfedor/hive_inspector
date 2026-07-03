@@ -7,3 +7,12 @@ export function createNumberEngine(lexicon: NumberLexicon = ukLexicon) {
     lexicon,
   });
 }
+
+// import {NumberEngine} from './NumberEngine';
+// import {ukLexicon} from './lexicons';
+
+// export function createNumberEngine() {
+//   return new NumberEngine({
+//     lexicon: ukLexicon,
+//   });
+// }

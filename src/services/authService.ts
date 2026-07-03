@@ -156,3 +156,36 @@ export async function ensureUserExists(uid: string) {
     });
   }
 }
+
+// export async function ensureUserExists(uid: string) {
+//   try {
+//     console.log('1️⃣ before ref');
+
+//     // const ref = database().ref(`/users/${uid}`);
+//     const ref = database().ref('/');
+
+//     console.log('2️⃣ before once');
+//     console.log('DB URL:', database().app.options.databaseURL);
+//     console.log('UID:', uid);
+//     const snapshot = await ref.once('value');
+//     // const snapshot = await ref.get();
+
+//     console.log('3️⃣ after once', snapshot.exists());
+
+//     if (!snapshot.exists()) {
+//       console.log('4️⃣ creating user');
+
+//       await ref.set({
+//         role: 'user',
+//         createdAt: Date.now(),
+//       });
+
+//       console.log('5️⃣ user created');
+//     }
+
+//     console.log('6️⃣ done');
+//   } catch (e) {
+//     console.log('❌ ensureUserExists ERROR', e);
+//     throw e;
+//   }
+// }

@@ -71,7 +71,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         } else {
           if (isMounted) {
             setUser(u);
+            console.log('BEFORE ensureUserExists');
+
             await ensureUserExists(u.uid);
+
+            console.log('AFTER ensureUserExists');
           }
         }
 
@@ -111,6 +115,25 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         }
       },
     );
+
+    // const listener = ref.on(
+    //   'value',
+    //   (snapshot: FirebaseDatabaseTypes.DataSnapshot) => {
+    //     const value = snapshot.val();
+
+    //     console.log('👤 USER ROLE:', value);
+
+    //     if (value === 'admin') {
+    //       setRole('admin');
+    //     } else {
+    //       setRole('user');
+    //     }
+
+    //     console.log('✅ ROLE SET');
+    //   },
+    // );
+
+    console.log('📡 ROLE LISTENER ATTACHED');
 
     return () => ref.off('value', listener);
   }, [user]);
