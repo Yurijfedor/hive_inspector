@@ -1,11 +1,11 @@
-import {NativeModules} from 'react-native';
+// import {NativeModules} from 'react-native';
 
-const {VoiceService} = NativeModules;
+// const {VoiceService} = NativeModules;
 
-export const startVoice = () => {
-  VoiceService.startService();
-};
+// export const startVoice = () => {
+//   VoiceService.startService();
+// };
 
-export const stopVoice = () => {
-  VoiceService.stopService();
-};
+// export const stopVoice = () => {
+//   VoiceService.stopService();
+// };

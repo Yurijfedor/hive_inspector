@@ -8,8 +8,8 @@ import {ConversationEvent} from '../conversation/driver/events';
 
 import {InMemoryRuntimePersistence} from '../conversation/InMemoryRuntimePersistence';
 
-import {WakeWordController} from '../voice/WakeWordController';
-import {PorcupineEngine} from '../voice/porcupineEngine';
+// import {WakeWordController} from '../voice/WakeWordController';
+// import {PorcupineEngine} from '../voice/porcupineEngine';
 
 import {handleDomainEvent} from '../domain/handlers/handleDomainEvent';
 
@@ -48,9 +48,10 @@ export class DevVoiceRuntime {
   private persistence = new InMemoryRuntimePersistence();
   private driver = new ConversationDriver(this.bus, this.persistence, this.uid);
 
-  private porcupine = new PorcupineEngine();
+  // private porcupine = new PorcupineEngine();
 
   private speaking = false;
+  private listening = false;
   private stopped = false;
   private modelLoaded = false;
 
@@ -69,12 +70,12 @@ export class DevVoiceRuntime {
     };
   }
 
-  private wakeController = new WakeWordController(
-    this.driver,
-    this.bus,
-    () => this.startPorcupine(),
-    () => this.stopPorcupine(),
-  );
+  // private wakeController = new WakeWordController(
+  //   this.driver,
+  //   this.bus,
+  //   () => this.startPorcupine(),
+  //   () => this.stopPorcupine(),
+  // );
 
   // --------------------------------------------------
   // INIT TTS
@@ -144,6 +145,11 @@ export class DevVoiceRuntime {
   // --------------------------------------------------
 
   async start() {
+    if (this.listening) {
+      console.log('🎤 already listening');
+      return;
+    }
+
     console.log('🚀 DEV VOICE RUNTIME START');
 
     await this.reset();
@@ -168,6 +174,11 @@ export class DevVoiceRuntime {
         await loadVoiceModel(modelPath);
 
         console.log('✅ LOCAL MODEL LOADED');
+        console.log('⏳ WAIT AFTER LOAD');
+
+        await new Promise((r) => setTimeout(r, 3000));
+
+        console.log('✅ WAIT FINISHED');
 
         this.modelLoaded = true;
       } catch (error) {
@@ -179,9 +190,25 @@ export class DevVoiceRuntime {
     this.bindDriverEvents();
     this.bindVoskEvents();
 
-    await this.wakeController.start();
+    // await this.wakeController.start();
 
-    console.log('🐝 WAITING WAKE WORD');
+    // console.log('🐝 WAITING WAKE WORD');
+    await this.driver.startFlow('hive');
+    // console.log('🧪 DIRECT VOSK TEST');
+
+    // await new Promise((r) => setTimeout(r, 6000));
+
+    // try {
+    //   await Vosk.start({
+    //     sampleRate: 16000,
+    //   });
+
+    //   console.log('✅ DIRECT VOSK STARTED');
+    // } catch (e) {
+    //   console.log('❌ DIRECT VOSK FAILED', e);
+    // }
+
+    console.log('🎤 HIVE FLOW STARTED');
   }
 
   // --------------------------------------------------
@@ -195,9 +222,11 @@ export class DevVoiceRuntime {
       await Vosk.stop();
     } catch {}
 
-    try {
-      await this.stopPorcupine();
-    } catch {}
+    this.listening = false;
+
+    // try {
+    //   await this.stopPorcupine();
+    // } catch {}
 
     this.voskEmitter.removeAllListeners('onResult');
     this.voskEmitter.removeAllListeners('onPartialResult');
@@ -206,14 +235,14 @@ export class DevVoiceRuntime {
     this.persistence = new InMemoryRuntimePersistence();
     this.driver = new ConversationDriver(this.bus, this.persistence, this.uid);
 
-    this.porcupine = new PorcupineEngine();
+    // this.porcupine = new PorcupineEngine();
 
-    this.wakeController = new WakeWordController(
-      this.driver,
-      this.bus,
-      () => this.startPorcupine(),
-      () => this.stopPorcupine(),
-    );
+    // this.wakeController = new WakeWordController(
+    //   this.driver,
+    //   this.bus,
+    //   () => this.startPorcupine(),
+    //   () => this.stopPorcupine(),
+    // );
 
     this.stopped = false;
   }
@@ -222,17 +251,17 @@ export class DevVoiceRuntime {
   // PORCUPINE
   // --------------------------------------------------
 
-  private async startPorcupine() {
-    if (this.stopped) return;
+  // private async startPorcupine() {
+  //   if (this.stopped) return;
 
-    await this.porcupine.start(() => {
-      this.wakeController.onWakeWord();
-    });
-  }
+  //   await this.porcupine.start(() => {
+  //     this.wakeController.onWakeWord();
+  //   });
+  // }
 
-  private async stopPorcupine() {
-    await this.porcupine.stop();
-  }
+  // private async stopPorcupine() {
+  //   await this.porcupine.stop();
+  // }
 
   // --------------------------------------------------
   // DRIVER EVENTS
@@ -255,11 +284,18 @@ export class DevVoiceRuntime {
 
       try {
         await Vosk.stop();
-      } catch {}
+      } catch {
+        console.log('❌ VOSK STOP FAILED');
+      }
+      this.listening = false;
 
-      await this.stopPorcupine();
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
+      // await this.stopPorcupine();
 
       await this.speak(e.text);
+
+      await new Promise((resolve) => setTimeout(resolve, 250));
 
       this.speaking = false;
 
@@ -279,6 +315,13 @@ export class DevVoiceRuntime {
       console.log('🎤 VOSK START (safe)');
       console.log('🎯 GRAMMAR:', e.grammar);
 
+      if (this.listening) {
+        console.log('⚠️ Vosk already listening');
+        return;
+      }
+
+      this.listening = true;
+
       try {
         await Vosk.start({
           sampleRate: 16000,
@@ -295,13 +338,16 @@ export class DevVoiceRuntime {
 
       try {
         await Vosk.stop();
-      } catch {}
+      } catch {
+        console.log('❌ VOSK STOP FAILED');
+      }
+      this.listening = false;
 
       setVoiceUiState({
         type: 'IDLE',
       });
 
-      await this.wakeController.onConversationFinished();
+      // await this.wakeController.onConversationFinished();
     });
 
     this.bus.on('STOP_INSPECTION', async () => {
@@ -315,9 +361,11 @@ export class DevVoiceRuntime {
 
       try {
         await Vosk.stop();
-      } catch {}
-
-      await this.stopPorcupine();
+      } catch {
+        console.log('❌ VOSK STOP FAILED');
+      }
+      this.listening = false;
+      // await this.stopPorcupine();
 
       await new Promise((r) => setTimeout(r, 190));
 
@@ -370,7 +418,12 @@ export class DevVoiceRuntime {
 
       if (!text) return;
 
-      await Vosk.stop();
+      try {
+        await Vosk.stop();
+      } catch {
+        console.log('❌ VOSK STOP FAILED');
+      }
+      this.listening = false;
 
       await this.driver.handleExternalInput(text);
     });
@@ -391,7 +444,11 @@ export class DevVoiceRuntime {
 
         try {
           await Vosk.stop();
-        } catch {}
+        } catch {
+          console.log('❌ VOSK STOP FAILED');
+        }
+
+        this.listening = false;
 
         setVoiceUiState({
           type: 'PROCESSING',

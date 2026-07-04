@@ -1,37 +1,40 @@
-// import Config from 'react-native-config';
-import {
-  PorcupineManager,
-  BuiltInKeywords,
-} from '@picovoice/porcupine-react-native';
+// // import Config from 'react-native-config';
+// import {
+//   PorcupineManager,
+//   BuiltInKeywords,
+// } from '@picovoice/porcupine-react-native';
 
-export class PorcupineEngine {
-  private manager: PorcupineManager | null = null;
+// export class PorcupineEngine {
+//   private manager: PorcupineManager | null = null;
 
-  async start(onWakeWord: () => void) {
-    // const accessKey = Config.PICOVOICE_ACCESS_KEY;
-    const ACCESS_KEY =
-      'cpqxgiTZb2iwT+o4OV1eURostH1Z993FkSqytpvhrIKaNVbHC0PCug==';
+//   async start(onWakeWord: () => void) {
+//     const ACCESS_KEY =
+//       'cpqxgiTZb2iwT+o4OV1eURostH1Z993FkSqytpvhrIKaNVbHC0PCug==';
 
-    // if (!accessKey) {
-    //   throw new Error('PICOVOICE_ACCESS_KEY missing');
-    // }
+//     console.log('🐝 BEFORE CREATE');
 
-    this.manager = await PorcupineManager.fromBuiltInKeywords(
-      ACCESS_KEY,
-      [BuiltInKeywords.BUMBLEBEE],
-      onWakeWord,
-    );
+//     try {
+//       this.manager = await PorcupineManager.fromBuiltInKeywords(
+//         ACCESS_KEY,
+//         [BuiltInKeywords.BUMBLEBEE],
+//         onWakeWord,
+//       );
 
-    await this.manager.start();
+//       console.log('🐝 AFTER CREATE');
 
-    console.log('🐝 Porcupine started');
-  }
+//       await this.manager.start();
 
-  async stop() {
-    if (!this.manager) return;
+//       console.log('🐝 AFTER START');
+//     } catch (e) {
+//       console.error('🐝 PORCUPINE ERROR', e);
+//       throw e;
+//     }
+//   }
+//   async stop() {
+//     if (!this.manager) return;
 
-    await this.manager.stop();
+//     await this.manager.stop();
 
-    console.log('🐝 Porcupine stopped');
-  }
-}
+//     console.log('🐝 Porcupine stopped');
+//   }
+// }

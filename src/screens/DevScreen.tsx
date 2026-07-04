@@ -1,10 +1,8 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {
   View,
   Text,
   Button,
-  NativeModules,
-  NativeEventEmitter,
 } from 'react-native';
 import database from '@react-native-firebase/database';
 
@@ -23,31 +21,31 @@ export const DevScreen = () => {
   const {user} = useAuth();
   const navigation = useNavigation<any>();
 
-  const {VoiceService} = NativeModules;
-  const emitterRef = useRef(new NativeEventEmitter(VoiceService));
+  // const {VoiceService} = NativeModules;
+  // const emitterRef = useRef(new NativeEventEmitter(VoiceService));
 
-  useEffect(() => {
-    const emitter = emitterRef.current;
+  // useEffect(() => {
+  //   const emitter = emitterRef.current;
 
-    console.log('📡 Subscribing to VoiceService events');
+  //   console.log('📡 Subscribing to VoiceService events');
 
-    const sub1 = emitter.addListener('onStateChanged', (e) =>
-      console.log('STATE:', e),
-    );
-    const sub2 = emitter.addListener('onWakeWord', (e) =>
-      console.log('WAKE:', e),
-    );
-    const sub3 = emitter.addListener('onSpeechResult', (e) =>
-      console.log('SPEECH:', e),
-    );
+  //   const sub1 = emitter.addListener('onStateChanged', (e) =>
+  //     console.log('STATE:', e),
+  //   );
+  //   const sub2 = emitter.addListener('onWakeWord', (e) =>
+  //     console.log('WAKE:', e),
+  //   );
+  //   const sub3 = emitter.addListener('onSpeechResult', (e) =>
+  //     console.log('SPEECH:', e),
+  //   );
 
-    return () => {
-      console.log('🧹 Cleanup listeners');
-      sub1.remove();
-      sub2.remove();
-      sub3.remove();
-    };
-  }, []);
+  //   return () => {
+  //     console.log('🧹 Cleanup listeners');
+  //     sub1.remove();
+  //     sub2.remove();
+  //     sub3.remove();
+  //   };
+  // }, []);
 
   if (!user) {
     console.log('❌ Not authenticated');
@@ -156,25 +154,7 @@ export const DevScreen = () => {
       <View style={{marginTop: 20}}>
         <Button title="ApiarySummary" onPress={testApiarySummary} />
       </View>
-      <View style={{marginTop: 20}}>
-        <Button
-          title="▶️ Start Voice Service"
-          onPress={() => {
-            console.log('🚀 START SERVICE');
-            VoiceService.startService();
-          }}
-        />
-      </View>
 
-      <View style={{marginTop: 20}}>
-        <Button
-          title="⛔ Stop Voice Service"
-          onPress={() => {
-            console.log('🛑 STOP SERVICE');
-            VoiceService.stopService();
-          }}
-        />
-      </View>
     </View>
   );
 };
