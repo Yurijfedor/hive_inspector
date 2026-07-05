@@ -1,5 +1,11 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
 
+export type PromptDefinition<TSession> = {
+  key: string;
+
+  params?: (session: TSession) => Record<string, unknown>;
+};
+
 export type StepHandler<TSession> = (
   session: TSession,
   value: unknown,
@@ -24,6 +30,8 @@ export type StepDefinition<TSession> = {
   id: string;
 
   question?: string | ((session: TSession) => string);
+
+  prompt?: PromptDefinition<TSession>;
 
   grammar?: string[];
 
