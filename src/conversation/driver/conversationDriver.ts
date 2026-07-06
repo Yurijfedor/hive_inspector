@@ -8,10 +8,10 @@ import {ConversationEvent} from './events';
 
 import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from '../intents/flowIntents';
+import {StepDefinition} from '../../flows/conversationFlow';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
-// import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
 
@@ -212,6 +212,15 @@ export class ConversationDriver {
   // --------------------------------------------------
   // ASK STEP
   // --------------------------------------------------
+  private resolvePrompt(step: StepDefinition<any>, session: any): string {
+    if (step.question) {
+      return typeof step.question === 'function'
+        ? step.question(session)
+        : step.question;
+    }
+
+    return '';
+  }
 
   private askCurrentStep() {
     const active = this.getActiveInstance();
@@ -247,18 +256,13 @@ export class ConversationDriver {
       total: flow.steps.length,
     });
 
-    const question =
-      typeof step.question === 'function'
-        ? step.question(active.session)
-        : step.question ?? '';
+    const question = this.resolvePrompt(step, active.session);
 
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
       text: question,
       grammar: step.grammar,
     });
-
-    // this.bus.emit({type: 'START_LISTENING'});
   }
 
   // --------------------------------------------------
