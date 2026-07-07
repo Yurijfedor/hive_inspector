@@ -8,12 +8,13 @@ import {ConversationEvent} from './events';
 
 import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from '../intents/flowIntents';
-import {StepDefinition} from '../../flows/conversationFlow';
+// import {StepDefinition} from '../../flows/conversationFlow';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
+import {resolvePrompt} from '../../flows/resolvePrompt';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -212,15 +213,21 @@ export class ConversationDriver {
   // --------------------------------------------------
   // ASK STEP
   // --------------------------------------------------
-  private resolvePrompt(step: StepDefinition<any>, session: any): string {
-    if (step.question) {
-      return typeof step.question === 'function'
-        ? step.question(session)
-        : step.question;
-    }
+  // private resolvePrompt(step: StepDefinition<any>, session: any): string {
+  //   if (step.prompt) {
+  //     // TODO: use PromptResolver
 
-    return '';
-  }
+  //     const promptKey = step.prompt.id;
+  //     console.log('🔑 PROMPT KEY:', promptKey);
+  //   }
+  //   if (step.question) {
+  //     return typeof step.question === 'function'
+  //       ? step.question(session)
+  //       : step.question;
+  //   }
+
+  //   return '';
+  // }
 
   private askCurrentStep() {
     const active = this.getActiveInstance();
@@ -256,7 +263,7 @@ export class ConversationDriver {
       total: flow.steps.length,
     });
 
-    const question = this.resolvePrompt(step, active.session);
+    const question = resolvePrompt(step, active.session);
 
     this.bus.emit({
       type: 'SYSTEM_SPEAK',

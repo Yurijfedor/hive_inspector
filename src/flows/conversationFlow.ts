@@ -1,7 +1,7 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
 
 export type PromptDefinition<TSession> = {
-  key: string;
+  id: string;
 
   params?: (session: TSession) => Record<string, unknown>;
 };
