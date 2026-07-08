@@ -8,7 +8,6 @@ import {ConversationEvent} from './events';
 
 import {RuntimePersistence} from './runtimePersistence';
 import {detectFlowIntent} from '../intents/flowIntents';
-// import {StepDefinition} from '../../flows/conversationFlow';
 import {detectControlIntent} from '../intents/controlIntents';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
@@ -213,21 +212,6 @@ export class ConversationDriver {
   // --------------------------------------------------
   // ASK STEP
   // --------------------------------------------------
-  // private resolvePrompt(step: StepDefinition<any>, session: any): string {
-  //   if (step.prompt) {
-  //     // TODO: use PromptResolver
-
-  //     const promptKey = step.prompt.id;
-  //     console.log('🔑 PROMPT KEY:', promptKey);
-  //   }
-  //   if (step.question) {
-  //     return typeof step.question === 'function'
-  //       ? step.question(session)
-  //       : step.question;
-  //   }
-
-  //   return '';
-  // }
 
   private askCurrentStep() {
     const active = this.getActiveInstance();

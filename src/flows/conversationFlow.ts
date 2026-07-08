@@ -1,7 +1,8 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
+import type {PromptId} from '../localization/promptCatalog';
 
 export type PromptDefinition<TSession> = {
-  id: string;
+  id: PromptId;
 
   params?: (session: TSession) => Record<string, unknown>;
 };
