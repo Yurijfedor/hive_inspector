@@ -21,8 +21,6 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
         id: 'inspection.askHive',
       },
 
-      question: 'Скажіть номер вулика.',
-
       normalize: (v) => parseHiveNumber(String(v)),
 
       validate: (v) =>
