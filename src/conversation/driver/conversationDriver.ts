@@ -14,6 +14,7 @@ import {detectDomainIntent} from '../intents/domainIntent';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
 import {resolveMessage} from '../../flows/resolveMessage';
+import {StepDefinition} from '../../flows/conversationFlow';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -148,6 +149,18 @@ export class ConversationDriver {
     this.hiveContexts = await this.hiveRepo.loadAll();
   }
 
+  private resolveRetryMessage(step: StepDefinition<any>, session: any): string {
+    if (step.messages?.retry) {
+      return resolveMessage(step.messages.retry, session);
+    }
+
+    if (step.retryMessage) {
+      return step.retryMessage;
+    }
+
+    return 'Я не зрозумів відповідь. Повторіть, будь ласка.';
+  }
+
   // --------------------------------------------------
   // RESTORE
   // --------------------------------------------------
@@ -247,12 +260,22 @@ export class ConversationDriver {
       total: flow.steps.length,
     });
 
-    const message = resolveMessage(step, active.session);
+    // const message = resolveMessage(step, active.session);
+    let message = '';
+
+    if (step.messages?.prompt) {
+      message = resolveMessage(step.messages.prompt, active.session);
+    } else if (step.question) {
+      message =
+        typeof step.question === 'function'
+          ? step.question(active.session)
+          : step.question;
+    }
 
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
       text: message,
-      grammar: step.grammar,
+      // grammar: step.grammar,
     });
   }
 
@@ -489,7 +512,8 @@ export class ConversationDriver {
       } else {
         this.processResult({
           type: 'INVALID',
-          message: result.message,
+          // message: result.message,
+          message: this.resolveRetryMessage(step, active.session),
           session: active.session,
         });
       }

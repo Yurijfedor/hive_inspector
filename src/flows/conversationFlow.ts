@@ -41,7 +41,7 @@ export type StepDefinition<TSession> = {
 
   messages?: StepMessages<TSession>;
 
-  grammar?: string[];
+  // grammar?: string[];
 
   normalize?: (value: unknown) => unknown;
 

@@ -21,6 +21,9 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
         prompt: {
           id: 'inspection.askHive',
         },
+        retry: {
+          id: 'inspection.retryHive',
+        },
       },
 
       // prompt: {
@@ -32,7 +35,7 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
       validate: (v) =>
         typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 1000,
 
-      retryMessage: 'Я не зрозумів номер. Скажіть номер ще раз.',
+      // retryMessage: 'Я не зрозумів номер. Скажіть номер ще раз.',
 
       apply: (session, value) => ({
         ...session,
@@ -43,7 +46,7 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
     {
       id: 'CONFIRM',
 
-      grammar: ['так'],
+      // grammar: ['так'],
 
       question: (session) =>
         `Вулик ${session.hiveNumber}? Скажіть "так" або "ні".`,
