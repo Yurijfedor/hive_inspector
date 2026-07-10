@@ -1,8 +1,13 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
-import type {PromptId} from '../localization/promptCatalog';
+import type {MessageId} from '../localization/messageCatalog';
 
-export type PromptDefinition<TSession> = {
-  id: PromptId;
+export type StepMessages<TSession> = {
+  prompt?: MessageDefinition<TSession>;
+  retry?: MessageDefinition<TSession>;
+};
+
+export type MessageDefinition<TSession> = {
+  id: MessageId;
 
   params?: (session: TSession) => Record<string, unknown>;
 };
@@ -32,7 +37,9 @@ export type StepDefinition<TSession> = {
 
   question?: string | ((session: TSession) => string);
 
-  prompt?: PromptDefinition<TSession>;
+  prompt?: MessageDefinition<TSession>;
+
+  messages?: StepMessages<TSession>;
 
   grammar?: string[];
 

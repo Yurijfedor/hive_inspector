@@ -17,9 +17,15 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
     {
       id: 'HIVE_NUMBER',
 
-      prompt: {
-        id: 'inspection.askHive',
+      messages: {
+        prompt: {
+          id: 'inspection.askHive',
+        },
       },
+
+      // prompt: {
+      //   id: 'inspection.askHive',
+      // },
 
       normalize: (v) => parseHiveNumber(String(v)),
 

@@ -13,7 +13,7 @@ import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
-import {resolvePrompt} from '../../flows/resolvePrompt';
+import {resolveMessage} from '../../flows/resolveMessage';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -247,11 +247,11 @@ export class ConversationDriver {
       total: flow.steps.length,
     });
 
-    const question = resolvePrompt(step, active.session);
+    const message = resolveMessage(step, active.session);
 
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
-      text: question,
+      text: message,
       grammar: step.grammar,
     });
   }
