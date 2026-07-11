@@ -5,5 +5,7 @@ export function resolveMessage<TSession>(
   message: MessageDefinition<TSession>,
   _session: TSession,
 ): string {
-  return messageCatalog[message.id];
+  const resolver = messageCatalog[message.id];
+
+  return resolver();
 }

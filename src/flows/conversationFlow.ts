@@ -70,7 +70,7 @@ export type StepResult<TSession> =
     }
   | {
       type: 'RETRY';
-      message: string;
+      // message: string;
     };
 
 export type ConversationFlow<TSession> = {
