@@ -3,9 +3,11 @@ import {messageCatalog} from '../localization/messageCatalog';
 
 export function resolveMessage<TSession>(
   message: MessageDefinition<TSession>,
-  _session: TSession,
+  session: TSession,
 ): string {
   const resolver = messageCatalog[message.id];
 
-  return resolver();
+  const params = message.params?.(session) ?? {};
+
+  return resolver(params);
 }
