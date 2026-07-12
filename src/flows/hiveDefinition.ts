@@ -54,6 +54,9 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
             hiveNumber: session.hiveNumber,
           }),
         },
+        retry: {
+          id: 'common.retryYesNo',
+        },
       },
 
       // question: (session) =>

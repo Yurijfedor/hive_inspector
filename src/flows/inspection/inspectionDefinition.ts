@@ -49,7 +49,13 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     createConfirmStep(
       'CONFIRM_STRENGTH',
 
-      (session) => `${session.data.strength} рамок сили. Правильно?`,
+      {
+        id: 'inspection.confirmStrength',
+
+        params: (session) => ({
+          strength: session.data.strength,
+        }),
+      },
 
       (session) => [
         {
