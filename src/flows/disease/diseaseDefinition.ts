@@ -1,5 +1,6 @@
 import {ConversationFlow} from '../conversationFlow';
 import {DiseaseSession} from './diseaseSession';
+import {createBooleanStep} from '../createBooleanStep';
 
 import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
@@ -18,18 +19,14 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
     // -------------------------
     // 1. DIARRHEA (NOSEMA)
     // -------------------------
-    {
-      id: 'DIARRHEA',
+    createBooleanStep(
+      'DIARRHEA',
 
-      question: 'Чи є сліди поносу на рамках або стінках?',
+      {
+        id: 'disease.askDiarrhea',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
+      (session, value) => {
         const yes = normalizeBoolean(value) === true;
 
         if (yes) {
@@ -49,9 +46,7 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
                 type: 'DISEASE_RECORDED',
                 payload: {
                   hiveNumber: session.hiveNumber,
-
                   disease: DISEASE_TYPES.NOSEMA,
-
                   ...data,
                 },
               },
@@ -67,8 +62,7 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
           },
         };
       },
-    },
-
+    ),
     // -------------------------
     // 2. DEFORMED WINGS
     // -------------------------

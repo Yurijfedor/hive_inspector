@@ -9,6 +9,8 @@ export const messageCatalog: Record<string, MessageResolver> = {
   'common.retryYesNo': (_params) => 'Скажіть "так" або "ні".',
   'inspection.confirmStrength': (params) =>
     `${params.strength} рамок сили. Правильно?`,
+  'disease.askDiarrhea': (_params) =>
+    'Чи є сліди поносу на рамках або стінках?',
 } as const;
 
 export type MessageId = keyof typeof messageCatalog;
