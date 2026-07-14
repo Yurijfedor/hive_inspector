@@ -1,11 +1,12 @@
 import {ConversationFlow} from '../conversationFlow';
 import {InspectionSession} from './inspectionSession';
 
-import {parseNumber} from '../../voice/numberParser';
+// import {parseNumber} from '../../voice/numberParser';
 import {parseQueenBreed} from '../../voice/queenParser';
 import {parseYear} from '../../voice/yearParser';
 
 import {createConfirmStep} from '../createConfirmStep';
+import {createNumberStep} from '../createNumberStep';
 
 import {QUEEN_STATUS} from '../../domain/constants/queen';
 
@@ -26,25 +27,31 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     // -------------------------
     // STRENGTH
     // -------------------------
-    {
-      id: 'STRENGTH',
+    createNumberStep(
+      'STRENGTH',
 
-      question: "Яка сила бджолосім'ї? Назвіть кількість рамок.",
+      {
+        id: 'inspection.askStrength',
+      },
 
-      normalize: (v) => parseNumber(String(v)),
+      {
+        min: 1,
+        max: 20,
 
-      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
+        retry: {
+          id: 'inspection.retryStrength',
+        },
+      },
 
-      retryMessage: 'Назвіть число рамок від 1 до 20.',
-
-      apply: (session, value) => ({
+      (session, value) => ({
         ...session,
+
         data: {
           ...session.data,
           strength: value as number,
         },
       }),
-    },
+    ),
 
     createConfirmStep(
       'CONFIRM_STRENGTH',
@@ -71,30 +78,42 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     // -------------------------
     // BROOD
     // -------------------------
-    {
-      id: 'BROOD',
+    createNumberStep(
+      'BROOD',
 
-      question: 'Скільки рамок з розплодом?',
+      {
+        id: 'inspection.askBrood',
+      },
 
-      normalize: (v) => parseNumber(String(v)),
+      {
+        min: 1,
+        max: 20,
 
-      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
+        retry: {
+          id: 'inspection.retryBrood',
+        },
+      },
 
-      retryMessage: 'Назвіть число рамок з розплодом.',
-
-      apply: (session, value) => ({
+      (session, value) => ({
         ...session,
+
         data: {
           ...session.data,
+
           broodFrames: value as number,
         },
       }),
-    },
-
+    ),
     createConfirmStep(
       'CONFIRM_BROOD',
 
-      (session) => `${session.data.broodFrames} рамок розплоду. Правильно?`,
+      {
+        id: 'inspection.confirmBrood',
+
+        params: (session) => ({
+          broodFrames: session.data.broodFrames,
+        }),
+      },
 
       (session) => [
         {
@@ -106,7 +125,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         },
       ],
     ),
-
     // -------------------------
     // QUEEN
     // -------------------------
@@ -293,18 +311,23 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     // -------------------------
     // HONEY
     // -------------------------
-    {
-      id: 'HONEY',
+    createNumberStep(
+      'HONEY',
 
-      question: 'Скільки приблизно кілограмів меду?',
+      {
+        id: 'inspection.askHoney',
+      },
 
-      normalize: (v) => parseNumber(String(v)),
+      {
+        min: 0,
+        max: 100,
 
-      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 0 && v <= 100,
+        retry: {
+          id: 'inspection.retryHoney',
+        },
+      },
 
-      retryMessage: 'Назвіть приблизну кількість кілограмів меду числом.',
-
-      apply: (session, value) => ({
+      (session, value) => ({
         ...session,
 
         data: {
@@ -313,12 +336,18 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           honeyKg: value as number,
         },
       }),
-    },
+    ),
 
     createConfirmStep(
       'CONFIRM_HONEY',
 
-      (session) => `${session.data.honeyKg} кілограм меду. Правильно?`,
+      {
+        id: 'inspection.confirmHoney',
+
+        params: (session) => ({
+          honeyKg: session.data.honeyKg,
+        }),
+      },
 
       (session) => [
         {
@@ -326,7 +355,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
           payload: {
             hiveNumber: session.hiveNumber,
-
             honeyKg: session.data.honeyKg!,
           },
         },
