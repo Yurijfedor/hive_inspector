@@ -10,7 +10,6 @@ export function createConfirmStep<TSession>(
   return {
     id,
 
-    // question,
     messages: {
       prompt,
       retry: {
@@ -21,8 +20,6 @@ export function createConfirmStep<TSession>(
     normalize: (v) => String(v).toLowerCase().trim(),
 
     validate: (v) => ['так', 'ні'].includes(v as string),
-
-    // retryMessage: 'Скажіть "так" або "ні".',
 
     apply: (session: any, value: any) => {
       if (value === 'так') {

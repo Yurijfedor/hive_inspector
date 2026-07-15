@@ -17,9 +17,9 @@ export function createBooleanStep<TSession>(
       },
     },
 
-    normalize: (v) => String(v),
+    normalize: (v) => normalizeBoolean(v),
 
-    validate: (v) => normalizeBoolean(v) !== null,
+    validate: (v) => v !== null,
 
     apply,
   };

@@ -1,7 +1,8 @@
 import {ConversationFlow} from '../conversationFlow';
 import {SwarmSession} from './swarmSession';
+import {createBooleanStep} from '../createBooleanStep';
 
-import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
+// import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 export const swarmFlow: ConversationFlow<SwarmSession> = {
   id: 'swarm',
@@ -16,19 +17,15 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
     // -------------------------
     // 1. QUEEN EMERGENCE
     // -------------------------
-    {
-      id: 'QUEEN_EMERGED',
+    createBooleanStep(
+      'QUEEN_EMERGED',
 
-      question: 'Чи є виходи маток з маточників?',
+      {
+        id: 'swarm.askQueenEmergence',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         if (yes) {
           const data = {
@@ -42,12 +39,13 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
               data,
               stepIndex: 999,
             },
+
             effects: [
               {
                 type: 'SWARM_RECORDED',
+
                 payload: {
                   hiveNumber: session.hiveNumber,
-
                   ...data,
                 },
               },
@@ -57,30 +55,26 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
         return {
           ...session,
+
           data: {
             ...session.data,
             queenEmergence: false,
           },
         };
       },
-    },
-
+    ),
     // -------------------------
     // 2. SEALED CELLS
     // -------------------------
-    {
-      id: 'SEALED_CELLS',
+    createBooleanStep(
+      'SEALED_CELLS',
 
-      question: 'Чи є печатні маточники?',
+      {
+        id: 'swarm.askSealedCells',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         if (yes) {
           const data = {
@@ -94,12 +88,13 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
               data,
               stepIndex: 999,
             },
+
             effects: [
               {
                 type: 'SWARM_RECORDED',
+
                 payload: {
                   hiveNumber: session.hiveNumber,
-
                   ...data,
                 },
               },
@@ -109,30 +104,27 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
 
         return {
           ...session,
+
           data: {
             ...session.data,
             sealedCells: false,
           },
         };
       },
-    },
+    ),
 
     // -------------------------
     // 3. OPEN CELLS
     // -------------------------
-    {
-      id: 'OPEN_CELLS',
+    createBooleanStep(
+      'OPEN_CELLS',
 
-      question: 'Чи є відкриті маточники?',
+      {
+        id: 'swarm.askOpenCells',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         if (yes) {
           const data = {
@@ -146,12 +138,13 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
               data,
               stepIndex: 999,
             },
+
             effects: [
               {
                 type: 'SWARM_RECORDED',
+
                 payload: {
                   hiveNumber: session.hiveNumber,
-
                   ...data,
                 },
               },
@@ -162,6 +155,7 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
         return {
           session: {
             ...session,
+
             data: {
               ...session.data,
               openCells: false,
@@ -169,24 +163,20 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
           },
         };
       },
-    },
+    ),
 
     // -------------------------
     // 4. EGGS IN CELLS
     // -------------------------
-    {
-      id: 'EGGS_IN_CELLS',
+    createBooleanStep(
+      'EGGS_IN_CELLS',
 
-      question: 'Чи є яйця в маточниках?',
+      {
+        id: 'swarm.askEggsInCells',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         const data = {
           ...session.data,
@@ -199,18 +189,19 @@ export const swarmFlow: ConversationFlow<SwarmSession> = {
             data,
             stepIndex: 999,
           },
+
           effects: [
             {
               type: 'SWARM_RECORDED',
+
               payload: {
                 hiveNumber: session.hiveNumber,
-
                 ...data,
               },
             },
           ],
         };
       },
-    },
+    ),
   ],
 };

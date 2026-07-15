@@ -7,10 +7,11 @@ import {parseYear} from '../../voice/yearParser';
 
 import {createConfirmStep} from '../createConfirmStep';
 import {createNumberStep} from '../createNumberStep';
+import {createBooleanStep} from '../createBooleanStep';
 
 import {QUEEN_STATUS} from '../../domain/constants/queen';
 
-import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
+// import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 import type {QueenBreed} from '../../types/queen';
 
@@ -128,19 +129,15 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     // -------------------------
     // QUEEN
     // -------------------------
-    {
-      id: 'QUEEN',
+    createBooleanStep(
+      'QUEEN',
 
-      question: 'Чи є матка?',
+      {
+        id: 'inspection.askQueen',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const hasQueen = normalizeBoolean(value) === true;
+      (session, value) => {
+        const hasQueen = value as boolean;
 
         const status = hasQueen ? QUEEN_STATUS.PRESENT : QUEEN_STATUS.ABSENT;
 
@@ -170,13 +167,13 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
               payload: {
                 hiveNumber: session.hiveNumber,
 
-                hasQueen: status === QUEEN_STATUS.PRESENT,
+                hasQueen,
               },
             },
           ],
         };
       },
-    },
+    ),
 
     // -------------------------
     // QUEEN BREED

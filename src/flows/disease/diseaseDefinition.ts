@@ -66,19 +66,15 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
     // -------------------------
     // 2. DEFORMED WINGS
     // -------------------------
-    {
-      id: 'DEFORMED_WINGS',
+    createBooleanStep(
+      'DEFORMED_WINGS',
 
-      question: 'Чи є бджоли з деформованими крилами?',
+      {
+        id: 'disease.askDeformedWings',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         if (yes) {
           const data = {
@@ -92,9 +88,11 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
               data,
               stepIndex: 999,
             },
+
             effects: [
               {
                 type: 'DISEASE_RECORDED',
+
                 payload: {
                   hiveNumber: session.hiveNumber,
 
@@ -109,30 +107,27 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
         return {
           ...session,
+
           data: {
             ...session.data,
             deformedWings: false,
           },
         };
       },
-    },
+    ),
 
     // -------------------------
     // 3. MITES
     // -------------------------
-    {
-      id: 'MITES_VISIBLE',
+    createBooleanStep(
+      'MITES_VISIBLE',
 
-      question: 'Чи видно кліщів на бджолах або в піддоні?',
+      {
+        id: 'disease.askMitesVisible',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         if (yes) {
           const data = {
@@ -146,9 +141,11 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
               data,
               stepIndex: 999,
             },
+
             effects: [
               {
                 type: 'DISEASE_RECORDED',
+
                 payload: {
                   hiveNumber: session.hiveNumber,
 
@@ -163,30 +160,27 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
 
         return {
           ...session,
+
           data: {
             ...session.data,
             mitesVisible: false,
           },
         };
       },
-    },
+    ),
 
     // -------------------------
     // 4. BROOD PROBLEMS
     // -------------------------
-    {
-      id: 'WEAK_BROOD',
+    createBooleanStep(
+      'WEAK_BROOD',
 
-      question: 'Чи є дірявий або слабкий розплід?',
+      {
+        id: 'disease.askWeakBrood',
+      },
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
+      (session, value) => {
+        const yes = value as boolean;
 
         const data = {
           ...session.data,
@@ -199,9 +193,11 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
             data,
             stepIndex: 999,
           },
+
           effects: [
             {
               type: 'DISEASE_RECORDED',
+
               payload: {
                 hiveNumber: session.hiveNumber,
 
@@ -213,6 +209,6 @@ export const diseaseFlow: ConversationFlow<DiseaseSession> = {
           ],
         };
       },
-    },
+    ),
   ],
 };

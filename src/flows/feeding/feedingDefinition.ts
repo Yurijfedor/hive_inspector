@@ -1,8 +1,10 @@
 import {ConversationFlow} from '../conversationFlow';
-import {parseNumber} from '../../voice/numberParser';
+// import {parseNumber} from '../../voice/numberParser';
+import {createNumberStep} from '../createNumberStep';
+import {createConfirmStep} from '../createConfirmStep';
 import type {FeedingSession} from './feedingSession';
 
-import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
+// import {normalizeBoolean} from '../../domain/normalizers/booleanNormalizer';
 
 export const feedingFlow: ConversationFlow<FeedingSession> = {
   id: 'feeding',
@@ -17,77 +19,59 @@ export const feedingFlow: ConversationFlow<FeedingSession> = {
     // -------------------------
     // 1. AMOUNT
     // -------------------------
-    {
-      id: 'SYRUP_AMOUNT',
+    createNumberStep(
+      'SYRUP_AMOUNT',
 
-      question: 'Скільки літрів сиропу додати?',
-
-      normalize: (v) => parseNumber(String(v)),
-
-      validate: (v) => typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 20,
-
-      retryMessage: 'Назвіть кількість літрів числом.',
-
-      apply: (session, value) => {
-        const amount = value as number;
-
-        return {
-          session: {
-            ...session,
-            data: {
-              ...session.data,
-              syrupLiters: amount,
-            },
-          },
-        };
+      {
+        id: 'feeding.askSyrupAmount',
       },
-    },
+
+      {
+        min: 1,
+        max: 20,
+
+        retry: {
+          id: 'feeding.retrySyrupAmount',
+        },
+      },
+
+      (session, value) => ({
+        session: {
+          ...session,
+
+          data: {
+            ...session.data,
+
+            syrupLiters: value as number,
+          },
+        },
+      }),
+    ),
 
     // -------------------------
     // 2. FINAL CONFIRM
     // -------------------------
-    {
-      id: 'CONFIRM_FEEDING',
+    createConfirmStep(
+      'CONFIRM_FEEDING',
 
-      question: (session) =>
-        `Додати ${session.data.syrupLiters} літрів сиропу у вулик ${session.hiveNumber}?`,
+      {
+        id: 'feeding.confirm',
 
-      normalize: (v) => String(v),
-
-      validate: (v) => normalizeBoolean(v) !== null,
-
-      retryMessage: 'Скажіть "так" або "ні".',
-
-      apply: (session, value) => {
-        const yes = normalizeBoolean(value) === true;
-
-        if (yes) {
-          return {
-            session: {
-              ...session,
-              stepIndex: 999,
-            },
-            effects: [
-              {
-                type: 'FEEDING_RECORDED',
-                payload: {
-                  hiveNumber: session.hiveNumber,
-                  syrupLiters: session.data.syrupLiters!,
-                },
-              },
-            ],
-          };
-        }
-
-        // ❗ якщо ні — повертаємось на початок
-        return {
-          session: {
-            ...session,
-            stepIndex: 0,
-            data: {},
-          },
-        };
+        params: (session) => ({
+          hiveNumber: session.hiveNumber,
+          syrupLiters: session.data.syrupLiters,
+        }),
       },
-    },
+
+      (session) => [
+        {
+          type: 'FEEDING_RECORDED',
+          payload: {
+            hiveNumber: session.hiveNumber,
+            syrupLiters: session.data.syrupLiters!,
+          },
+        },
+      ],
+    ),
   ],
 };

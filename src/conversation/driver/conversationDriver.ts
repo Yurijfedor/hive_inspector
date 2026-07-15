@@ -154,9 +154,9 @@ export class ConversationDriver {
       return resolveMessage(step.messages.retry, session);
     }
 
-    if (step.retryMessage) {
-      return step.retryMessage;
-    }
+    // if (step.retryMessage) {
+    //   return step.retryMessage;
+    // }
 
     return 'Я не зрозумів відповідь. Повторіть, будь ласка.';
   }
@@ -261,16 +261,22 @@ export class ConversationDriver {
     });
 
     // const message = resolveMessage(step, active.session);
-    let message = '';
+    // let message = '';
 
-    if (step.messages?.prompt) {
-      message = resolveMessage(step.messages.prompt, active.session);
-    } else if (step.question) {
-      message =
-        typeof step.question === 'function'
-          ? step.question(active.session)
-          : step.question;
+    // if (step.messages?.prompt) {
+    //   message = resolveMessage(step.messages.prompt, active.session);
+    // } else if (step.question) {
+    //   message =
+    //     typeof step.question === 'function'
+    //       ? step.question(active.session)
+    //       : step.question;
+    // }
+
+    if (!step.messages?.prompt) {
+      throw new Error(`Step "${step.id}" has no prompt message.`);
     }
+
+    const message = resolveMessage(step.messages.prompt, active.session);
 
     this.bus.emit({
       type: 'SYSTEM_SPEAK',
