@@ -1,15 +1,19 @@
+export type MessageResolver = (params: Record<string, unknown>) => string;
+
+export type ConversationModule = Record<string, MessageResolver>;
+
 export interface ConversationLocale {
-  common: object;
+  common: ConversationModule;
 
-  inspection: object;
+  hive: ConversationModule;
 
-  disease: object;
+  inspection: ConversationModule;
 
-  swarm: object;
+  disease: ConversationModule;
 
-  split: object;
+  swarm: ConversationModule;
 
-  feeding: object;
+  split: ConversationModule;
 
-  hive: object;
+  feeding: ConversationModule;
 }

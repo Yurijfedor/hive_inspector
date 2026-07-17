@@ -1,19 +1,7 @@
-// src/localization/locales/uk/conversation/index.ts
+import {common} from './common';
+import {hive} from './hive';
 
-import type {ConversationLocale} from '../../../conversation';
-
-export const conversation: ConversationLocale = {
-  common: {},
-
-  inspection: {},
-
-  disease: {},
-
-  swarm: {},
-
-  split: {},
-
-  feeding: {},
-
-  hive: {},
+export const conversation = {
+  ...common,
+  ...hive,
 };
