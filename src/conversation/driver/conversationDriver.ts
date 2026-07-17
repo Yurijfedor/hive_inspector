@@ -13,7 +13,7 @@ import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {detectDomainIntent} from '../intents/domainIntent';
 import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
-import {resolveMessage} from '../../flows/resolveMessage';
+import {resolveMessage} from '../../localization/conversation/resolveMessage';
 import {StepDefinition} from '../../flows/conversationFlow';
 
 export class ConversationDriver {

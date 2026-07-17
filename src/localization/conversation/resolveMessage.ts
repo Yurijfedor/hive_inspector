@@ -1,5 +1,5 @@
-import {MessageDefinition} from './conversationFlow';
-import {messageCatalog} from '../localization/messageCatalog';
+import {MessageDefinition} from '../../flows/conversationFlow';
+import {messageCatalog} from '../messageCatalog';
 
 export function resolveMessage<TSession>(
   message: MessageDefinition<TSession>,
