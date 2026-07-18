@@ -1,6 +1,6 @@
 export type MessageResolver = (params: Record<string, unknown>) => string;
 
-export type ConversationModule = Record<string, MessageResolver>;
+export type ConversationModule = Readonly<Record<string, MessageResolver>>;
 
 export interface ConversationLocale {
   common: ConversationModule;
