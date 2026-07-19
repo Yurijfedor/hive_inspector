@@ -3,6 +3,7 @@ import {common} from './common';
 import {hive} from './hive';
 import {disease} from './disease';
 import {feeding} from './feeding';
+import {split} from './split';
 
 export const conversation = {
   ...common,
@@ -10,4 +11,5 @@ export const conversation = {
   ...inspection,
   ...disease,
   ...feeding,
+  ...split,
 };
