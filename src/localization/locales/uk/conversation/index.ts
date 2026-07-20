@@ -4,6 +4,7 @@ import {hive} from './hive';
 import {disease} from './disease';
 import {feeding} from './feeding';
 import {split} from './split';
+import {swarm} from './swarm';
 
 export const conversation = {
   ...common,
@@ -12,4 +13,5 @@ export const conversation = {
   ...disease,
   ...feeding,
   ...split,
+  ...swarm,
 };
