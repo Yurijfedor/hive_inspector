@@ -1,6 +1,7 @@
-export type MessageResolver = (params: Record<string, unknown>) => string;
+// import type {MessageResolver} from './conversation/types';
+import type {ConversationModule} from './conversation/types';
 
-export const messageCatalog: Record<string, MessageResolver> = {
+export const messageCatalog: ConversationModule = {
   'inspection.askHive': (_params) => 'Скажіть номер вулика.',
   'inspection.retryHive': (_params) =>
     'Я не зрозумів номер. Скажіть номер ще раз.',
@@ -62,6 +63,6 @@ export const messageCatalog: Record<string, MessageResolver> = {
   'split.askIsSplit': (_params) => 'Чи є ця сімʼя відводком?',
   'split.askUseForSplits': (_params) =>
     'Чи хочете використати цю сімʼю для формування відводків?',
-} as const;
+};
 
 export type MessageId = keyof typeof messageCatalog;
