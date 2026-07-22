@@ -14,4 +14,8 @@ export const conversation = {
   ...feeding,
   ...split,
   ...swarm,
-};
+} as const;
+
+export type ConversationCatalog = typeof conversation;
+
+export type ConversationMessageId = keyof ConversationCatalog;
