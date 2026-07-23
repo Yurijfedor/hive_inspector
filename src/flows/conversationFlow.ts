@@ -1,5 +1,5 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
-import type {MessageId} from '../localization/messageCatalog';
+import type {ConversationMessageId} from '../localization/locales/uk/conversation';
 
 export type StepMessages<TSession> = {
   prompt?: MessageDefinition<TSession>;
@@ -7,7 +7,7 @@ export type StepMessages<TSession> = {
 };
 
 export type MessageDefinition<TSession> = {
-  id: MessageId;
+  id: ConversationMessageId;
 
   params?: (session: TSession) => Record<string, unknown>;
 };
