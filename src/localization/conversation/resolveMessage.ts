@@ -1,11 +1,11 @@
 import {MessageDefinition} from '../../flows/conversationFlow';
-import {messageCatalog} from '../messageCatalog';
+import {conversation} from '../locales/uk/conversation';
 
 export function resolveMessage<TSession>(
   message: MessageDefinition<TSession>,
   session: TSession,
 ): string {
-  const resolver = messageCatalog[message.id];
+  const resolver = conversation[message.id];
 
   const params = message.params?.(session) ?? {};
 
