@@ -1,5 +1,5 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
-import type {ConversationMessageId} from '../localization/locales/uk/conversation';
+import {ConversationMessageId} from '../localization/conversation/catalog';
 
 export type StepMessages<TSession> = {
   prompt?: MessageDefinition<TSession>;

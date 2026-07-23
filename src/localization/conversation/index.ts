@@ -1,7 +1,7 @@
 export {resolveMessage} from './resolveMessage';
 
 export type {
-  ConversationLocale,
   ConversationModule,
   MessageResolver,
+  ConversationCatalog,
 } from './types';
