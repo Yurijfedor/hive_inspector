@@ -1,19 +1,21 @@
-// src/localization/locales/uk/conversation/index.ts
+import {inspection} from './inspection';
+import {common} from './common';
+import {hive} from './hive';
+import {disease} from './disease';
+import {feeding} from './feeding';
+import {split} from './split';
+import {swarm} from './swarm';
 
-import type {ConversationLocale} from '../../../conversation';
+export const conversation = {
+  ...common,
+  ...hive,
+  ...inspection,
+  ...disease,
+  ...feeding,
+  ...split,
+  ...swarm,
+} as const;
 
-export const conversation: ConversationLocale = {
-  common: {},
+export type ConversationCatalog = typeof conversation;
 
-  inspection: {},
-
-  disease: {},
-
-  swarm: {},
-
-  split: {},
-
-  feeding: {},
-
-  hive: {},
-};
+export type ConversationMessageId = keyof ConversationCatalog;
