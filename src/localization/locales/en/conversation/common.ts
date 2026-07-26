@@ -1,5 +1,5 @@
-import type {MessageResolver} from '../../../conversation/types';
+import type {ConversationModule} from '../../../conversation/types';
 
-export const common: Record<string, MessageResolver> = {
-  'common.retryYesNo': (_params) => 'Скажіть "так" або "ні".',
+export const common: ConversationModule = {
+  'common.retryYesNo': (_params) => 'Please say "yes" or "no".',
 };
