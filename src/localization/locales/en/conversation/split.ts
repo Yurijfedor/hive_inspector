@@ -9,30 +9,29 @@ type SplitFoodConfirmParams = {
 };
 
 export const split: ConversationModule = {
-  'split.askBroodFrames': (_params) =>
-    'Скільки рамок розплоду потрібно відібрати?',
+  'split.askBroodFrames': (_params) => 'How many brood frames should be taken?',
 
-  'split.retryBroodFrames': (_params) => 'Назвіть число від 0 до 20.',
+  'split.retryBroodFrames': (_params) =>
+    'Please say a number between 0 and 20.',
 
   'split.confirmBroodFrames': (params) => {
     const {broodFrames} = params as SplitBroodConfirmParams;
 
-    return `${broodFrames} рамки розплоду. Правильно?`;
+    return `${broodFrames} brood frames. Is that correct?`;
   },
 
-  'split.askFoodFrames': (_params) =>
-    'Скільки кормових рамок потрібно відібрати?',
+  'split.askFoodFrames': (_params) => 'How many food frames should be taken?',
 
-  'split.retryFoodFrames': (_params) => 'Назвіть число від 0 до 20.',
+  'split.retryFoodFrames': (_params) => 'Please say a number between 0 and 20.',
 
   'split.confirmFoodFrames': (params) => {
     const {foodFrames} = params as SplitFoodConfirmParams;
 
-    return `${foodFrames} кормові рамки. Правильно?`;
+    return `${foodFrames} food frames. Is that correct?`;
   },
 
-  'split.askIsSplit': (_params) => 'Чи є ця сімʼя відводком?',
+  'split.askIsSplit': (_params) => 'Is this colony a nucleus colony?',
 
   'split.askUseForSplits': (_params) =>
-    'Чи хочете використати цю сімʼю для формування відводків?',
+    'Would you like to use this colony to create nucleus colonies?',
 };

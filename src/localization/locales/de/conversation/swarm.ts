@@ -1,11 +1,12 @@
 import type {ConversationModule} from '../../../conversation/types';
 
 export const swarm: ConversationModule = {
-  'swarm.askQueenEmergence': (_params) => 'Чи є виходи маток з маточників?',
+  'swarm.askQueenEmergence': (_params) =>
+    'Sind bereits Königinnen aus den Weiselzellen geschlüpft?',
 
-  'swarm.askSealedCells': (_params) => 'Чи є печатні маточники?',
+  'swarm.askSealedCells': (_params) => 'Gibt es verdeckelte Weiselzellen?',
 
-  'swarm.askOpenCells': (_params) => 'Чи є відкриті маточники?',
+  'swarm.askOpenCells': (_params) => 'Gibt es offene Weiselzellen?',
 
-  'swarm.askEggsInCells': (_params) => 'Чи є яйця в маточниках?',
+  'swarm.askEggsInCells': (_params) => 'Gibt es Eier in den Weiselzellen?',
 };

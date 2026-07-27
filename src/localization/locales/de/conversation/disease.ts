@@ -2,13 +2,14 @@ import type {ConversationModule} from '../../../conversation/types';
 
 export const disease: ConversationModule = {
   'disease.askDiarrhea': (_params) =>
-    'Чи є сліди поносу на рамках або стінках?',
+    'Gibt es Durchfallspuren auf den Waben oder den Stockwänden?',
 
   'disease.askDeformedWings': (_params) =>
-    'Чи є бджоли з деформованими крилами?',
+    'Gibt es Bienen mit deformierten Flügeln?',
 
   'disease.askMitesVisible': (_params) =>
-    'Чи видно кліщів на бджолах або в піддоні?',
+    'Sind Milben auf den Bienen oder auf der Bodeneinlage sichtbar?',
 
-  'disease.askWeakBrood': (_params) => 'Чи є дірявий або слабкий розплід?',
+  'disease.askWeakBrood': (_params) =>
+    'Gibt es lückenhafte oder schwache Brut?',
 };

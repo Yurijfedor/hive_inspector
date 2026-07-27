@@ -2,13 +2,13 @@ import type {ConversationModule} from '../../../conversation/types';
 
 export const disease: ConversationModule = {
   'disease.askDiarrhea': (_params) =>
-    'Чи є сліди поносу на рамках або стінках?',
+    'Are there any signs of diarrhea on the frames or hive walls?',
 
   'disease.askDeformedWings': (_params) =>
-    'Чи є бджоли з деформованими крилами?',
+    'Are there any bees with deformed wings?',
 
   'disease.askMitesVisible': (_params) =>
-    'Чи видно кліщів на бджолах або в піддоні?',
+    'Are any mites visible on the bees or on the bottom board?',
 
-  'disease.askWeakBrood': (_params) => 'Чи є дірявий або слабкий розплід?',
+  'disease.askWeakBrood': (_params) => 'Is there any spotty or weak brood?',
 };
