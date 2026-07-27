@@ -1,24 +1,36 @@
 import type {ConversationModule} from '../../../conversation/types';
 
 export const inspection: ConversationModule = {
-  'inspection.askHive': (_params) => 'Скажіть номер вулика.',
+  'inspection.askHive': (_params) => 'Please say the hive number.',
+
   'inspection.retryHive': (_params) =>
-    'Я не зрозумів номер. Скажіть номер ще раз.',
+    "I didn't understand the hive number. Please say it again.",
+
   'inspection.confirmStrength': (params) =>
-    `${params.strength} рамок сили. Правильно?`,
+    `${params.strength} frames. Is that correct?`,
+
   'inspection.askStrength': (_params) =>
-    "Яка сила бджолосім'ї? Назвіть кількість рамок.",
-  'inspection.retryStrength': (_params) => 'Назвіть число рамок від 1 до 20.',
-  'inspection.askBrood': (_params) => 'Скільки рамок з розплодом?',
-  'inspection.retryBrood': (_params) => 'Назвіть число рамок з розплодом.',
+    'How strong is the colony? Please say the number of frames.',
+
+  'inspection.retryStrength': (_params) =>
+    'Please say a number between 1 and 20.',
+
+  'inspection.askBrood': (_params) => 'How many brood frames are there?',
+
+  'inspection.retryBrood': (_params) =>
+    'Please say the number of brood frames.',
+
   'inspection.confirmBrood': (params) =>
-    `${params.broodFrames} рамок розплоду. Правильно?`,
-  'inspection.askHoney': (_params) => 'Скільки приблизно кілограмів меду?',
+    `${params.broodFrames} brood frames. Is that correct?`,
+
+  'inspection.askHoney': (_params) =>
+    'Approximately how many kilograms of honey?',
 
   'inspection.retryHoney': (_params) =>
-    'Назвіть приблизну кількість кілограмів меду числом.',
+    'Please say the approximate amount of honey in kilograms as a number.',
 
   'inspection.confirmHoney': (params) =>
-    `${params.honeyKg} кілограм меду. Правильно?`,
-  'inspection.askQueen': (_params) => 'Чи є матка?',
+    `${params.honeyKg} kilograms of honey. Is that correct?`,
+
+  'inspection.askQueen': (_params) => 'Is there a queen?',
 };

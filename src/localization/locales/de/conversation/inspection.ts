@@ -1,24 +1,35 @@
 import type {ConversationModule} from '../../../conversation/types';
 
 export const inspection: ConversationModule = {
-  'inspection.askHive': (_params) => 'Скажіть номер вулика.',
+  'inspection.askHive': (_params) => 'Bitte nennen Sie die Stocknummer.',
+
   'inspection.retryHive': (_params) =>
-    'Я не зрозумів номер. Скажіть номер ще раз.',
+    'Ich habe die Stocknummer nicht verstanden. Bitte nennen Sie sie noch einmal.',
+
   'inspection.confirmStrength': (params) =>
-    `${params.strength} рамок сили. Правильно?`,
+    `${params.strength} Waben. Ist das richtig?`,
+
   'inspection.askStrength': (_params) =>
-    "Яка сила бджолосім'ї? Назвіть кількість рамок.",
-  'inspection.retryStrength': (_params) => 'Назвіть число рамок від 1 до 20.',
-  'inspection.askBrood': (_params) => 'Скільки рамок з розплодом?',
-  'inspection.retryBrood': (_params) => 'Назвіть число рамок з розплодом.',
+    'Wie stark ist das Bienenvolk? Bitte nennen Sie die Anzahl der Waben.',
+
+  'inspection.retryStrength': (_params) =>
+    'Bitte nennen Sie eine Zahl zwischen 1 und 20.',
+
+  'inspection.askBrood': (_params) => 'Wie viele Brutwaben gibt es?',
+
+  'inspection.retryBrood': (_params) =>
+    'Bitte nennen Sie die Anzahl der Brutwaben.',
+
   'inspection.confirmBrood': (params) =>
-    `${params.broodFrames} рамок розплоду. Правильно?`,
-  'inspection.askHoney': (_params) => 'Скільки приблизно кілограмів меду?',
+    `${params.broodFrames} Brutwaben. Ist das richtig?`,
+
+  'inspection.askHoney': (_params) => 'Wie viele Kilogramm Honig ungefähr?',
 
   'inspection.retryHoney': (_params) =>
-    'Назвіть приблизну кількість кілограмів меду числом.',
+    'Bitte nennen Sie die ungefähre Honigmenge in Kilogramm als Zahl.',
 
   'inspection.confirmHoney': (params) =>
-    `${params.honeyKg} кілограм меду. Правильно?`,
-  'inspection.askQueen': (_params) => 'Чи є матка?',
+    `${params.honeyKg} Kilogramm Honig. Ist das richtig?`,
+
+  'inspection.askQueen': (_params) => 'Ist eine Königin vorhanden?',
 };

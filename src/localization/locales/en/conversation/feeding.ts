@@ -6,13 +6,14 @@ type FeedingConfirmParams = {
 };
 
 export const feeding: ConversationModule = {
-  'feeding.askSyrupAmount': (_params) => 'Скільки літрів сиропу додати?',
+  'feeding.askSyrupAmount': (_params) =>
+    'How many liters of syrup should be added?',
 
-  'feeding.retrySyrupAmount': (_params) => 'Назвіть кількість літрів числом.',
+  'feeding.retrySyrupAmount': (_params) => 'Please say the number of liters.',
 
   'feeding.confirm': (params) => {
     const {hiveNumber, syrupLiters} = params as FeedingConfirmParams;
 
-    return `Додати ${syrupLiters} літрів сиропу у вулик ${hiveNumber}?`;
+    return `Add ${syrupLiters} liters of syrup to hive number ${hiveNumber}?`;
   },
 };
