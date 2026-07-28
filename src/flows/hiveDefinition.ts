@@ -1,5 +1,6 @@
 import {ConversationFlow} from './conversationFlow';
 import {parseHiveNumber} from '../voice/hiveParser';
+import {normalizeBoolean} from '../domain/normalizers/booleanNormalizer';
 
 export interface HiveSession {
   stepIndex: number;
@@ -26,16 +27,10 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
         },
       },
 
-      // prompt: {
-      //   id: 'inspection.askHive',
-      // },
-
       normalize: (v) => parseHiveNumber(String(v)),
 
       validate: (v) =>
         typeof v === 'number' && !isNaN(v) && v >= 1 && v <= 1000,
-
-      // retryMessage: 'Я не зрозумів номер. Скажіть номер ще раз.',
 
       apply: (session, value) => ({
         ...session,
@@ -59,17 +54,10 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
         },
       },
 
-      // question: (session) =>
-      //   `Вулик ${session.hiveNumber}? Скажіть "так" або "ні".`,
-
-      normalize: (v) => String(v).toLowerCase().trim(),
-
-      // validate: (v) => ['так', 'ні'].includes(v as string),
-
-      // retryMessage: 'Скажіть "так" або "ні".',
+      normalize: normalizeBoolean,
 
       apply: (session, value) => {
-        if (value === 'так') {
+        if (value === true) {
           return session;
         }
 
@@ -81,7 +69,7 @@ export const hiveSelectionFlow: ConversationFlow<HiveSession> = {
       },
 
       runtimeEffects: (session, value) => {
-        if (value !== 'так') {
+        if (value !== true) {
           return [];
         }
 
