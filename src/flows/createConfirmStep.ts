@@ -1,5 +1,6 @@
 import {StepDefinition} from './conversationFlow';
 import {MessageDefinition} from './conversationFlow';
+import {normalizeBoolean} from '../domain/normalizers/booleanNormalizer';
 
 export function createConfirmStep<TSession>(
   id: string,
@@ -17,12 +18,12 @@ export function createConfirmStep<TSession>(
       },
     },
 
-    normalize: (v) => String(v).toLowerCase().trim(),
+    normalize: normalizeBoolean,
 
-    validate: (v) => ['так', 'ні'].includes(v as string),
+    validate: (v) => v !== null,
 
     apply: (session: any, value: any) => {
-      if (value === 'так') {
+      if (value === true) {
         return session;
       }
 
@@ -33,7 +34,7 @@ export function createConfirmStep<TSession>(
     },
 
     afterAccept: (session: any, value: any) => {
-      if (value !== 'так') return [];
+      if (value !== true) return [];
 
       return onConfirm ? onConfirm(session) : [];
     },
