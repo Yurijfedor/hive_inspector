@@ -1,4 +1,5 @@
 import {InspectionStepId} from './inspection/inspectionFlow';
+import {normalizeBoolean} from '../domain/normalizers/booleanNormalizer';
 
 export function parseAnswer(step: InspectionStepId, value: unknown) {
   const text = String(value).toLowerCase().trim();
@@ -10,10 +11,19 @@ export function parseAnswer(step: InspectionStepId, value: unknown) {
       return n;
     }
 
-    case 'QUEEN':
-      if (text === 'так') return 'present';
-      if (text === 'ні') return 'absent';
+    case 'QUEEN': {
+      const answer = normalizeBoolean(value);
+
+      if (answer === true) {
+        return 'present';
+      }
+
+      if (answer === false) {
+        return 'absent';
+      }
+
       return null;
+    }
 
     case 'HONEY': {
       const n = Number(text);
@@ -22,9 +32,7 @@ export function parseAnswer(step: InspectionStepId, value: unknown) {
     }
 
     case 'CONFIRM':
-      if (text === 'так') return true;
-      if (text === 'ні') return false;
-      return null;
+      return normalizeBoolean(value);
 
     default:
       return null;
