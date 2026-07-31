@@ -1,5 +1,5 @@
 import {ConversationFlow} from '../conversationFlow';
-import {InspectionSession} from './inspectionSession';
+import type {InspectionSession} from './inspectionTypes';
 
 // import {parseNumber} from '../../voice/numberParser';
 import {parseQueenBreed} from '../../voice/queenParser';
@@ -279,8 +279,13 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         return false;
       },
 
-      normalize: (v) => parseYear(v),
+      normalize: (v, language) => {
+        if (!language) {
+          return null;
+        }
 
+        return parseYear(v, language);
+      },
       validate: (v) =>
         typeof v === 'number' && v >= 2020 && v <= new Date().getFullYear(),
 

@@ -1,5 +1,6 @@
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
 import {ConversationMessageId} from '../localization/conversation/catalog';
+import type {VoiceLanguage} from '../voice/language/VoiceLanguagePack';
 
 export type StepMessages<TSession> = {
   prompt?: MessageDefinition<TSession>;
@@ -43,7 +44,7 @@ export type StepDefinition<TSession> = {
 
   // grammar?: string[];
 
-  normalize?: (value: unknown) => unknown;
+  normalize?: (value: unknown, language?: VoiceLanguage) => unknown;
 
   validate?: (value: unknown) => boolean;
 

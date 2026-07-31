@@ -44,7 +44,7 @@ export function applyAnswer(
   if (result.type === 'RETRY') {
     return {
       type: 'INVALID',
-      message: result.message,
+      message: 'Invalid answer',
       session,
     };
   }

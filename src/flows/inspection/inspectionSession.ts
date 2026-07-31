@@ -1,37 +1,34 @@
 import {inspectionFlow} from './inspectionDefinition';
 import {executeStep, resolveStep} from '../flowRuntime';
 
-import {FlowEffect} from '../../conversation/types';
-
-import type {QueenBreed, QueenStatus} from '../../types/queen';
-
+import type {FlowEffect} from '../../conversation/types';
 import type {HiveContext} from '../../types/hive';
-
+import type {InspectionSession} from './inspectionTypes';
 /**
  * 🧠 Inspection session
  */
-export type InspectionSession = {
-  hiveNumber: number;
+// export type InspectionSession = {
+//   hiveNumber: number;
 
-  stepIndex: number;
+//   stepIndex: number;
 
-  // 🔥 hive context from Firebase/cache
-  hiveContext?: HiveContext;
+//   // 🔥 hive context from Firebase/cache
+//   hiveContext?: HiveContext;
 
-  data: {
-    strength?: number;
+//   data: {
+//     strength?: number;
 
-    broodFrames?: number;
+//     broodFrames?: number;
 
-    queen?: QueenStatus;
+//     queen?: QueenStatus;
 
-    queenBreed?: QueenBreed;
+//     queenBreed?: QueenBreed;
 
-    queenYear?: number;
+//     queenYear?: number;
 
-    honeyKg?: number;
-  };
-};
+//     honeyKg?: number;
+//   };
+// };
 
 export type ApplyAnswerResult =
   | {
@@ -101,7 +98,9 @@ export function applyAnswer(
     return {
       type: 'INVALID',
 
-      message: result.message,
+      // Legacy applyAnswer API still expects a string message.
+      // Runtime retry messages are resolved separately from step.messages.retry.
+      message: 'Некоректна відповідь',
 
       session: alignedSession,
     };

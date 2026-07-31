@@ -15,6 +15,7 @@ import {HiveContext} from '../../types/hive';
 import {HiveContextRepository} from '../../persistence/hiveContextRepository';
 import {resolveMessage} from '../../localization/conversation/resolveMessage';
 import {StepDefinition} from '../../flows/conversationFlow';
+import type {VoiceLanguage} from '../../voice/language/VoiceLanguagePack';
 
 export class ConversationDriver {
   private bus: EventBus<ConversationEvent>;
@@ -34,6 +35,7 @@ export class ConversationDriver {
     bus: EventBus<ConversationEvent>,
     persistence: RuntimePersistence,
     private userId: string,
+    private language: VoiceLanguage,
   ) {
     this.bus = bus;
     this.persistence = persistence;
@@ -436,7 +438,7 @@ export class ConversationDriver {
 
       active.session.stepIndex = index;
 
-      const result = executeStep(step, active.session, text);
+      const result = executeStep(step, active.session, text, this.language);
       console.log('🧪 STEP RESULT:', result);
 
       if (result.type === 'ACCEPT') {

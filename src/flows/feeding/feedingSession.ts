@@ -47,7 +47,7 @@ export function applyFeedingAnswer(
   if (result.type === 'RETRY') {
     return {
       type: 'INVALID',
-      message: result.message,
+      message: 'Invalid answer',
       session,
     };
   }

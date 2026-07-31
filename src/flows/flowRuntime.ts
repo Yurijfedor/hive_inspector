@@ -1,5 +1,6 @@
 import {ConversationFlow, StepDefinition, StepResult} from './conversationFlow';
 import {FlowEffect, RuntimeEffect} from '../conversation/types';
+import type {VoiceLanguage} from '../voice/language/VoiceLanguagePack';
 /**
  * Отримати поточний step
  */
@@ -37,8 +38,9 @@ export function executeStep<TSession>(
   step: StepDefinition<TSession>,
   session: TSession,
   rawValue: unknown,
+  language?: VoiceLanguage,
 ): StepResult<TSession> {
-  const value = step.normalize ? step.normalize(rawValue) : rawValue;
+  const value = step.normalize ? step.normalize(rawValue, language) : rawValue;
 
   if (step.validate && !step.validate(value)) {
     return {

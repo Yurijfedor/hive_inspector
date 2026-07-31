@@ -1,4 +1,6 @@
 import React, {createContext, useContext, useMemo, ReactNode} from 'react';
+import i18n from '../localization/i18n';
+import {getVoiceLanguage} from '../voice/getVoiceLanguage';
 import {ConversationDriver} from './driver/conversationDriver';
 import {EventBus} from './driver/eventBus';
 import {ConversationEvent} from './driver/events';
@@ -14,6 +16,8 @@ type Props = {
 export function ConversationProvider({children}: Props) {
   const {user} = useAuth();
 
+  const voiceLanguage = getVoiceLanguage(i18n.language);
+
   const driver = useMemo(() => {
     if (!user?.uid) {
       console.log('⏳ WAITING FOR USER...');
@@ -25,8 +29,8 @@ export function ConversationProvider({children}: Props) {
     const bus = new EventBus<ConversationEvent>();
     const persistence = new LocalRuntimePersistence();
 
-    return new ConversationDriver(bus, persistence, user.uid);
-  }, [user?.uid]);
+    return new ConversationDriver(bus, persistence, user.uid, voiceLanguage);
+  }, [user?.uid, voiceLanguage]);
 
   if (!driver) {
     return null; // або Loader

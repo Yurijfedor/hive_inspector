@@ -36,10 +36,10 @@ export async function runInspectionBatch(
     // 🔥 AUTO CONFIRM
     // ----------------------------------
     if (step.id.startsWith('CONFIRM')) {
-      const result = executeStep(step, session, 'так');
+      const result = executeStep(step, session, true);
 
       if (result.type === 'RETRY') {
-        throw new Error(result.message);
+        throw new Error(`Step ${step.id} rejected auto-confirm value`);
       }
 
       session = result.session;
@@ -96,7 +96,7 @@ export async function runInspectionBatch(
     const result = executeStep(step, session, value);
 
     if (result.type === 'RETRY') {
-      throw new Error(result.message);
+      throw new Error(`Step ${step.id} rejected manual value`);
     }
 
     session = result.session;

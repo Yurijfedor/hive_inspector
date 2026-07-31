@@ -20,6 +20,7 @@ import {AudioCues} from '../voice/audioCues';
 import i18n from '../localization/i18n';
 import {loadVoiceModel} from '../voice/modelLoader';
 import {getVoiceLanguage} from '../voice/getVoiceLanguage';
+import type {VoiceLanguage} from '../voice/language/VoiceLanguagePack';
 // import {voiceModels} from '../voice/voiceLanguage';
 // import {getModelsRootPath} from '../voice/modelStorage';
 import {VoiceModelManager} from '../voice/VoiceModelManager';
@@ -42,11 +43,18 @@ const TTS_TIMEOUT_MS = 10000;
 export class DevVoiceRuntime {
   constructor(private uid: string) {}
 
+  private voiceLanguage: VoiceLanguage = 'uk';
+
   private voskEmitter = new NativeEventEmitter(Vosk);
 
   private bus = new EventBus<ConversationEvent>();
   private persistence = new InMemoryRuntimePersistence();
-  private driver = new ConversationDriver(this.bus, this.persistence, this.uid);
+  private driver = new ConversationDriver(
+    this.bus,
+    this.persistence,
+    this.uid,
+    this.voiceLanguage,
+  );
 
   // private porcupine = new PorcupineEngine();
 
@@ -156,13 +164,12 @@ export class DevVoiceRuntime {
 
     if (!this.modelLoaded) {
       const language = i18n.language;
-      const voiceLanguage = getVoiceLanguage(language);
 
       console.log('🌍 APP LANGUAGE:', language);
-      console.log('🎤 VOICE LANGUAGE:', voiceLanguage);
+      console.log('🎤 VOICE LANGUAGE:', this.voiceLanguage);
 
       const modelPath = await VoiceModelManager.installModel(
-        voiceLanguage,
+        this.voiceLanguage,
         (progress) => {
           console.log(`⬇️ Download: ${(progress * 100).toFixed(0)}%`);
         },
@@ -224,25 +231,20 @@ export class DevVoiceRuntime {
 
     this.listening = false;
 
-    // try {
-    //   await this.stopPorcupine();
-    // } catch {}
-
     this.voskEmitter.removeAllListeners('onResult');
     this.voskEmitter.removeAllListeners('onPartialResult');
 
+    this.voiceLanguage = getVoiceLanguage(i18n.language);
+
     this.bus = new EventBus<ConversationEvent>();
     this.persistence = new InMemoryRuntimePersistence();
-    this.driver = new ConversationDriver(this.bus, this.persistence, this.uid);
 
-    // this.porcupine = new PorcupineEngine();
-
-    // this.wakeController = new WakeWordController(
-    //   this.driver,
-    //   this.bus,
-    //   () => this.startPorcupine(),
-    //   () => this.stopPorcupine(),
-    // );
+    this.driver = new ConversationDriver(
+      this.bus,
+      this.persistence,
+      this.uid,
+      this.voiceLanguage,
+    );
 
     this.stopped = false;
   }
