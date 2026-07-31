@@ -181,7 +181,15 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     {
       id: 'QUEEN_BREED',
 
-      question: 'Яка порода матки? Карніка, бакфаст чи місцева?',
+      messages: {
+        prompt: {
+          id: 'inspection.askQueenBreed',
+        },
+
+        retry: {
+          id: 'inspection.retryQueenBreed',
+        },
+      },
 
       shouldSkip: (session) => {
         // ❌ якщо немає матки
@@ -205,8 +213,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       normalize: (v) => parseQueenBreed(v),
 
       validate: (v) => v !== null,
-
-      retryMessage: 'Скажіть: карніка, бакфаст або місцева.',
 
       apply: (session, value) => {
         if (!value) {
@@ -247,7 +253,15 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
     {
       id: 'QUEEN_YEAR',
 
-      question: 'Якого року матка?',
+      messages: {
+        prompt: {
+          id: 'inspection.askQueenYear',
+        },
+
+        retry: {
+          id: 'inspection.retryQueenYear',
+        },
+      },
 
       shouldSkip: (session) => {
         if (session.data?.queen !== QUEEN_STATUS.PRESENT) {
@@ -269,8 +283,6 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
       validate: (v) =>
         typeof v === 'number' && v >= 2020 && v <= new Date().getFullYear(),
-
-      retryMessage: 'Назвіть рік, наприклад 2024.',
 
       apply: (session, value) => {
         if (typeof value !== 'number') {

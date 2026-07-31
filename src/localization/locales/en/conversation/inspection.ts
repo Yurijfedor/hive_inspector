@@ -33,4 +33,14 @@ export const inspection: ConversationModule = {
     `${params.honeyKg} kilograms of honey. Is that correct?`,
 
   'inspection.askQueen': (_params) => 'Is there a queen?',
+  'inspection.askQueenBreed': (_params) =>
+    'What breed is the queen? Carniolan, Buckfast, or local?',
+
+  'inspection.retryQueenBreed': (_params) =>
+    'Please say: Carniolan, Buckfast, or local.',
+
+  'inspection.askQueenYear': (_params) => 'What year was the queen born?',
+
+  'inspection.retryQueenYear': (_params) =>
+    'Please say the year, for example 2024.',
 };
