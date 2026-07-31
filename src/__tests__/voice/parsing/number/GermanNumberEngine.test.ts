@@ -4,7 +4,7 @@ import {preprocessGermanNumber} from '../../../../voice/parsing/number/preproces
 
 describe('German NumberEngine', () => {
   it('parses german numbers', () => {
-    const engine = createNumberEngine(deLexicon);
+    const engine = createNumberEngine(deLexicon, preprocessGermanNumber);
 
     const cases: Array<[string, number]> = [
       ['eins', 1],
@@ -26,9 +26,7 @@ describe('German NumberEngine', () => {
     ];
 
     for (const [input, expected] of cases) {
-      const normalized = preprocessGermanNumber(input);
-
-      expect(engine.parse(normalized).value).toBe(expected);
+      expect(engine.parse(input).value).toBe(expected);
     }
   });
 });

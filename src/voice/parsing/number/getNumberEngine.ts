@@ -4,8 +4,8 @@ import {VoiceLanguage} from '../../language/VoiceLanguagePack';
 
 import {createNumberEngine} from './createNumberEngine';
 import {NumberEngine} from './NumberEngine';
-import {enLexicon, ukLexicon} from './lexicons';
-
+import {deLexicon, enLexicon, ukLexicon} from './lexicons';
+import {preprocessGermanNumber} from './preprocessors/deGermanNumberPreprocessor';
 const cache: Partial<Record<VoiceLanguage, NumberEngine>> = {};
 
 export function getNumberEngine(): NumberEngine {
@@ -21,9 +21,7 @@ export function getNumberEngine(): NumberEngine {
       break;
 
     case 'de':
-      // Поки що використовуємо український, щоб застосунок працював.
-      // Коли з'явиться deLexicon, достатньо буде змінити один рядок.
-      cache.de = createNumberEngine(ukLexicon);
+      cache.de = createNumberEngine(deLexicon, preprocessGermanNumber);
       break;
 
     case 'uk':

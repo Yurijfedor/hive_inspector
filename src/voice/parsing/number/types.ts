@@ -4,6 +4,8 @@ export interface NumberLexicon {
 
 export interface NumberEngineOptions {
   lexicon: NumberLexicon;
+
+  preprocess?: (input: string) => string;
 }
 
 export interface NumberParseResult {

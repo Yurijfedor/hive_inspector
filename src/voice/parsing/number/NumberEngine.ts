@@ -13,7 +13,12 @@ export class NumberEngine {
   constructor(private readonly options: NumberEngineOptions) {}
 
   parse(input: string): NumberParseResult {
-    const tokens = tokenize(input);
+    const processedInput = this.options.preprocess
+      ? this.options.preprocess(input)
+      : input;
+
+    const tokens = tokenize(processedInput);
+
     const matches = this.strategy.parse(tokens, this.options.lexicon.cardinal);
 
     console.log('🔢 TOKENS:', tokens);
