@@ -1,8 +1,8 @@
 import {normalizeText} from './textNormalizer';
 
-const YES_WORDS = ['так', 'yes', 'да', 'ага', 'yep', 'true'];
+const YES_WORDS = ['так', 'yes', 'да', 'ага', 'yep', 'true', 'ja'];
 
-const NO_WORDS = ['ні', 'no', 'нет', 'nope', 'false'];
+const NO_WORDS = ['ні', 'no', 'нет', 'nope', 'false', 'nein', 'не'];
 
 export function normalizeBoolean(input: unknown): boolean | null {
   if (typeof input === 'boolean') {
