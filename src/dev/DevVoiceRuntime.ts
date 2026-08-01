@@ -20,6 +20,7 @@ import {AudioCues} from '../voice/audioCues';
 import i18n from '../localization/i18n';
 import {loadVoiceModel} from '../voice/modelLoader';
 import {getVoiceLanguage} from '../voice/getVoiceLanguage';
+import {getTtsLanguage} from '../voice/getTtsLanguage';
 import type {VoiceLanguage} from '../voice/language/VoiceLanguagePack';
 // import {voiceModels} from '../voice/voiceLanguage';
 // import {getModelsRootPath} from '../voice/modelStorage';
@@ -234,7 +235,20 @@ export class DevVoiceRuntime {
     this.voskEmitter.removeAllListeners('onResult');
     this.voskEmitter.removeAllListeners('onPartialResult');
 
+    // this.voiceLanguage = getVoiceLanguage(i18n.language);
+
+    // this.bus = new EventBus<ConversationEvent>();
     this.voiceLanguage = getVoiceLanguage(i18n.language);
+
+    const ttsLanguage = getTtsLanguage(this.voiceLanguage);
+
+    console.log('🗣 TTS LANGUAGE:', ttsLanguage);
+
+    try {
+      await Tts.setDefaultLanguage(ttsLanguage);
+    } catch (error) {
+      console.error('❌ TTS LANGUAGE FAILED:', ttsLanguage, error);
+    }
 
     this.bus = new EventBus<ConversationEvent>();
     this.persistence = new InMemoryRuntimePersistence();
