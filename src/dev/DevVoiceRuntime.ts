@@ -385,7 +385,7 @@ export class DevVoiceRuntime {
 
       await new Promise((r) => setTimeout(r, 190));
 
-      await this.speak('Огляд завершено');
+      // await this.speak('Огляд завершено');
 
       this.onStopCallback?.();
     });

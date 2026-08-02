@@ -5,6 +5,7 @@ import {getFlow} from '../../conversation/registry/flowRegistry';
 import {resolveStep, executeStep} from '../../flows/flowRuntime';
 import {mapFlowEffectToEvent} from '../../domain/mappers/mapFlowEffectToEvent';
 import {handleDomainEvent} from '../../domain/handlers/handleDomainEvent';
+import {resolveMessage} from '../../localization/conversation/resolveMessage';
 
 export async function runInspectionBatch(
   driver: ConversationDriver,
@@ -116,7 +117,12 @@ export async function runInspectionBatch(
 
   (driver as any).bus.emit({
     type: 'SYSTEM_SPEAK',
-    text: 'Готовий до нової команди.',
+    text: resolveMessage(
+      {
+        id: 'common.readyForCommand',
+      },
+      {},
+    ),
   });
 
   (driver as any).bus.emit({type: 'CONVERSATION_FINISHED'});

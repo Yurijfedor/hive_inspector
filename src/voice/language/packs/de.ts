@@ -5,17 +5,16 @@ export const dePack: VoiceLanguagePack = {
 
   vocabulary: {
     control: {
-      pauseWords: [],
+      pauseWords: ['pause', 'warte', 'warten'],
 
-      resumeWords: [],
+      resumeWords: ['weiter', 'fortsetzen', 'weitermachen'],
 
-      cancelWords: [],
+      cancelWords: ['abbrechen'],
 
-      stopKeywords: [],
+      stopKeywords: ['inspektion', 'kontrolle'],
 
-      stopVerbs: [],
+      stopVerbs: ['beenden', 'beendet', 'stoppen', 'stopp', 'abbrechen'],
     },
-
     flow: {
       inspectionWords: [],
 

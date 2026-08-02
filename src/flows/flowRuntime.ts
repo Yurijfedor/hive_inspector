@@ -45,8 +45,6 @@ export function executeStep<TSession>(
   if (step.validate && !step.validate(value)) {
     return {
       type: 'RETRY',
-      // message:
-      //   step.retryMessage ?? 'Я не зрозумів відповідь. Повторіть, будь ласка.',
     };
   }
 

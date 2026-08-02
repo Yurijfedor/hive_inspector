@@ -5,15 +5,15 @@ export const enPack: VoiceLanguagePack = {
 
   vocabulary: {
     control: {
-      pauseWords: [],
+      pauseWords: ['pause', 'wait', 'hold on'],
 
-      resumeWords: [],
+      resumeWords: ['continue', 'resume', 'go on'],
 
-      cancelWords: [],
+      cancelWords: ['cancel'],
 
-      stopKeywords: [],
+      stopKeywords: ['inspection'],
 
-      stopVerbs: [],
+      stopVerbs: ['finish', 'end', 'stop', 'terminate'],
     },
 
     flow: {

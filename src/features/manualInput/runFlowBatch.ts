@@ -1,6 +1,7 @@
 import {ConversationDriver} from '../../conversation/driver/conversationDriver';
 import {runSingleFlow} from './runSingleFlow';
 import {InspectionFormUI} from './types';
+import {resolveMessage} from '../../localization/conversation/resolveMessage';
 
 export async function runFlowBatch(
   driver: ConversationDriver,
@@ -46,7 +47,12 @@ export async function runFlowBatch(
 
   (driver as any).bus.emit({
     type: 'SYSTEM_SPEAK',
-    text: 'Готовий до нової команди.',
+    text: resolveMessage(
+      {
+        id: 'common.readyForCommand',
+      },
+      {},
+    ),
   });
 
   (driver as any).bus.emit({type: 'CONVERSATION_FINISHED'});

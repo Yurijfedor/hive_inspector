@@ -132,7 +132,12 @@ export class ConversationDriver {
 
       this.bus.emit({
         type: 'SYSTEM_SPEAK',
-        text: 'Готовий до нової команди.',
+        text: resolveMessage(
+          {
+            id: 'common.readyForCommand',
+          },
+          {},
+        ),
       });
 
       this.bus.emit({type: 'CONVERSATION_FINISHED'});
@@ -156,13 +161,13 @@ export class ConversationDriver {
       return resolveMessage(step.messages.retry, session);
     }
 
-    // if (step.retryMessage) {
-    //   return step.retryMessage;
-    // }
-
-    return 'Я не зрозумів відповідь. Повторіть, будь ласка.';
+    return resolveMessage(
+      {
+        id: 'common.retryUnknown',
+      },
+      session,
+    );
   }
-
   // --------------------------------------------------
   // RESTORE
   // --------------------------------------------------
@@ -313,7 +318,12 @@ export class ConversationDriver {
         // повідомляємо користувача
         this.bus.emit({
           type: 'SYSTEM_SPEAK',
-          text: 'Огляд завершено',
+          text: resolveMessage(
+            {
+              id: 'common.inspectionStopped',
+            },
+            {},
+          ),
         });
 
         // 🔥 головне — сигнал runtime
@@ -489,7 +499,12 @@ export class ConversationDriver {
 
             this.bus.emit({
               type: 'SYSTEM_SPEAK',
-              text: 'Готовий до нової команди.',
+              text: resolveMessage(
+                {
+                  id: 'common.readyForCommand',
+                },
+                active.session,
+              ),
             });
 
             this.bus.emit({type: 'CONVERSATION_FINISHED'});
