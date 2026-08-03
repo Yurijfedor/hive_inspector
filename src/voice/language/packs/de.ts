@@ -16,17 +16,20 @@ export const dePack: VoiceLanguagePack = {
       stopVerbs: ['beenden', 'beendet', 'stoppen', 'stopp', 'abbrechen'],
     },
     flow: {
-      inspectionWords: [],
+      inspectionWords: ['inspektion', 'kontrolle'],
 
-      feedingWords: [],
+      feedingWords: ['fütterung', 'füttern'],
     },
 
     domain: {
       intents: {
-        SWARM: [],
-        SPLIT: [],
-        DISEASE: [],
-        FEEDING: [],
+        SWARM: ['schwarm', 'schwärmen', 'schwärmt'],
+
+        SPLIT: ['ableger', 'teilen', 'teilung'],
+
+        DISEASE: ['krankheit', 'varroa', 'milbe', 'milben', 'durchfall'],
+
+        FEEDING: ['füttern', 'fütterung', 'sirup', 'zucker'],
       },
     },
     numbers: {

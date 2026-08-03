@@ -17,17 +17,20 @@ export const enPack: VoiceLanguagePack = {
     },
 
     flow: {
-      inspectionWords: [],
+      inspectionWords: ['inspection', 'inspect'],
 
-      feedingWords: [],
+      feedingWords: ['feeding', 'feed'],
     },
 
     domain: {
       intents: {
-        SWARM: [],
-        SPLIT: [],
-        DISEASE: [],
-        FEEDING: [],
+        SWARM: ['swarm', 'swarming'],
+
+        SPLIT: ['split', 'splitting'],
+
+        DISEASE: ['disease', 'varroa', 'mite', 'mites', 'diarrhea'],
+
+        FEEDING: ['feed', 'feeding', 'syrup', 'sugar'],
       },
     },
     numbers: {

@@ -1,30 +1,28 @@
 import {normalizeText, scoreIntent} from '../../utils/voiceParser/voiceParser';
 
-import i18n from '../../localization/i18n';
 import {getVoiceLanguagePack} from '../../voice/language/getVoiceLanguagePack';
+import {VoiceLanguage} from '../../voice/language/VoiceLanguagePack';
 
 export type DomainIntent = 'SWARM' | 'SPLIT' | 'DISEASE' | 'FEEDING' | 'NONE';
 
-export function detectDomainIntent(input: string): DomainIntent {
+export function detectDomainIntent(
+  input: string,
+  language: VoiceLanguage,
+): DomainIntent {
   if (!input) return 'NONE';
 
-  const language = getVoiceLanguagePack(
-    (i18n.language as 'uk' | 'en' | 'de') ?? 'uk',
-  );
-
-  const intents = language.vocabulary.domain.intents;
+  const languagePack = getVoiceLanguagePack(language);
+  const intents = languagePack.vocabulary.domain.intents;
 
   const text = normalizeText(input);
   const tokens = text.split(' ');
 
-  // 🔥 score кожного інтенду
   const scores: Partial<Record<DomainIntent, number>> = {};
 
   for (const [intent, vocabulary] of Object.entries(intents)) {
     scores[intent as DomainIntent] = scoreIntent(tokens, vocabulary);
   }
 
-  // 🔥 знайти максимум
   let bestIntent: DomainIntent = 'NONE';
   let bestScore = 0;
 
@@ -35,7 +33,6 @@ export function detectDomainIntent(input: string): DomainIntent {
     }
   }
 
-  // 🔒 мінімальний поріг (дуже важливо)
   if (bestScore < 2) return 'NONE';
 
   return bestIntent;

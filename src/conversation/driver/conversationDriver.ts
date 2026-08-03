@@ -353,7 +353,7 @@ export class ConversationDriver {
       // DOMAIN INTERRUPT
       // -------------------------
 
-      const domainIntent = detectDomainIntent(text);
+      const domainIntent = detectDomainIntent(text, this.language);
       console.log('🧠 DOMAIN:', domainIntent);
 
       if (domainIntent !== 'NONE') {
