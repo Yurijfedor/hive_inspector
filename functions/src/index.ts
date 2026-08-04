@@ -7,13 +7,33 @@ setGlobalOptions({maxInstances: 10});
 
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
+type AppLanguage = 'uk' | 'en' | 'de';
+
+const AI_LANGUAGE_NAMES: Record<AppLanguage, string> = {
+  uk: 'Ukrainian',
+  en: 'English',
+  de: 'German',
+};
+
+const normalizeLanguage = (language: unknown): AppLanguage => {
+  if (language === 'en' || language === 'de' || language === 'uk') {
+    return language;
+  }
+
+  return 'uk';
+};
+
 export const generateTasksHttp = onRequest(
   {secrets: [openaiApiKey]},
   async (req, res) => {
     try {
-      const {hives} = req.body;
+      const {hives, language} = req.body;
+
+      const appLanguage = normalizeLanguage(language);
+      const aiLanguage = AI_LANGUAGE_NAMES[appLanguage];
 
       console.log('👉 INPUT (HIVES):', hives);
+      console.log('🌍 AI TASK LANGUAGE:', appLanguage, '→', aiLanguage);
 
       const aiPrompt = `
 You are an expert beekeeper with practical field experience.
@@ -21,7 +41,7 @@ You are an expert beekeeper with practical field experience.
 ========================
 OUTPUT RULES (STRICT)
 ========================
-- Respond ONLY in Ukrainian language
+- Respond ONLY in ${aiLanguage} language
 - Respond ONLY with valid JSON
 - DO NOT add explanations
 - DO NOT add markdown
@@ -211,6 +231,7 @@ CONSTRAINTS
 - No duplicate task types per hive
 - Tasks must be realistic and practical
 - Titles must be short and specific
+- Task titles MUST be written in the requested output language
 
 ========================
 OUTPUT FORMAT

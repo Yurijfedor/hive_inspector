@@ -1,3 +1,5 @@
+import i18n from '../../localization/i18n';
+import {AppLanguage} from '../../localization/types';
 import {Task} from '../../types/task';
 import {loadHiveContextsFromFirebase} from '../../persistence/inspectionRepository';
 import {TaskRepository} from '../../domain/repositories/taskRepository';
@@ -7,7 +9,10 @@ const taskRepository = new TaskRepository();
 
 export const generateTasks = async (hives: any[]): Promise<{tasks: Task[]}> => {
   try {
+    const language = i18n.language as AppLanguage;
+
     console.log('🤖 CALLING AI (fetch)...', hives);
+    console.log('🌍 AI TASK LANGUAGE:', language);
 
     const res = await fetch(
       'https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp',
@@ -16,7 +21,10 @@ export const generateTasks = async (hives: any[]): Promise<{tasks: Task[]}> => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({hives}),
+        body: JSON.stringify({
+          hives,
+          language,
+        }),
       },
     );
 
