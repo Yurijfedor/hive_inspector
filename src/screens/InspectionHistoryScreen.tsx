@@ -128,6 +128,8 @@ export const InspectionHistoryScreen = () => {
         {getQueenSummary(
           {
             status: item.queen ?? 'unknown',
+            breed: item.queenBreed,
+            birthYear: item.queenBirthYear,
           },
           t,
         )}

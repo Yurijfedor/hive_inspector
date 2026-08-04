@@ -1,4 +1,4 @@
-import {QueenStatus} from './queen';
+import {QueenBreed, QueenStatus} from './queen';
 
 import {INSPECTION_SOURCES} from '../domain/constants/inspection';
 
@@ -28,6 +28,10 @@ export type Inspection = {
 
   queen: QueenStatus;
 
+  queenBreed?: QueenBreed;
+
+  queenBirthYear?: number;
+
   source: InspectionSource;
 };
 
@@ -41,6 +45,10 @@ export type InspectionRaw = {
   broodFrames?: number;
 
   queen?: QueenStatus;
+
+  queenBreed?: QueenBreed;
+
+  queenBirthYear?: number;
 
   source?: InspectionSource;
 };

@@ -81,11 +81,11 @@ async function upsertInspection(uid: string, command: InspectionCommand) {
 async function finalizeInspection(
   uid: string,
   hiveNumber: number,
-  source: 'voice' | 'manual' | 'ai' = 'voice', // ✅ ДОДАЛИ
+  source: 'voice' | 'manual' | 'ai' = 'voice',
 ) {
-  const currentRef = database().ref(
-    `users/${uid}/hives/${hiveNumber}/currentInspection`,
-  );
+  const hiveRef = database().ref(`users/${uid}/hives/${hiveNumber}`);
+
+  const currentRef = hiveRef.child('currentInspection');
 
   const snapshot = await currentRef.once('value');
 
@@ -93,13 +93,21 @@ async function finalizeInspection(
 
   const inspection = snapshot.val();
 
+  // --------------------------------------------------
+  // QUEEN SNAPSHOT
+  // --------------------------------------------------
+
+  const queenSnapshot = await hiveRef.child('queen').once('value');
+
+  const queen = queenSnapshot.exists() ? queenSnapshot.val() : undefined;
+
+  // --------------------------------------------------
+  // FINAL INSPECTION
+  // --------------------------------------------------
+
   const finalSource = source ?? inspection?.source ?? 'voice';
 
-  const newRef = database()
-    .ref(`users/${uid}/hives/${hiveNumber}/inspections`)
-    .push();
-
-  await newRef.set({
+  const finalInspection: Record<string, unknown> = {
     strength: inspection.strength ?? 0,
     honeyKg: inspection.honeyKg ?? 0,
     queen: inspection.queen ?? 'unknown',
@@ -107,15 +115,31 @@ async function finalizeInspection(
     syrupLiters: inspection.syrupLiters ?? 0,
     createdAt: Date.now(),
     source: finalSource,
-  });
+  };
 
-  await database().ref(`users/${uid}/hives/${hiveNumber}/meta`).update({
+  // Breed/year мають сенс лише якщо під час цього огляду
+  // матка була зафіксована як присутня.
+  if (inspection.queen === 'present') {
+    if (queen?.breed !== undefined) {
+      finalInspection.queenBreed = queen.breed;
+    }
+
+    if (queen?.birthYear !== undefined) {
+      finalInspection.queenBirthYear = queen.birthYear;
+    }
+  }
+
+  const newRef = hiveRef.child('inspections').push();
+
+  await newRef.set(finalInspection);
+
+  await hiveRef.child('meta').update({
     inspectionClosedAt: Date.now(),
   });
 
   await currentRef.remove();
 
-  console.log('✅ FINALIZED OK');
+  console.log('✅ FINALIZED OK', finalInspection);
 }
 
 export async function loadInspections(uid: string): Promise<Inspection[]> {
@@ -143,6 +167,8 @@ export async function loadInspections(uid: string): Promise<Inspection[]> {
           broodFrames: i.broodFrames ?? 0,
           honeyKg: i.honeyKg ?? 0,
           queen: i.queen ?? 'unknown',
+          queenBreed: i.queenBreed,
+          queenBirthYear: i.queenBirthYear,
           source: i.source ?? 'voice',
         });
       }
@@ -377,6 +403,8 @@ export async function loadInspectionsByHive(
         honeyKg: i.honeyKg ?? 0,
         broodFrames: i.broodFrames ?? 0,
         queen: i.queen ?? 'unknown',
+        queenBreed: i.queenBreed,
+        queenBirthYear: i.queenBirthYear,
         source: i.source ?? 'voice',
       });
     }
