@@ -163,6 +163,12 @@ export class DevVoiceRuntime {
 
     await this.reset();
 
+    setVoiceUiState({
+      type: 'IDLE',
+    });
+
+    await this.speak(i18n.t('inspection:voice.preparing'));
+
     if (!this.modelLoaded) {
       const language = i18n.language;
 

@@ -24,6 +24,10 @@ export default {
     saving: 'Saving...',
   },
 
+  voice: {
+    preparing: 'Please wait, preparing voice inspection...',
+  },
+
   confirm: {
     title: 'Confirmation',
     message: 'Do you confirm the correctness of the entered data?',

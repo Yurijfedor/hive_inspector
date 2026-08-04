@@ -20,12 +20,16 @@ import {
 
 import {VoiceUiState} from '../../state/voiceUiState';
 
+import {useAppTranslation} from '../../hooks/useAppTranslation';
+
 type Props = {
   visible: boolean;
   onStop?: () => void;
 };
 
 export function VoiceInspectionOverlay({visible, onStop}: Props) {
+  const {t} = useAppTranslation();
+
   const [state, setState] = useState<VoiceUiState>(getVoiceUiState());
   const [holdingStop, setHoldingStop] = useState(false);
   const stopTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -76,6 +80,9 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
 
   const renderStatus = () => {
     switch (state.type) {
+      case 'IDLE':
+        return `⏳ ${t('inspection:voice.preparing')}`;
+
       case 'WAKE_WORD':
         return '🐝 Waiting for wake word';
 
@@ -95,7 +102,6 @@ export function VoiceInspectionOverlay({visible, onStop}: Props) {
         return '';
     }
   };
-
   const startStopHold = () => {
     setHoldingStop(true);
 

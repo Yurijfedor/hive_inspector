@@ -24,6 +24,10 @@ export default {
     saving: 'Wird gespeichert...',
   },
 
+  voice: {
+    preparing: 'Bitte warten, Sprachinspektion wird vorbereitet...',
+  },
+
   confirm: {
     title: 'Bestätigung',
     message: 'Bestätigen Sie die Korrektheit der eingegebenen Daten?',
