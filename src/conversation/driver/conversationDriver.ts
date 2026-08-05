@@ -497,17 +497,8 @@ export class ConversationDriver {
             this.state = {mode: 'IDLE'};
             await this.persistence.clear();
 
-            this.bus.emit({
-              type: 'SYSTEM_SPEAK',
-              text: resolveMessage(
-                {
-                  id: 'common.readyForCommand',
-                },
-                active.session,
-              ),
-            });
+            await this.pushFlow('hive');
 
-            this.bus.emit({type: 'CONVERSATION_FINISHED'});
             return;
           }
 

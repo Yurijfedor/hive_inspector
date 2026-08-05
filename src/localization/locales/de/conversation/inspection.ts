@@ -1,7 +1,8 @@
 import type {ConversationModule} from '../../../conversation/types';
 
 export const inspection: ConversationModule = {
-  'inspection.askHive': (_params) => 'Bitte nennen Sie die Stocknummer.',
+  'inspection.askHive': (_params) =>
+    'Nennen Sie die Stocknummer oder sagen Sie „Inspektion beenden“.',
 
   'inspection.retryHive': (_params) =>
     'Ich habe die Stocknummer nicht verstanden. Bitte nennen Sie sie noch einmal.',

@@ -1,7 +1,8 @@
 import type {ConversationModule} from '../../../conversation/types';
 
 export const inspection: ConversationModule = {
-  'inspection.askHive': (_params) => 'Please say the hive number.',
+  'inspection.askHive': (_params) =>
+    'Say the hive number, or say “stop inspection”.',
 
   'inspection.retryHive': (_params) =>
     "I didn't understand the hive number. Please say it again.",
