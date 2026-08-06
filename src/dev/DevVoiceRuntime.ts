@@ -496,11 +496,19 @@ export class DevVoiceRuntime {
     await this.driver.handleExternalInput(text);
   }
 
+  // public async stopInspection() {
+  //   if (this.stopped) {
+  //     return;
+  //   }
+
+  //   await this.driver.handleExternalInput('завершити огляд');
+  // }
+
   public async stopInspection() {
     if (this.stopped) {
       return;
     }
 
-    await this.driver.handleExternalInput('завершити огляд');
+    await this.driver.stopInspection();
   }
 }

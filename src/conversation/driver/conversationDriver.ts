@@ -267,18 +267,6 @@ export class ConversationDriver {
       total: flow.steps.length,
     });
 
-    // const message = resolveMessage(step, active.session);
-    // let message = '';
-
-    // if (step.messages?.prompt) {
-    //   message = resolveMessage(step.messages.prompt, active.session);
-    // } else if (step.question) {
-    //   message =
-    //     typeof step.question === 'function'
-    //       ? step.question(active.session)
-    //       : step.question;
-    // }
-
     if (!step.messages?.prompt) {
       throw new Error(`Step "${step.id}" has no prompt message.`);
     }
@@ -289,6 +277,31 @@ export class ConversationDriver {
       type: 'SYSTEM_SPEAK',
       text: message,
       // grammar: step.grammar,
+    });
+  }
+
+  private async stopInspectionInternal(): Promise<void> {
+    console.log('🛑 GLOBAL STOP INSPECTION');
+
+    this.state = {mode: 'IDLE'};
+    await this.persistence.clear();
+
+    this.bus.emit({
+      type: 'SYSTEM_SPEAK',
+      text: resolveMessage(
+        {
+          id: 'common.inspectionStopped',
+        },
+        {},
+      ),
+    });
+
+    this.bus.emit({type: 'STOP_INSPECTION'});
+  }
+
+  public async stopInspection(): Promise<void> {
+    return this.enqueueMutation(async () => {
+      await this.stopInspectionInternal();
     });
   }
 
@@ -308,27 +321,32 @@ export class ConversationDriver {
       const control = detectControlIntent(text);
 
       // 🔴 ПОВНИЙ STOP
+      // if (control === 'STOP_INSPECTION') {
+      //   console.log('🛑 GLOBAL STOP INSPECTION');
+
+      //   // очищаємо стан
+      //   this.state = {mode: 'IDLE'};
+      //   await this.persistence.clear();
+
+      //   // повідомляємо користувача
+      //   this.bus.emit({
+      //     type: 'SYSTEM_SPEAK',
+      //     text: resolveMessage(
+      //       {
+      //         id: 'common.inspectionStopped',
+      //       },
+      //       {},
+      //     ),
+      //   });
+
+      //   // 🔥 головне — сигнал runtime
+      //   this.bus.emit({type: 'STOP_INSPECTION'});
+
+      //   return;
+      // }
+
       if (control === 'STOP_INSPECTION') {
-        console.log('🛑 GLOBAL STOP INSPECTION');
-
-        // очищаємо стан
-        this.state = {mode: 'IDLE'};
-        await this.persistence.clear();
-
-        // повідомляємо користувача
-        this.bus.emit({
-          type: 'SYSTEM_SPEAK',
-          text: resolveMessage(
-            {
-              id: 'common.inspectionStopped',
-            },
-            {},
-          ),
-        });
-
-        // 🔥 головне — сигнал runtime
-        this.bus.emit({type: 'STOP_INSPECTION'});
-
+        await this.stopInspectionInternal();
         return;
       }
 
