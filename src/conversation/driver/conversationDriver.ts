@@ -419,35 +419,47 @@ export class ConversationDriver {
       // FLOW INTENT
       // -------------------------
 
-      const flowIntent = detectFlowIntent(text);
+      // Під час вибору вулика не обробляємо команди запуску flow.
+      //
+      // hiveSelectionFlow очікує:
+      // 1. номер вулика;
+      // 2. global control command (наприклад STOP).
+      //
+      // Це захищає від помилок STT на кшталт:
+      // "inspektion behandelt" → помилково START_FLOW('inspection').
+      //
+      // Якщо користувач сказав щось, що не є номером,
+      // текст піде нижче в executeStep(), де HIVE_NUMBER
+      // поверне локалізований retry.
+      if (active?.flowId !== 'hive') {
+        const flowIntent = detectFlowIntent(text);
 
-      if (flowIntent.type === 'START_FLOW') {
-        const active = this.getActiveInstance();
+        if (flowIntent.type === 'START_FLOW') {
+          if (active && active.flowId !== 'hive') {
+            this.bus.emit({
+              type: 'SYSTEM_SPEAK',
+              text: 'Ми вже виконуємо цю команду.',
+            });
 
-        if (active?.flowId === flowIntent.flowId) {
-          this.bus.emit({
-            type: 'SYSTEM_SPEAK',
-            text: 'Ми вже виконуємо цю команду.',
-          });
+            this.bus.emit({type: 'START_LISTENING'});
+            return;
+          }
 
-          this.bus.emit({type: 'START_LISTENING'});
+          const hiveNumber = active?.session?.hiveNumber;
+
+          if (hiveNumber) {
+            await this.pushFlow(flowIntent.flowId, hiveNumber);
+          } else {
+            this.bus.emit({
+              type: 'SYSTEM_SPEAK',
+              text: 'Спочатку скажіть номер вулика.',
+            });
+
+            this.bus.emit({type: 'START_LISTENING'});
+          }
+
           return;
         }
-
-        const hiveNumber = active?.session?.hiveNumber;
-
-        if (hiveNumber) {
-          await this.pushFlow(flowIntent.flowId, hiveNumber);
-        } else {
-          this.bus.emit({
-            type: 'SYSTEM_SPEAK',
-            text: 'Спочатку скажіть номер вулика.',
-          });
-
-          this.bus.emit({type: 'START_LISTENING'});
-        }
-
-        return;
       }
 
       // -------------------------
