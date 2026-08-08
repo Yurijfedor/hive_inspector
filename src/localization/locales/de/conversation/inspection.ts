@@ -19,7 +19,7 @@ export const inspection: ConversationModule = {
   'inspection.askBrood': (_params) => 'Wie viele Brutwaben gibt es?',
 
   'inspection.retryBrood': (_params) =>
-    'Bitte nennen Sie die Anzahl der Brutwaben.',
+    'Bitte nennen Sie die Anzahl der Brutwaben zwischen 1 und 20.',
 
   'inspection.confirmBrood': (params) =>
     `${params.broodFrames} Brutwaben. Ist das richtig?`,

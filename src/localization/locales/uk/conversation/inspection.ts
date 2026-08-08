@@ -11,7 +11,8 @@ export const inspection: ConversationModule = {
     "Яка сила бджолосім'ї? Назвіть кількість рамок.",
   'inspection.retryStrength': (_params) => 'Назвіть число рамок від 1 до 20.',
   'inspection.askBrood': (_params) => 'Скільки рамок з розплодом?',
-  'inspection.retryBrood': (_params) => 'Назвіть число рамок з розплодом.',
+  'inspection.retryBrood': (_params) =>
+    'Назвіть число рамок з розплодом від 1 до 20.',
   'inspection.confirmBrood': (params) =>
     `${params.broodFrames} рамок розплоду. Правильно?`,
   'inspection.askHoney': (_params) => 'Скільки приблизно кілограмів меду?',

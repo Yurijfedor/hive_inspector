@@ -19,7 +19,7 @@ export const inspection: ConversationModule = {
   'inspection.askBrood': (_params) => 'How many brood frames are there?',
 
   'inspection.retryBrood': (_params) =>
-    'Please say the number of brood frames.',
+    'Please say the number between 1 and 20.',
 
   'inspection.confirmBrood': (params) =>
     `${params.broodFrames} brood frames. Is that correct?`,
