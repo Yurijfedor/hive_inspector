@@ -32,4 +32,7 @@ export const inspection: ConversationModule = {
   'inspection.askQueenYear': (_params) => 'Якого року матка?',
 
   'inspection.retryQueenYear': (_params) => 'Назвіть рік, наприклад 2024.',
+
+  'inspection.confirmQueenYear': (params) =>
+    `Рік народження матки: ${params.queenYear}. Правильно?`,
 };

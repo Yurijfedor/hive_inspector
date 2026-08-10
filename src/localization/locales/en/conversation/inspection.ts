@@ -44,4 +44,7 @@ export const inspection: ConversationModule = {
 
   'inspection.retryQueenYear': (_params) =>
     'Please say the year, for example 2024.',
+
+  'inspection.confirmQueenYear': (params) =>
+    `Queen birth year: ${params.queenYear}. Is that correct?`,
 };

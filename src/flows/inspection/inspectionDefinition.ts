@@ -286,6 +286,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
         return parseYear(v, language);
       },
+
       validate: (v) =>
         typeof v === 'number' && v >= 2020 && v <= new Date().getFullYear(),
 
@@ -295,32 +296,42 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         }
 
         return {
-          session: {
-            ...session,
+          ...session,
 
-            data: {
-              ...session.data,
+          data: {
+            ...session.data,
 
-              queenYear: value,
-            },
+            queenYear: value,
           },
-
-          effects: [
-            {
-              type: 'UPDATE_QUEEN',
-
-              hiveNumber: session.hiveNumber,
-
-              payload: {
-                status: QUEEN_STATUS.PRESENT,
-
-                birthYear: value,
-              },
-            },
-          ],
         };
       },
     },
+
+    createConfirmStep(
+      'CONFIRM_QUEEN_YEAR',
+
+      {
+        id: 'inspection.confirmQueenYear',
+
+        params: (session) => ({
+          queenYear: session.data.queenYear,
+        }),
+      },
+
+      (session) => [
+        {
+          type: 'UPDATE_QUEEN',
+
+          hiveNumber: session.hiveNumber,
+
+          payload: {
+            status: QUEEN_STATUS.PRESENT,
+
+            birthYear: session.data.queenYear!,
+          },
+        },
+      ],
+    ),
 
     // -------------------------
     // HONEY
