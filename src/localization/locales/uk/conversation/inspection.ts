@@ -24,10 +24,11 @@ export const inspection: ConversationModule = {
     `${params.honeyKg} кілограм меду. Правильно?`,
   'inspection.askQueen': (_params) => 'Чи є матка?',
   'inspection.askQueenBreed': (_params) =>
-    'Яка порода матки? Карніка, бакфаст чи місцева?',
+    'Назвіть номер породи: один, два або три.',
 
-  'inspection.retryQueenBreed': (_params) =>
-    'Скажіть: карніка, бакфаст або місцева.',
+  'inspection.retryQueenBreed': (_params) => 'Назвіть правильний номер породи.',
+  'inspection.confirmQueenBreed': (params) =>
+    `Порода матки: ${params.queenBreed}. Правильно?`,
 
   'inspection.askQueenYear': (_params) => 'Якого року матка?',
 

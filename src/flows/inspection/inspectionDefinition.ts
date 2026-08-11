@@ -1,3 +1,5 @@
+import i18n from '../../localization/i18n';
+
 import {ConversationFlow} from '../conversationFlow';
 import type {InspectionSession} from './inspectionTypes';
 
@@ -197,7 +199,7 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
           return true;
         }
 
-        // ✅ якщо вже ввели в цьому flow
+        // ✅ якщо вже введено в цьому flow
         if (session.data?.queenBreed) {
           return false;
         }
@@ -220,32 +222,45 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         }
 
         return {
-          session: {
-            ...session,
+          ...session,
 
-            data: {
-              ...session.data,
+          data: {
+            ...session.data,
 
-              queenBreed: value as QueenBreed,
-            },
+            queenBreed: value as QueenBreed,
           },
-
-          effects: [
-            {
-              type: 'UPDATE_QUEEN',
-
-              hiveNumber: session.hiveNumber,
-
-              payload: {
-                status: QUEEN_STATUS.PRESENT,
-
-                breed: value as QueenBreed,
-              },
-            },
-          ],
         };
       },
     },
+
+    // -------------------------
+    // CONFIRM QUEEN BREED
+    // -------------------------
+    createConfirmStep(
+      'CONFIRM_QUEEN_BREED',
+
+      {
+        id: 'inspection.confirmQueenBreed',
+
+        params: (session) => ({
+          queenBreed: i18n.t(`queen:breeds.${session.data.queenBreed}`),
+        }),
+      },
+
+      (session) => [
+        {
+          type: 'UPDATE_QUEEN',
+
+          hiveNumber: session.hiveNumber,
+
+          payload: {
+            status: QUEEN_STATUS.PRESENT,
+
+            breed: session.data.queenBreed!,
+          },
+        },
+      ],
+    ),
 
     // -------------------------
     // QUEEN YEAR

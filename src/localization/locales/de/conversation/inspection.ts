@@ -34,10 +34,13 @@ export const inspection: ConversationModule = {
 
   'inspection.askQueen': (_params) => 'Ist eine Königin vorhanden?',
   'inspection.askQueenBreed': (_params) =>
-    'Welche Rasse hat die Königin? Carnica, Buckfast oder eine lokale Rasse?',
+    'Nennen Sie die Nummer der Rasse: eins, zwei oder drei.',
 
   'inspection.retryQueenBreed': (_params) =>
-    'Bitte sagen Sie: Carnica, Buckfast oder lokale Rasse.',
+    'Bitte nennen Sie eine gültige Rassennummer.',
+
+  'inspection.confirmQueenBreed': (params) =>
+    `Rasse der Königin: ${params.queenBreed}. Ist das richtig?`,
 
   'inspection.askQueenYear': (_params) => 'Aus welchem Jahr ist die Königin?',
 

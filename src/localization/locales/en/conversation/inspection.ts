@@ -35,11 +35,11 @@ export const inspection: ConversationModule = {
 
   'inspection.askQueen': (_params) => 'Is there a queen?',
   'inspection.askQueenBreed': (_params) =>
-    'What breed is the queen? Carniolan, Buckfast, or local?',
+    'Say the breed number: one, two or three.',
 
-  'inspection.retryQueenBreed': (_params) =>
-    'Please say: Carniolan, Buckfast, or local.',
-
+  'inspection.retryQueenBreed': (_params) => 'Please say a valid breed number.',
+  'inspection.confirmQueenBreed': (params) =>
+    `Queen breed: ${params.queenBreed}. Is that correct?`,
   'inspection.askQueenYear': (_params) => 'What year was the queen born?',
 
   'inspection.retryQueenYear': (_params) =>
