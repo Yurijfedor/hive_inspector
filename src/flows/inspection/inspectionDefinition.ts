@@ -212,16 +212,29 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
         return false;
       },
 
-      normalize: (v) => parseQueenBreed(v),
+      normalize: (v) => {
+        const result = parseQueenBreed(v);
 
-      validate: (v) => v !== null,
+        console.log('🐝 QUEEN BREED RAW:', v);
+        console.log('🐝 QUEEN BREED PARSED:', result);
+
+        return result;
+      },
+
+      validate: (v) => {
+        console.log('🐝 QUEEN BREED VALIDATE:', v);
+        return v !== null && v !== undefined;
+      },
 
       apply: (session, value) => {
+        console.log('🐝 QUEEN BREED APPLY VALUE:', value);
+        console.log('🐝 QUEEN BREED SESSION BEFORE:', session);
+
         if (!value) {
           return session;
         }
 
-        return {
+        const updatedSession = {
           ...session,
 
           data: {
@@ -230,6 +243,10 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
             queenBreed: value as QueenBreed,
           },
         };
+
+        console.log('🐝 QUEEN BREED SESSION AFTER:', updatedSession);
+
+        return updatedSession;
       },
     },
 

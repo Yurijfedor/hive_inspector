@@ -22,6 +22,8 @@ import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {getApiaryCategoryLabel} from '../localization/helpers/getApiaryCategoryLabel';
 
+import {HiveContextRepository as LocalHiveContextRepository} from '../persistence/hiveContextRepository';
+
 type RouteParams = {
   ApiaryCategory: {
     category: ApiaryCategory;
@@ -55,79 +57,151 @@ export const ApiaryCategoryScreen = () => {
       return;
     }
 
-    const taskRepo = new TaskRepository();
+    try {
+      const taskRepo = new TaskRepository();
 
-    const ctxRepo = new HiveContextRepository();
+      const ctxRepo = new HiveContextRepository();
 
-    const tasks = await taskRepo.getAll();
+      const localHiveContextRepo = new LocalHiveContextRepository();
 
-    const inspections = await loadInspections(uid);
+      // --------------------------------------------------
+      // 1. LOAD LOCAL DATA
+      // --------------------------------------------------
 
-    const hiveNumbers = Array.from(new Set(tasks.map((t) => t.hiveNumber)));
+      const tasks = await taskRepo.getAll();
 
-    const result: number[] = [];
+      const inspections = await loadInspections(uid);
 
-    for (const hiveNumber of hiveNumbers) {
-      const ctx = ctxRepo.buildFromData(hiveNumber, tasks, inspections);
+      const syncedContexts = await localHiveContextRepo.loadAll();
 
-      console.log(ctx);
+      console.log('📊 CATEGORY TASKS:', tasks.length);
 
-      switch (route.params.category) {
-        case 'ALL':
-          result.push(hiveNumber);
+      console.log('📊 CATEGORY INSPECTIONS:', inspections.length);
 
-          break;
+      console.log('📊 CATEGORY SYNCED CONTEXTS:', syncedContexts.length);
 
-        case 'NO_INSPECTION': {
-          const now = Date.now();
+      // --------------------------------------------------
+      // 2. ВСІ ВІДОМІ ВУЛИКИ
+      // --------------------------------------------------
 
-          const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      const hiveNumbers = Array.from(
+        new Set([
+          ...tasks.map((t) => t.hiveNumber),
+          ...inspections.map((i) => i.hiveNumber),
+          ...syncedContexts.map((c) => c.hiveNumber),
+        ]),
+      );
 
-          if (
-            !ctx.lastInspection?.date ||
-            now - ctx.lastInspection.date > SEVEN_DAYS
-          ) {
+      console.log('🐝 CATEGORY ALL HIVES:', hiveNumbers);
+
+      const result: number[] = [];
+
+      // --------------------------------------------------
+      // 3. BUILD CATEGORY
+      // --------------------------------------------------
+
+      for (const hiveNumber of hiveNumbers) {
+        const ctx = ctxRepo.buildFromData(hiveNumber, tasks, inspections);
+
+        const syncedContext = syncedContexts.find(
+          (c) => c.hiveNumber === hiveNumber,
+        );
+
+        const effectiveContext =
+          ctx?.lastInspection ||
+          ctx?.feeding?.hasFeeding ||
+          ctx?.swarm?.hasSwarmSigns ||
+          ctx?.disease?.hasDiseaseSigns ||
+          ctx?.split?.isSplit
+            ? ctx
+            : syncedContext ?? ctx;
+
+        console.log(`🐝 HIVE ${hiveNumber}:`, effectiveContext);
+
+        // --------------------------------------------------
+        // ALL
+        // --------------------------------------------------
+
+        switch (route.params.category) {
+          case 'ALL':
             result.push(hiveNumber);
+            break;
+
+          // ------------------------------------------------
+          // NO INSPECTION
+          // ------------------------------------------------
+
+          case 'NO_INSPECTION': {
+            const now = Date.now();
+
+            const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+            if (
+              !effectiveContext.lastInspection?.date ||
+              now - effectiveContext.lastInspection.date > SEVEN_DAYS
+            ) {
+              result.push(hiveNumber);
+            }
+
+            break;
           }
 
-          break;
-        }
+          // ------------------------------------------------
+          // FEEDING
+          // ------------------------------------------------
 
-        case 'FEEDING': {
-          const strength = ctx.lastInspection?.strength ?? 0;
+          case 'FEEDING': {
+            const strength = effectiveContext.lastInspection?.strength ?? 0;
 
-          const honey = ctx.lastInspection?.honeyKg ?? 0;
+            const honey = effectiveContext.lastInspection?.honeyKg ?? 0;
 
-          const needsFeeding = strength > 0 && honey < strength * 1.5;
+            const needsFeeding = strength > 0 && honey < strength * 1.5;
 
-          if (needsFeeding) {
-            result.push(hiveNumber);
+            if (needsFeeding) {
+              result.push(hiveNumber);
+            }
+
+            break;
           }
 
-          break;
-        }
+          // ------------------------------------------------
+          // PROBLEMS
+          // ------------------------------------------------
 
-        case 'PROBLEMS': {
-          const now = Date.now();
+          case 'PROBLEMS': {
+            const now = Date.now();
 
-          const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
+            const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
 
-          const hasRecentDisease =
-            ctx.disease?.updatedAt && now - ctx.disease.updatedAt < RECENT_DAYS;
+            const hasRecentDisease =
+              effectiveContext.disease?.updatedAt &&
+              now - effectiveContext.disease.updatedAt < RECENT_DAYS;
 
-          const hasRecentSwarm =
-            ctx.swarm?.updatedAt && now - ctx.swarm.updatedAt < RECENT_DAYS;
+            const hasRecentSwarm =
+              effectiveContext.swarm?.updatedAt &&
+              now - effectiveContext.swarm.updatedAt < RECENT_DAYS;
 
-          if (hasRecentDisease || hasRecentSwarm) {
-            result.push(hiveNumber);
+            if (hasRecentDisease || hasRecentSwarm) {
+              result.push(hiveNumber);
+            }
+
+            break;
           }
-
-          break;
         }
       }
-    }
 
-    setHives(result);
+      // --------------------------------------------------
+      // 4. SORT
+      // --------------------------------------------------
+
+      result.sort((a, b) => a - b);
+
+      console.log('✅ CATEGORY RESULT:', result);
+
+      setHives(result);
+    } catch (e) {
+      console.log('❌ CATEGORY LOAD ERROR:', e);
+    }
   }, [uid, route.params.category]);
 
   // --------------------------------------------------
@@ -137,8 +211,6 @@ export const ApiaryCategoryScreen = () => {
   useEffect(() => {
     load();
   }, [load]);
-
-  console.log(hives);
 
   // --------------------------------------------------
   // UI
@@ -189,71 +261,46 @@ export const ApiaryCategoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     padding: 16,
   },
 
   title: {
     fontSize: 22,
-
     fontWeight: '700',
-
     marginBottom: 16,
   },
 
   item: {
     fontSize: 16,
-
     fontWeight: '500',
   },
 
-  // 🐝 hive card
-
   card: {
     backgroundColor: '#f5f5f5',
-
     padding: 16,
-
     borderRadius: 12,
-
     marginBottom: 12,
-
     shadowColor: '#000',
-
     shadowOpacity: 0.05,
-
     shadowRadius: 6,
-
     elevation: 2,
   },
 
-  // 🔢 hive number
-
   hiveNumber: {
     fontSize: 18,
-
     fontWeight: '700',
-
     marginBottom: 4,
   },
 
-  // 🧠 meta
-
   meta: {
     fontSize: 14,
-
     color: '#666',
   },
 
-  // ❌ empty
-
   empty: {
     marginTop: 40,
-
     textAlign: 'center',
-
     fontSize: 16,
-
     color: '#999',
   },
 

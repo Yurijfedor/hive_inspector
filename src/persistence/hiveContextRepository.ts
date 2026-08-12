@@ -46,13 +46,14 @@ export class HiveContextRepository {
   async updateOne(updated: HiveContext): Promise<void> {
     const contexts = await this.loadAll();
 
-    const next = contexts.map((c) =>
-      c.hiveNumber === updated.hiveNumber ? updated : c,
-    );
+    const exists = contexts.some((c) => c.hiveNumber === updated.hiveNumber);
+
+    const next = exists
+      ? contexts.map((c) => (c.hiveNumber === updated.hiveNumber ? updated : c))
+      : [...contexts, updated];
 
     await this.saveAll(next);
   }
-
   /**
    * Clear cache (debug / logout)
    */

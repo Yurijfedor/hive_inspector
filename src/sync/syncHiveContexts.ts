@@ -10,22 +10,29 @@ export async function syncHiveContexts(uid: string) {
   try {
     const contexts = await loadHiveContextsFromFirebase(uid);
 
-    console.log('☁️ LOADED FROM FIREBASE:', contexts.length);
+    console.log(
+      '☁️ LOADED FROM FIREBASE:',
+      contexts.length,
+      contexts.map((h) => h.hiveNumber),
+    );
 
     const repo = new HiveContextRepository();
 
-    if (contexts.length > 0) {
-      await repo.saveAll(contexts);
-      console.log('💾 CACHE UPDATED');
+    await repo.saveAll(contexts);
 
-      // ✅ фіксуємо час синку
-      await AsyncStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
-    } else {
-      console.log('⚠️ SKIP CACHE UPDATE (EMPTY RESULT)');
-    }
+    console.log(
+      '💾 CACHE UPDATED:',
+      contexts.length,
+      contexts.map((h) => h.hiveNumber),
+    );
+
+    await AsyncStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
 
     console.log('✅ SYNC DONE');
+
+    return contexts;
   } catch (e) {
     console.log('❌ SYNC FAILED', e);
+    throw e;
   }
 }
