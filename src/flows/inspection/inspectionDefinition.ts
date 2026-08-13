@@ -194,20 +194,28 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
       },
 
       shouldSkip: (session) => {
-        // ❌ якщо немає матки
+        console.log('🐝 QUEEN BREED SHOULD SKIP:', {
+          queen: session.data?.queen,
+          queenBreed: session.data?.queenBreed,
+          contextBreed: session.hiveContext?.queen?.breed,
+        });
+
         if (session.data?.queen !== QUEEN_STATUS.PRESENT) {
+          console.log('🐝 QUEEN BREED SKIP: NO QUEEN');
           return true;
         }
 
-        // ✅ якщо вже введено в цьому flow
         if (session.data?.queenBreed) {
+          console.log('🐝 QUEEN BREED: ALREADY ENTERED IN THIS FLOW');
           return false;
         }
 
-        // 🔥 якщо вже є в hiveContext
         if (session.hiveContext?.queen?.breed) {
+          console.log('🐝 QUEEN BREED SKIP: ALREADY EXISTS IN HIVE CONTEXT');
           return true;
         }
+
+        console.log('🐝 QUEEN BREED: ASK USER');
 
         return false;
       },
@@ -272,11 +280,12 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
           payload: {
             status: QUEEN_STATUS.PRESENT,
-
             breed: session.data.queenBreed!,
           },
         },
       ],
+
+      (session) => !session.data?.queenBreed,
     ),
 
     // -------------------------
@@ -358,11 +367,12 @@ export const inspectionFlow: ConversationFlow<InspectionSession> = {
 
           payload: {
             status: QUEEN_STATUS.PRESENT,
-
             birthYear: session.data.queenYear!,
           },
         },
       ],
+
+      (session) => !session.data?.queenYear,
     ),
 
     // -------------------------

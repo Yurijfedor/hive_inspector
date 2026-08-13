@@ -149,11 +149,19 @@ export class ConversationDriver {
   }
 
   private async ensureHiveContexts(): Promise<void> {
-    if (this.hiveContexts.length > 0) return;
+    // if (this.hiveContexts.length > 0) return;
 
     console.log('📦 Loading hive contexts FROM CACHE');
 
     this.hiveContexts = await this.hiveRepo.loadAll();
+
+    console.log(
+      '🐝 CONTEXTS QUEEN DATA:',
+      this.hiveContexts.map((h) => ({
+        hiveNumber: h.hiveNumber,
+        queen: h.queen,
+      })),
+    );
   }
 
   private resolveRetryMessage(step: StepDefinition<any>, session: any): string {

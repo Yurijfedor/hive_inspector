@@ -4,9 +4,9 @@ import {normalizeBoolean} from '../domain/normalizers/booleanNormalizer';
 
 export function createConfirmStep<TSession>(
   id: string,
-  // question: (session: TSession) => string,
   prompt: MessageDefinition<TSession>,
   onConfirm?: (session: TSession) => any[],
+  shouldSkip?: (session: TSession) => boolean,
 ): StepDefinition<TSession> {
   return {
     id,
@@ -17,6 +17,8 @@ export function createConfirmStep<TSession>(
         id: 'common.retryYesNo',
       },
     },
+
+    shouldSkip,
 
     normalize: normalizeBoolean,
 
