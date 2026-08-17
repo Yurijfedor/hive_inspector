@@ -1,18 +1,12 @@
-import database from '@react-native-firebase/database';
+import {HiveRepository} from '../../../persistence/hiveRepository';
 
 export async function createHive(uid: string, hiveNumber: number) {
-  const ref = database().ref(`users/${uid}/hives/${hiveNumber}`);
+  const repository = new HiveRepository();
 
-  // ❗ ВАЖЛИВО: використовуємо once
-  const snapshot = await ref.once('value');
-
-  if (snapshot.exists()) {
-    throw new Error('Hive already exists');
-  }
-
-  await ref.set({
-    meta: {
-      createdAt: Date.now(),
-    },
+  await repository.create({
+    hiveNumber,
+    createdAt: Date.now(),
   });
+
+  console.log('🐝 HIVE CREATED LOCALLY:', hiveNumber);
 }

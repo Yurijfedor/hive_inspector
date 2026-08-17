@@ -2,6 +2,11 @@ import type {Queen} from './queen';
 
 import type {DiseaseType} from './disease';
 
+export type Hive = {
+  hiveNumber: number;
+  createdAt: number;
+};
+
 export type HiveInspectionSummary = {
   date: number;
 

@@ -15,7 +15,8 @@ import {useAuth} from '../auth/AuthProvider';
 
 import {HiveContext} from '../types/hive';
 
-import {loadHiveContextsFromFirebase} from '../persistence/inspectionRepository';
+// import { loadHiveContextsFromFirebase } from '../persistence/inspectionRepository';
+import {HiveContextRepository} from '../persistence/hiveContextRepository';
 
 import {RootStackParamList} from '../navigation/types';
 
@@ -71,22 +72,19 @@ export const HiveScreen = () => {
     try {
       setLoading(true);
 
-      const contexts = await loadHiveContextsFromFirebase(uid);
+      const repository = new HiveContextRepository();
 
-      console.log('📦 HIVE CONTEXTS:', contexts);
+      const hiveCtx = await repository.getByHiveNumber(hiveNumber);
 
-      const hiveCtx = contexts.find((c) => c.hiveNumber === hiveNumber);
+      console.log('📦 LOCAL HIVE CONTEXT:', hiveCtx);
 
-      console.log(`🐝 FOUND HIVE CONTEXT: ${JSON.stringify(hiveCtx)}`);
-
-      setContext(hiveCtx ?? null);
+      setContext(hiveCtx);
     } catch (e) {
-      console.log('❌ LOAD HIVE CONTEXT ERROR', e);
+      console.log('❌ LOAD LOCAL HIVE CONTEXT ERROR', e);
     } finally {
       setLoading(false);
     }
   }, [hiveNumber, uid]);
-
   // --------------------------------------------------
   // AUTO REFRESH ON SCREEN FOCUS
   // --------------------------------------------------
