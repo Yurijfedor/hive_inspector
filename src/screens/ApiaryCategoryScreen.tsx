@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import {View, Text, TouchableOpacity, StyleSheet, FlatList} from 'react-native';
 
@@ -8,13 +8,13 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {RootStackParamList} from '../navigation/types';
 
-import {useAuth} from '../auth/AuthProvider';
+// import {useAuth} from '../auth/AuthProvider';
 
 import {TaskRepository} from '../domain/repositories/taskRepository';
 
-import {HiveContextRepository} from '../domain/repositories/hiveContextRepository';
+import {HiveRepository} from '../persistence/hiveRepository';
 
-import {loadInspections} from '../persistence/inspectionRepository';
+import {HiveContextRepository} from '../persistence/hiveContextRepository';
 
 import {ApiaryCategory} from '../domain/apiary';
 
@@ -22,7 +22,9 @@ import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {getApiaryCategoryLabel} from '../localization/helpers/getApiaryCategoryLabel';
 
-import {HiveContextRepository as LocalHiveContextRepository} from '../persistence/hiveContextRepository';
+// --------------------------------------------------
+// TYPES
+// --------------------------------------------------
 
 type RouteParams = {
   ApiaryCategory: {
@@ -35,177 +37,209 @@ type NavigationProp = NativeStackNavigationProp<
   'ApiaryCategory'
 >;
 
+// --------------------------------------------------
+// CONSTANTS
+// --------------------------------------------------
+
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
+
+// --------------------------------------------------
+// SCREEN
+// --------------------------------------------------
+
 export const ApiaryCategoryScreen = () => {
   const route = useRoute<RouteProp<RouteParams, 'ApiaryCategory'>>();
 
   const navigation = useNavigation<NavigationProp>();
 
-  const {user} = useAuth();
-
-  const uid = user?.uid;
+  // const {user} = useAuth();
 
   const {t} = useAppTranslation();
 
   const [hives, setHives] = useState<number[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
   // --------------------------------------------------
-  // LOAD
+  // LOAD CATEGORY
   // --------------------------------------------------
 
   const load = useCallback(async () => {
-    if (!uid) {
-      return;
-    }
-
     try {
-      const taskRepo = new TaskRepository();
-
-      const ctxRepo = new HiveContextRepository();
-
-      const localHiveContextRepo = new LocalHiveContextRepository();
+      setLoading(true);
 
       // --------------------------------------------------
-      // 1. LOAD LOCAL DATA
+      // 1. LOCAL REPOSITORIES
       // --------------------------------------------------
 
-      const tasks = await taskRepo.getAll();
+      const hiveRepository = new HiveRepository();
 
-      const inspections = await loadInspections(uid);
+      const taskRepository = new TaskRepository();
 
-      const syncedContexts = await localHiveContextRepo.loadAll();
-
-      console.log('📊 CATEGORY TASKS:', tasks.length);
-
-      console.log('📊 CATEGORY INSPECTIONS:', inspections.length);
-
-      console.log('📊 CATEGORY SYNCED CONTEXTS:', syncedContexts.length);
+      const hiveContextRepository = new HiveContextRepository();
 
       // --------------------------------------------------
-      // 2. ВСІ ВІДОМІ ВУЛИКИ
+      // 2. LOAD LOCAL DATA
       // --------------------------------------------------
 
-      const hiveNumbers = Array.from(
-        new Set([
-          ...tasks.map((t) => t.hiveNumber),
-          ...inspections.map((i) => i.hiveNumber),
-          ...syncedContexts.map((c) => c.hiveNumber),
-        ]),
+      const [localHives, tasks, contexts] = await Promise.all([
+        hiveRepository.getAll(),
+        taskRepository.getAll(),
+        hiveContextRepository.loadAll(),
+      ]);
+
+      console.log('📂 LOCAL HIVES:', localHives);
+      console.log('📂 LOCAL TASKS:', tasks.length);
+      console.log('📂 LOCAL CONTEXTS:', contexts.length);
+
+      // --------------------------------------------------
+      // 3. BUILD COMPLETE HIVE NUMBER SET
+      // --------------------------------------------------
+
+      const hiveNumbers = new Set<number>();
+
+      // Основне джерело — реально створені вулики
+      for (const hive of localHives) {
+        if (
+          typeof hive.hiveNumber === 'number' &&
+          Number.isFinite(hive.hiveNumber)
+        ) {
+          hiveNumbers.add(hive.hiveNumber);
+        }
+      }
+
+      // Додаткове джерело — задачі
+      for (const task of tasks) {
+        if (
+          typeof task.hiveNumber === 'number' &&
+          Number.isFinite(task.hiveNumber)
+        ) {
+          hiveNumbers.add(task.hiveNumber);
+        }
+      }
+
+      // Додаткове джерело — synced contexts
+      for (const context of contexts) {
+        if (
+          typeof context.hiveNumber === 'number' &&
+          Number.isFinite(context.hiveNumber)
+        ) {
+          hiveNumbers.add(context.hiveNumber);
+        }
+      }
+
+      const allHiveNumbers = Array.from(hiveNumbers);
+
+      console.log(
+        '🐝 ALL KNOWN HIVES:',
+        allHiveNumbers.sort((a, b) => a - b),
       );
 
-      console.log('🐝 CATEGORY ALL HIVES:', hiveNumbers);
+      // --------------------------------------------------
+      // 4. BUILD CATEGORY
+      // --------------------------------------------------
 
       const result: number[] = [];
 
-      // --------------------------------------------------
-      // 3. BUILD CATEGORY
-      // --------------------------------------------------
+      const now = Date.now();
 
-      for (const hiveNumber of hiveNumbers) {
-        const ctx = ctxRepo.buildFromData(hiveNumber, tasks, inspections);
+      for (const hiveNumber of allHiveNumbers) {
+        const context = contexts.find((item) => item.hiveNumber === hiveNumber);
 
-        const syncedContext = syncedContexts.find(
-          (c) => c.hiveNumber === hiveNumber,
-        );
-
-        const effectiveContext =
-          ctx?.lastInspection ||
-          ctx?.feeding?.hasFeeding ||
-          ctx?.swarm?.hasSwarmSigns ||
-          ctx?.disease?.hasDiseaseSigns ||
-          ctx?.split?.isSplit
-            ? ctx
-            : syncedContext ?? ctx;
-
-        console.log(`🐝 HIVE ${hiveNumber}:`, effectiveContext);
-
-        // --------------------------------------------------
+        // ------------------------------------------------
         // ALL
-        // --------------------------------------------------
+        // ------------------------------------------------
 
-        switch (route.params.category) {
-          case 'ALL':
+        if (route.params.category === 'ALL') {
+          result.push(hiveNumber);
+          continue;
+        }
+
+        // ------------------------------------------------
+        // NO INSPECTION
+        // ------------------------------------------------
+
+        if (route.params.category === 'NO_INSPECTION') {
+          const lastInspectionDate = context?.lastInspection?.date;
+
+          if (!lastInspectionDate || now - lastInspectionDate > SEVEN_DAYS) {
             result.push(hiveNumber);
-            break;
-
-          // ------------------------------------------------
-          // NO INSPECTION
-          // ------------------------------------------------
-
-          case 'NO_INSPECTION': {
-            const now = Date.now();
-
-            const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-
-            if (
-              !effectiveContext.lastInspection?.date ||
-              now - effectiveContext.lastInspection.date > SEVEN_DAYS
-            ) {
-              result.push(hiveNumber);
-            }
-
-            break;
           }
 
-          // ------------------------------------------------
-          // FEEDING
-          // ------------------------------------------------
+          continue;
+        }
 
-          case 'FEEDING': {
-            const strength = effectiveContext.lastInspection?.strength ?? 0;
+        // ------------------------------------------------
+        // FEEDING
+        // ------------------------------------------------
 
-            const honey = effectiveContext.lastInspection?.honeyKg ?? 0;
+        if (route.params.category === 'FEEDING') {
+          const inspection = context?.lastInspection;
 
-            const needsFeeding = strength > 0 && honey < strength * 1.5;
-
-            if (needsFeeding) {
-              result.push(hiveNumber);
-            }
-
-            break;
+          if (!inspection) {
+            continue;
           }
 
-          // ------------------------------------------------
-          // PROBLEMS
-          // ------------------------------------------------
+          const strength = inspection.strength ?? 0;
 
-          case 'PROBLEMS': {
-            const now = Date.now();
+          const honey = inspection.honeyKg ?? 0;
 
-            const RECENT_DAYS = 3 * 24 * 60 * 60 * 1000;
+          const needsFeeding = strength > 0 && honey < strength * 1.5;
 
-            const hasRecentDisease =
-              effectiveContext.disease?.updatedAt &&
-              now - effectiveContext.disease.updatedAt < RECENT_DAYS;
-
-            const hasRecentSwarm =
-              effectiveContext.swarm?.updatedAt &&
-              now - effectiveContext.swarm.updatedAt < RECENT_DAYS;
-
-            if (hasRecentDisease || hasRecentSwarm) {
-              result.push(hiveNumber);
-            }
-
-            break;
+          if (needsFeeding) {
+            result.push(hiveNumber);
           }
+
+          continue;
+        }
+
+        // ------------------------------------------------
+        // PROBLEMS
+        // ------------------------------------------------
+
+        if (route.params.category === 'PROBLEMS') {
+          const diseaseUpdatedAt = context?.disease?.updatedAt;
+
+          const swarmUpdatedAt = context?.swarm?.updatedAt;
+
+          const hasRecentDisease =
+            typeof diseaseUpdatedAt === 'number' &&
+            now - diseaseUpdatedAt < RECENT_DAYS;
+
+          const hasRecentSwarm =
+            typeof swarmUpdatedAt === 'number' &&
+            now - swarmUpdatedAt < RECENT_DAYS;
+
+          if (hasRecentDisease || hasRecentSwarm) {
+            result.push(hiveNumber);
+          }
+
+          continue;
         }
       }
 
       // --------------------------------------------------
-      // 4. SORT
+      // 5. SORT
       // --------------------------------------------------
 
       result.sort((a, b) => a - b);
 
-      console.log('✅ CATEGORY RESULT:', result);
+      console.log(`✅ CATEGORY ${route.params.category}:`, result);
 
       setHives(result);
-    } catch (e) {
-      console.log('❌ CATEGORY LOAD ERROR:', e);
+    } catch (error) {
+      console.log('❌ CATEGORY LOAD ERROR:', error);
+
+      setHives([]);
+    } finally {
+      setLoading(false);
     }
-  }, [uid, route.params.category]);
+  }, [route.params.category]);
 
   // --------------------------------------------------
-  // EFFECTS
+  // LOAD ON SCREEN OPEN
   // --------------------------------------------------
 
   useEffect(() => {
@@ -224,32 +258,38 @@ export const ApiaryCategoryScreen = () => {
         🐝 {getApiaryCategoryLabel(route.params.category, t)}
       </Text>
 
+      {/* LOADING */}
+
+      {loading && <Text style={styles.empty}>{t('common:loading')}</Text>}
+
       {/* EMPTY */}
 
-      {hives.length === 0 && (
+      {!loading && hives.length === 0 && (
         <Text style={styles.empty}>{t('apiary:empty.noHives')}</Text>
       )}
 
       {/* HIVES */}
 
-      <FlatList
-        data={hives}
-        keyExtractor={(item) => item.toString()}
-        contentContainerStyle={styles.list}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate('Hive', {
-                hiveNumber: item,
-              })
-            }>
-            <Text style={styles.hiveNumber}>
-              🐝 {t('apiary:hive')} {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
+      {!loading && hives.length > 0 && (
+        <FlatList
+          data={hives}
+          keyExtractor={(item) => String(item)}
+          contentContainerStyle={styles.list}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate('Hive', {
+                  hiveNumber: item,
+                })
+              }>
+              <Text style={styles.hiveNumber}>
+                🐝 {t('apiary:hive')} {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -270,11 +310,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  item: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-
   card: {
     backgroundColor: '#f5f5f5',
     padding: 16,
@@ -289,12 +324,6 @@ const styles = StyleSheet.create({
   hiveNumber: {
     fontSize: 18,
     fontWeight: '700',
-    marginBottom: 4,
-  },
-
-  meta: {
-    fontSize: 14,
-    color: '#666',
   },
 
   empty: {
