@@ -62,4 +62,16 @@ export class HiveContextRepository {
 
     await AsyncStorage.removeItem(STORAGE_KEY);
   }
+
+  async deleteByHiveNumber(hiveNumber: number): Promise<void> {
+    const contexts = await this.loadAll();
+
+    const next = contexts.filter(
+      (context) => context.hiveNumber !== hiveNumber,
+    );
+
+    await this.saveAll(next);
+
+    console.log('🗑️ LOCAL HIVE CONTEXT DELETED:', hiveNumber);
+  }
 }

@@ -1,7 +1,6 @@
 import React, {useState, useCallback} from 'react';
 
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {
   useRoute,
   useNavigation,
@@ -30,6 +29,7 @@ import {getQueenSummary} from '../localization/helpers/getQueenSummary';
 import {getInspectionMetricsSummary} from '../localization/helpers/getInspectionMetricsSummary';
 import {getSwarmSummary} from '../localization/helpers/getSwarmSummary';
 import {getDiseaseSummary} from '../localization/helpers/getDiseaseSummary';
+import {deleteHive} from '../domain/useCases/hives/deleteHive';
 
 // --------------------------------------------------
 // TYPES
@@ -117,6 +117,44 @@ export const HiveScreen = () => {
     });
   };
 
+  const handleDeleteHive = () => {
+    if (!uid) {
+      return;
+    }
+
+    Alert.alert(
+      t('hive:delete.title'),
+      t('hive:delete.message', {hiveNumber}),
+      [
+        {
+          text: t('common:cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('hive:delete.confirm'),
+          style: 'destructive',
+
+          onPress: async () => {
+            try {
+              setLoading(true);
+
+              await deleteHive(uid, hiveNumber);
+
+              console.log('✅ HIVE DELETED:', hiveNumber);
+
+              navigation.goBack();
+            } catch (e) {
+              console.log('❌ DELETE HIVE FAILED:', e);
+
+              Alert.alert(t('common:error'), t('hive:delete.error'));
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
   // --------------------------------------------------
   // UI
   // --------------------------------------------------
@@ -198,6 +236,12 @@ export const HiveScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleOpenHistory}>
         <Text style={styles.buttonText}>📜 {t('hive:actions.history')}</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteHive}>
+        <Text style={styles.deleteButtonText}>
+          🗑️ {t('hive:actions.delete')}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -233,6 +277,19 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  deleteButton: {
+    marginTop: 40,
+    padding: 12,
+    backgroundColor: '#d32f2f',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  deleteButtonText: {
     color: '#fff',
     fontWeight: '600',
   },

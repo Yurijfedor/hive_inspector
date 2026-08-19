@@ -1,5 +1,6 @@
 import {TaskRepository} from '../domain/repositories/taskRepository';
 import {syncHiveContexts} from './syncHiveContexts';
+import {syncDeletedHives} from './syncDeletedHives';
 import {isOnline} from './isOnline';
 
 type SyncOptions = {
@@ -17,11 +18,24 @@ export async function runFullSync(uid: string, options: SyncOptions = {}) {
     throw new Error('Offline');
   }
 
-  // 🔁 TASKS — завжди
+  // --------------------------------------------------
+  // 1. DELETE HIVES FIRST
+  // --------------------------------------------------
+
+  await syncDeletedHives(uid);
+
+  // --------------------------------------------------
+  // 2. TASKS
+  // --------------------------------------------------
+
   const tasks = await repo.syncWithFirebase(uid);
+
   console.log('🔄 TASK SYNC DONE:', tasks.length);
 
-  // 🔁 HIVES — опціонально
+  // --------------------------------------------------
+  // 3. HIVE CONTEXTS
+  // --------------------------------------------------
+
   if (includeHives) {
     console.log('🔄 HIVE SYNC START');
 

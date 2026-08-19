@@ -140,6 +140,30 @@ export class TaskRepository {
   }
 
   // =============================
+  // DELETE ALL TASKS FOR HIVE
+  // =============================
+  async deleteByHiveNumber(uid: string, hiveNumber: number): Promise<void> {
+    const tasks = await this.getAll();
+
+    const now = Date.now();
+
+    const updated = tasks.map((task) =>
+      task.hiveNumber === hiveNumber
+        ? {
+            ...task,
+            deleted: true,
+            updatedAt: now,
+            source: TASK_SOURCES.USER,
+          }
+        : task,
+    );
+
+    await this.saveAll(uid, updated);
+
+    console.log('🗑️ HIVE TASKS MARKED DELETED:', hiveNumber);
+  }
+
+  // =============================
   // 🔽 LOAD FROM FIREBASE
   // =============================
   async loadFromFirebase(uid: string): Promise<Task[]> {

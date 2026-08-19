@@ -13,6 +13,14 @@ export default {
     tasks: 'Завдання',
     manualInspection: 'Ручний огляд',
     history: 'Історія',
+    delete: 'Видалити вулик',
+  },
+
+  delete: {
+    title: 'Видалити вулик?',
+    message: 'Ви дійсно хочете видалити вулик №{{hiveNumber}}?',
+    confirm: 'Видалити',
+    error: 'Не вдалося видалити вулик.',
   },
 
   fields: {

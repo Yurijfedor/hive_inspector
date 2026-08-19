@@ -40,4 +40,14 @@ export class HiveRepository {
 
     console.log('💾 LOCAL HIVE CREATED:', hive.hiveNumber);
   }
+
+  async delete(hiveNumber: number): Promise<void> {
+    const hives = await this.getAll();
+
+    const next = hives.filter((hive) => hive.hiveNumber !== hiveNumber);
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+
+    console.log('🗑️ LOCAL HIVE DELETED:', hiveNumber);
+  }
 }
