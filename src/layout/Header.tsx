@@ -1,16 +1,70 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useRef} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  PanResponder,
+} from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
 
 import {ProfileAvatar} from '../components/ProfileAvatar';
 import {UserBadge} from '../components/UserBadge';
 import {LanguageSwitcher} from '../components/LanguageSwitcher';
 
-export const Header = ({onMenuPress}: {onMenuPress: () => void}) => {
+type Props = {
+  onMenuPress: () => void;
+  onRefresh?: () => void | Promise<void>;
+  refreshing?: boolean;
+};
+
+const SWIPE_THRESHOLD = 70;
+
+export const Header = ({onMenuPress, onRefresh, refreshing = false}: Props) => {
   const navigation = useNavigation<any>();
 
+  const refreshingRef = useRef(false);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        if (!onRefresh || refreshing || refreshingRef.current) {
+          return false;
+        }
+
+        const {dx, dy} = gestureState;
+
+        // Gesture активується тільки для вертикального руху вниз.
+        // Звичайний tap по кнопці сюди не потрапляє.
+        return dy > 10 && Math.abs(dy) > Math.abs(dx) * 1.2;
+      },
+
+      onPanResponderRelease: async (_, gestureState) => {
+        if (
+          gestureState.dy < SWIPE_THRESHOLD ||
+          !onRefresh ||
+          refreshing ||
+          refreshingRef.current
+        ) {
+          return;
+        }
+
+        refreshingRef.current = true;
+
+        try {
+          console.log('🔄 HEADER SWIPE REFRESH');
+
+          await onRefresh();
+        } finally {
+          refreshingRef.current = false;
+        }
+      },
+    }),
+  ).current;
+
   return (
-    <View style={styles.container}>
+    <View {...panResponder.panHandlers} style={styles.container}>
       <View style={styles.left}>
         <TouchableOpacity onPress={() => navigation.navigate('Apiary')}>
           <Text style={styles.logo}>🐝 Bee</Text>
@@ -46,7 +100,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  logo: {fontSize: 18, fontWeight: '600'},
+  logo: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+
   left: {
     justifyContent: 'center',
   },

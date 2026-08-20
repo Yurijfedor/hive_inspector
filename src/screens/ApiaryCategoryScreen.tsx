@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 
-import {View, Text, TouchableOpacity, StyleSheet, FlatList} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 
@@ -8,7 +8,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {RootStackParamList} from '../navigation/types';
 
-// import {useAuth} from '../auth/AuthProvider';
+import {useAuth} from '../auth/AuthProvider';
 
 import {TaskRepository} from '../domain/repositories/taskRepository';
 
@@ -21,6 +21,9 @@ import {ApiaryCategory} from '../domain/apiary';
 import {useAppTranslation} from '../hooks/useAppTranslation';
 
 import {getApiaryCategoryLabel} from '../localization/helpers/getApiaryCategoryLabel';
+
+import {RefreshableFlatList} from '../components/common/RefreshableFlatList';
+import {refreshAppData} from '../refresh/refreshAppData';
 
 // --------------------------------------------------
 // TYPES
@@ -54,11 +57,13 @@ export const ApiaryCategoryScreen = () => {
 
   const navigation = useNavigation<NavigationProp>();
 
-  // const {user} = useAuth();
+  const {user} = useAuth();
 
   const {t} = useAppTranslation();
 
   const [hives, setHives] = useState<number[]>([]);
+
+  const [refreshing, setRefreshing] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -242,6 +247,33 @@ export const ApiaryCategoryScreen = () => {
   // LOAD ON SCREEN OPEN
   // --------------------------------------------------
 
+  const handleRefresh = useCallback(async () => {
+    console.log('🔄 SWIPE REFRESH TRIGGERED');
+
+    if (!user?.uid) {
+      console.log('❌ NO USER UID');
+      return;
+    }
+
+    setRefreshing(true);
+
+    try {
+      console.log('🔄 CALL refreshAppData');
+
+      await refreshAppData(user.uid);
+
+      console.log('🔄 RELOAD LOCAL DATA');
+
+      await load();
+
+      console.log('✅ SWIPE REFRESH DONE');
+    } catch (e) {
+      console.log('❌ APP REFRESH FAILED:', e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [user?.uid, load]);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -260,21 +292,22 @@ export const ApiaryCategoryScreen = () => {
 
       {/* LOADING */}
 
-      {loading && <Text style={styles.empty}>{t('common:loading')}</Text>}
-
-      {/* EMPTY */}
-
-      {!loading && hives.length === 0 && (
-        <Text style={styles.empty}>{t('apiary:empty.noHives')}</Text>
-      )}
-
-      {/* HIVES */}
-
-      {!loading && hives.length > 0 && (
-        <FlatList
+      {!loading && (
+        <RefreshableFlatList
           data={hives}
-          keyExtractor={(item) => String(item)}
-          contentContainerStyle={styles.list}
+          keyExtractor={(item) => item.toString()}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          // onRefresh={() => {
+          //   console.log('🔥🔥🔥 REFRESH CONTROL WORKS');
+          // }}
+          contentContainerStyle={[
+            styles.list,
+            hives.length === 0 && styles.emptyList,
+          ]}
+          ListEmptyComponent={
+            <Text style={styles.empty}>{t('apiary:empty.noHives')}</Text>
+          }
           renderItem={({item}) => (
             <TouchableOpacity
               style={styles.card}
@@ -335,5 +368,11 @@ const styles = StyleSheet.create({
 
   list: {
     paddingBottom: 24,
+    flexGrow: 1,
+  },
+
+  emptyList: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 });
