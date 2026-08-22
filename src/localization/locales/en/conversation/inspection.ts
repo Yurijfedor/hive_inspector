@@ -40,10 +40,11 @@ export const inspection: ConversationModule = {
   'inspection.retryQueenBreed': (_params) => 'Please say a valid breed number.',
   'inspection.confirmQueenBreed': (params) =>
     `Queen breed: ${params.queenBreed}. Is that correct?`,
-  'inspection.askQueenYear': (_params) => 'What year was the queen born?',
+  'inspection.askQueenYear': (_params) =>
+    'What year was the queen born? Please say the last two digits of the year.',
 
   'inspection.retryQueenYear': (_params) =>
-    'Please say the year, for example 2024.',
+    'Please say the last two digits of the year, for example 26.',
 
   'inspection.confirmQueenYear': (params) =>
     `Queen birth year: ${params.queenYear}. Is that correct?`,

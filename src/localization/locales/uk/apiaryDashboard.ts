@@ -44,4 +44,13 @@ export default {
 
     brood: 'Розплід',
   },
+
+  voiceInspection: {
+    queenBreedsTitle: 'Породи маток',
+    queenBreed1: '1 — Карніка',
+    queenBreed2: '2 — Бакфаст',
+    queenBreed3: '3 — Місцева',
+    queenBreedsHint: 'Під час голосового огляду називайте номер породи.',
+    confirm: 'OK',
+  },
 };

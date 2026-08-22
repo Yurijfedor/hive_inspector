@@ -44,4 +44,14 @@ export default {
 
     brood: 'Brut',
   },
+
+  voiceInspection: {
+    queenBreedsTitle: 'Bienenköniginnen-Rassen',
+    queenBreed1: '1 — Carnica',
+    queenBreed2: '2 — Buckfast',
+    queenBreed3: '3 — Lokale Rasse',
+    queenBreedsHint:
+      'Nennen Sie während der Sprachinspektion die Nummer der Rasse.',
+    confirm: 'OK',
+  },
 };

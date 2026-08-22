@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Dimensions,
   ScrollView,
+  Modal,
 } from 'react-native';
 
 import {LineChart} from 'react-native-chart-kit';
@@ -77,6 +78,8 @@ export const ApiaryScreen = () => {
   const [fieldMode, setFieldMode] = useState(false);
 
   const [syncing, setSyncing] = useState(false);
+
+  const [showQueenBreedModal, setShowQueenBreedModal] = useState(false);
 
   const repo = new TaskRepository();
 
@@ -212,23 +215,29 @@ export const ApiaryScreen = () => {
   const handleStartVoice = () => {
     if (!runtime) {
       console.log('❌ Runtime not ready');
-
       return;
     }
 
     if (fieldMode) {
       console.log('⚠️ Already in field mode');
-
       return;
     }
 
+    console.log('🎤 SHOW QUEEN BREED INFO');
+
+    setShowQueenBreedModal(true);
+  };
+
+  const startVoiceInspection = () => {
     console.log('🎤 START VOICE FROM APIARY');
+
+    setShowQueenBreedModal(false);
 
     enableFieldMode();
 
     setFieldMode(true);
 
-    runtime.start();
+    runtime?.start();
   };
 
   // --------------------------------------------------
@@ -415,6 +424,43 @@ export const ApiaryScreen = () => {
           </Text>
         </TouchableOpacity>
 
+        <Modal
+          visible={showQueenBreedModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowQueenBreedModal(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>
+                🐝 {t('apiaryDashboard:voiceInspection.queenBreedsTitle')}
+              </Text>
+
+              <Text style={styles.modalBreed}>
+                {t('apiaryDashboard:voiceInspection.queenBreed1')}
+              </Text>
+
+              <Text style={styles.modalBreed}>
+                {t('apiaryDashboard:voiceInspection.queenBreed2')}
+              </Text>
+
+              <Text style={styles.modalBreed}>
+                {t('apiaryDashboard:voiceInspection.queenBreed3')}
+              </Text>
+
+              <Text style={styles.modalHint}>
+                {t('apiaryDashboard:voiceInspection.queenBreedsHint')}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={startVoiceInspection}>
+                <Text style={styles.modalButtonText}>
+                  {t('apiaryDashboard:voiceInspection.confirm')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <VoiceInspectionOverlay
           visible={fieldMode}
           onStop={() => {
@@ -629,6 +675,53 @@ const styles = StyleSheet.create({
   syncText: {
     color: '#fff',
 
+    fontWeight: '600',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+  },
+
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  modalBreed: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+
+  modalHint: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 12,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  modalButton: {
+    backgroundColor: '#1976D2',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
 });

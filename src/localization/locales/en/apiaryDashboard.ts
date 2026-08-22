@@ -44,4 +44,13 @@ export default {
 
     brood: 'Brood',
   },
+
+  voiceInspection: {
+    queenBreedsTitle: 'Queen breeds',
+    queenBreed1: '1 — Carniolan',
+    queenBreed2: '2 — Buckfast',
+    queenBreed3: '3 — Local',
+    queenBreedsHint: 'During the voice inspection, say the breed number.',
+    confirm: 'OK',
+  },
 };
