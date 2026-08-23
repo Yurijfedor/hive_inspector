@@ -15,6 +15,7 @@ import org.reactnative.camera.RNCameraPackage
 import com.beevoiceapp.voice.VoiceServicePackage
 import com.beevoiceapp.brightness.BrightnessPackage
 import com.beevoiceapp.audio.AudioCuePackage
+import com.beevoiceapp.audio.BluetoothAudioPackage
 
 
 class MainApplication : Application(), ReactApplication {
@@ -26,6 +27,7 @@ class MainApplication : Application(), ReactApplication {
                add(VoiceServicePackage())
                add(BrightnessPackage())
                add(AudioCuePackage())
+               add(BluetoothAudioPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

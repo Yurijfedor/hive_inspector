@@ -3,6 +3,8 @@ import {
   View,
   Text,
   Button,
+  TouchableOpacity,
+  NativeModules,
 } from 'react-native';
 import database from '@react-native-firebase/database';
 
@@ -20,32 +22,8 @@ import {getApiarySummary} from '../services/apiaryService';
 export const DevScreen = () => {
   const {user} = useAuth();
   const navigation = useNavigation<any>();
-
-  // const {VoiceService} = NativeModules;
-  // const emitterRef = useRef(new NativeEventEmitter(VoiceService));
-
-  // useEffect(() => {
-  //   const emitter = emitterRef.current;
-
-  //   console.log('📡 Subscribing to VoiceService events');
-
-  //   const sub1 = emitter.addListener('onStateChanged', (e) =>
-  //     console.log('STATE:', e),
-  //   );
-  //   const sub2 = emitter.addListener('onWakeWord', (e) =>
-  //     console.log('WAKE:', e),
-  //   );
-  //   const sub3 = emitter.addListener('onSpeechResult', (e) =>
-  //     console.log('SPEECH:', e),
-  //   );
-
-  //   return () => {
-  //     console.log('🧹 Cleanup listeners');
-  //     sub1.remove();
-  //     sub2.remove();
-  //     sub3.remove();
-  //   };
-  // }, []);
+  const {BluetoothAudio} = NativeModules;
+  const {Vosk} = NativeModules;
 
   if (!user) {
     console.log('❌ Not authenticated');
@@ -111,6 +89,55 @@ export const DevScreen = () => {
     navigation.navigate('Apiary');
   };
 
+  const testBluetoothAudio = async () => {
+    try {
+      const result = await BluetoothAudio.getAudioDevices();
+
+      console.log(
+        '🎧 BLUETOOTH AUDIO DEVICES:',
+        JSON.stringify(result, null, 2),
+      );
+    } catch (error) {
+      console.log('❌ BLUETOOTH AUDIO ERROR:', error);
+    }
+  };
+
+  const testBluetoothScoAudioRecord = async () => {
+    console.log('🟢 TEST BLUETOOTH SCO AUDIO RECORD');
+
+    try {
+      const result = await BluetoothAudio.testBluetoothScoAudioRecord();
+
+      console.log('🎧 BLUETOOTH SCO RESULT:', result);
+    } catch (error) {
+      console.log('❌ BLUETOOTH SCO ERROR:', error);
+    }
+  };
+  const stopBluetoothAudioRecord = () => {
+    BluetoothAudio.stopBluetoothAudioRecord();
+  };
+
+  const setBluetoothInput = async () => {
+    console.log('🟢 BUTTON PRESSED');
+
+    try {
+      console.log('🟢 BluetoothAudio:', BluetoothAudio);
+
+      const result = await BluetoothAudio.setBluetoothInput();
+
+      console.log('🎧 SET BLUETOOTH INPUT:', result);
+
+      const communicationDevice = await BluetoothAudio.getCommunicationDevice();
+
+      console.log(
+        '🎧 COMMUNICATION DEVICE:',
+        JSON.stringify(communicationDevice, null, 2),
+      );
+    } catch (error) {
+      console.log('❌ SET BLUETOOTH INPUT ERROR:', error);
+    }
+  };
+
   return (
     <View
       style={{
@@ -154,7 +181,41 @@ export const DevScreen = () => {
       <View style={{marginTop: 20}}>
         <Button title="ApiarySummary" onPress={testApiarySummary} />
       </View>
+      <TouchableOpacity style={{marginTop: 20}} onPress={testBluetoothAudio}>
+        <Text>🎧 Test Bluetooth Audio</Text>
+      </TouchableOpacity>
 
+      <TouchableOpacity style={{marginTop: 20}} onPress={setBluetoothInput}>
+        <Text>🎤 Select Bluetooth Microphone</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{marginTop: 20}}
+        onPress={testBluetoothScoAudioRecord}>
+        <Text>🎧 Test Bluetooth SCO Microphone</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{marginTop: 20}}
+        onPress={stopBluetoothAudioRecord}>
+        <Text>⏹ Stop Bluetooth Microphone Test</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{marginTop: 20}}
+        onPress={async () => {
+          console.log('🟢 TEST BLUETOOTH SCO PRESSED');
+
+          try {
+            const result = await Vosk.testBluetoothCommunicationAudio();
+
+            console.log('✅ Bluetooth SCO test result:', result);
+          } catch (error) {
+            console.error('❌ Bluetooth SCO test failed:', error);
+          }
+        }}>
+        <Text>Test Bluetooth SCO Input</Text>
+      </TouchableOpacity>
     </View>
   );
 };
