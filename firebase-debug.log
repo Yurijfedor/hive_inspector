@@ -1,0 +1,183 @@
+[debug] [2026-08-23T15:22:03.886Z] ----------------------------------------------------------------------
+[debug] [2026-08-23T15:22:03.898Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2026-08-23T15:22:03.898Z] CLI Version:   15.11.0
+[debug] [2026-08-23T15:22:03.899Z] Platform:      win32
+[debug] [2026-08-23T15:22:03.899Z] Node Version:  v20.20.1
+[debug] [2026-08-23T15:22:03.899Z] Time:          Sun Aug 23 2026 18:22:03 GMT+0300 (за східноєвропейським літнім часом)
+[debug] [2026-08-23T15:22:03.900Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-23T15:22:08.303Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-23T15:22:08.304Z] > authorizing via signed-in user (yurijfedor178@gmail.com)
+[debug] [2026-08-23T15:22:08.304Z] [iam] checking project hiveinspector-613f8 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-08-23T15:22:08.308Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:08.308Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:08.310Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions [none]
+[debug] [2026-08-23T15:22:08.310Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions  x-goog-user-project=hiveinspector-613f8
+[debug] [2026-08-23T15:22:08.310Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-08-23T15:22:08.749Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions 200
+[debug] [2026-08-23T15:22:08.750Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-08-23T15:22:08.750Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:08.750Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:08.750Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/hiveinspector-613f8/serviceAccounts/hiveinspector-613f8@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-08-23T15:22:08.751Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/hiveinspector-613f8/serviceAccounts/hiveinspector-613f8@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-08-23T15:22:09.583Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/hiveinspector-613f8/serviceAccounts/hiveinspector-613f8@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-08-23T15:22:09.584Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/hiveinspector-613f8/serviceAccounts/hiveinspector-613f8@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'hiveinspector-613f8'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] +  functions: Finished running predeploy script. 
+[debug] [2026-08-23T15:22:37.530Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:37.530Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:37.530Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 [none]
+[debug] [2026-08-23T15:22:37.938Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 200
+[debug] [2026-08-23T15:22:37.938Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 {"projectNumber":"985102730017","projectId":"hiveinspector-613f8","lifecycleState":"ACTIVE","name":"HiveInspector","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-05-06T12:29:28.076331Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-08-23T15:22:37.948Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:37.948Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:37.948Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/hiveinspector-613f8/adminSdkConfig [none]
+[debug] [2026-08-23T15:22:38.336Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/hiveinspector-613f8/adminSdkConfig 200
+[debug] [2026-08-23T15:22:38.336Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/hiveinspector-613f8/adminSdkConfig {"projectId":"hiveinspector-613f8","databaseURL":"https://hiveinspector-613f8-default-rtdb.europe-west1.firebasedatabase.app","storageBucket":"hiveinspector-613f8.firebasestorage.app"}
+[debug] [2026-08-23T15:22:38.339Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[debug] [2026-08-23T15:22:41.103Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "24"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.0.0",
+    "openai": "^6.32.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^3.4.1",
+    "typescript": "^5.7.3"
+  },
+  "private": true
+}
+[debug] [2026-08-23T15:22:41.103Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-08-23T15:22:41.105Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-08-23T15:22:41.132Z] Found firebase-functions binary at 'C:\test\BeeVoiceApp\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8214
+
+[debug] [2026-08-23T15:22:43.140Z] Got response from /__/functions.yaml {"endpoints":{"generateTasksHttp":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"OPENAI_API_KEY"}],"labels":{},"httpsTrigger":{},"entryPoint":"generateTasksHttp"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"OPENAI_API_KEY"}]}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2026-08-23T15:22:47.201Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-23T15:22:47.202Z] > authorizing via signed-in user (yurijfedor178@gmail.com)
+[debug] [2026-08-23T15:22:47.202Z] [iam] checking project hiveinspector-613f8 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2026-08-23T15:22:47.202Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:47.203Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:47.203Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions [none]
+[debug] [2026-08-23T15:22:47.203Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions  x-goog-user-project=hiveinspector-613f8
+[debug] [2026-08-23T15:22:47.203Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-08-23T15:22:47.460Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions 200
+[debug] [2026-08-23T15:22:47.460Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-08-23T15:22:47.461Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:47.461Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:47.487Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/hiveinspector-613f8/instances pageSize=100&pageToken=
+[debug] [2026-08-23T15:22:48.543Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/hiveinspector-613f8/instances 200
+[debug] [2026-08-23T15:22:48.543Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/hiveinspector-613f8/instances {}
+[debug] [2026-08-23T15:22:48.546Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:48.546Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:48.546Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY [none]
+[debug] [2026-08-23T15:22:48.855Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY 200
+[debug] [2026-08-23T15:22:48.856Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY {"name":"projects/985102730017/secrets/OPENAI_API_KEY","replication":{"automatic":{}},"createTime":"2026-03-23T20:02:31.118658Z","labels":{"firebase-managed":"functions"},"etag":"\"164db683e0b8bb\""}
+[debug] [2026-08-23T15:22:48.856Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:48.856Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:48.856Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest [none]
+[debug] [2026-08-23T15:22:49.082Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest 200
+[debug] [2026-08-23T15:22:49.083Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest {"name":"projects/985102730017/secrets/OPENAI_API_KEY/versions/1","createTime":"2026-03-23T20:03:21.906668Z","state":"ENABLED","replicationStatus":{"automatic":{}},"etag":"\"164db686d749ec\""}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged C:\test\BeeVoiceApp\functions (107.3 KB) for uploading 
+[debug] [2026-08-23T15:22:49.197Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:49.197Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:49.198Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/hiveinspector-613f8/locations/-/functions [none]
+[debug] [2026-08-23T15:22:49.950Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/hiveinspector-613f8/locations/-/functions 200
+[debug] [2026-08-23T15:22:49.950Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/hiveinspector-613f8/locations/-/functions {}
+[debug] [2026-08-23T15:22:49.951Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:49.951Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:49.951Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2026-08-23T15:22:50.463Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/-/functions 200
+[debug] [2026-08-23T15:22:50.463Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/-/functions {"functions":[{"name":"projects/hiveinspector-613f8/locations/us-central1/functions/generateTasks","buildConfig":{"build":"projects/985102730017/locations/us-central1/builds/6ad5d2b1-636c-49ef-aed7-69c0187c624f","runtime":"nodejs24","entryPoint":"generateTasks","source":{"storageSource":{"bucket":"gcf-v2-sources-985102730017-us-central1","object":"generateTasks/function-source.zip","generation":"1774302170113659"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/hiveinspector-613f8/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-985102730017-us-central1","object":"generateTasks/function-source.zip","generation":"1774302170113659"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/hiveinspector-613f8/serviceAccounts/985102730017-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/hiveinspector-613f8/locations/us-central1/services/generatetasks","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"hiveinspector-613f8\",\"databaseURL\":\"https://hiveinspector-613f8-default-rtdb.europe-west1.firebasedatabase.app\",\"storageBucket\":\"hiveinspector-613f8.firebasestorage.app\"}","GCLOUD_PROJECT":"hiveinspector-613f8","EVENTARC_CLOUD_EVENT_SOURCE":"projects/hiveinspector-613f8/locations/us-central1/services/generateTasks","FUNCTION_TARGET":"generateTasks","LOG_EXECUTION_ID":"true"},"maxInstanceCount":10,"ingressSettings":"ALLOW_ALL","uri":"https://generatetasks-mk2ypj66fq-uc.a.run.app","serviceAccountEmail":"985102730017-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"secretEnvironmentVariables":[{"key":"OPENAI_API_KEY","projectId":"hiveinspector-613f8","secret":"OPENAI_API_KEY","version":"1"}],"revision":"generatetasks-00002-kub","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2026-03-23T21:43:50.553222063Z","labels":{"firebase-functions-hash":"7b4e23c0efb7dc1d8d34c6097546d5c9ffe7ba57","deployment-tool":"cli-firebase","deployment-callable":"true"},"environment":"GEN_2","url":"https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasks","createTime":"2026-03-23T20:34:17.666485166Z","satisfiesPzi":true},{"name":"projects/hiveinspector-613f8/locations/us-central1/functions/generateTasksHttp","buildConfig":{"build":"projects/985102730017/locations/us-central1/builds/a82dc673-2254-49ef-bcab-e60a887fff8f","runtime":"nodejs24","entryPoint":"generateTasksHttp","source":{"storageSource":{"bucket":"gcf-v2-sources-985102730017-us-central1","object":"generateTasksHttp/function-source.zip","generation":"1787497778929396"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/hiveinspector-613f8/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-985102730017-us-central1","object":"generateTasksHttp/function-source.zip","generation":"1787497778929396"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/hiveinspector-613f8/serviceAccounts/985102730017-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/hiveinspector-613f8/locations/us-central1/services/generatetaskshttp","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"hiveinspector-613f8\",\"databaseURL\":\"https://hiveinspector-613f8-default-rtdb.europe-west1.firebasedatabase.app\",\"storageBucket\":\"hiveinspector-613f8.firebasestorage.app\"}","GCLOUD_PROJECT":"hiveinspector-613f8","EVENTARC_CLOUD_EVENT_SOURCE":"projects/hiveinspector-613f8/locations/us-central1/services/generateTasksHttp","FUNCTION_TARGET":"generateTasksHttp","LOG_EXECUTION_ID":"true"},"maxInstanceCount":10,"ingressSettings":"ALLOW_ALL","uri":"https://generatetaskshttp-mk2ypj66fq-uc.a.run.app","serviceAccountEmail":"985102730017-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"secretEnvironmentVariables":[{"key":"OPENAI_API_KEY","projectId":"hiveinspector-613f8","secret":"OPENAI_API_KEY","version":"1"}],"revision":"generatetaskshttp-00009-vup","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2026-08-23T15:10:42.066562919Z","labels":{"firebase-functions-hash":"a85024dc8678c9691d55acf1fa120824d015008a","deployment-tool":"cli-firebase"},"environment":"GEN_2","url":"https://us-central1-hiveinspector-613f8.cloudfunctions.net/generateTasksHttp","createTime":"2026-03-23T21:59:36.238437756Z","satisfiesPzi":true}]}
+[info] i  functions: ensuring required API run.googleapis.com is enabled... 
+[info] i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+[info] i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+[info] i  functions: ensuring required API storage.googleapis.com is enabled... 
+[info] i  functions: generating the service identity for pubsub.googleapis.com... 
+[debug] [2026-08-23T15:22:50.479Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:50.480Z] Checked if tokens are valid: true, expires at: 1787500653783
+[info] i  functions: generating the service identity for eventarc.googleapis.com... 
+[debug] [2026-08-23T15:22:50.480Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:50.480Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:50.481Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-08-23T15:22:50.481Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/pubsub.googleapis.com:generateServiceIdentity  x-goog-user-project=985102730017
+[debug] [2026-08-23T15:22:50.481Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/pubsub.googleapis.com:generateServiceIdentity {}
+[debug] [2026-08-23T15:22:50.483Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-08-23T15:22:50.483Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/eventarc.googleapis.com:generateServiceIdentity  x-goog-user-project=985102730017
+[debug] [2026-08-23T15:22:50.483Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/eventarc.googleapis.com:generateServiceIdentity {}
+[debug] [2026-08-23T15:22:51.037Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/pubsub.googleapis.com:generateServiceIdentity 200
+[debug] [2026-08-23T15:22:51.037Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-985102730017@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"114840307100467183229"}}
+[debug] [2026-08-23T15:22:51.483Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/eventarc.googleapis.com:generateServiceIdentity 200
+[debug] [2026-08-23T15:22:51.484Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/985102730017/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-985102730017@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"100846276039490856501"}}
+[info] i  functions: ensuring required API secretmanager.googleapis.com is enabled... 
+[debug] [2026-08-23T15:22:51.491Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.491Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.491Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest [none]
+[debug] [2026-08-23T15:22:51.728Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest 200
+[debug] [2026-08-23T15:22:51.728Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/hiveinspector-613f8/secrets/OPENAI_API_KEY/versions/latest {"name":"projects/985102730017/secrets/OPENAI_API_KEY/versions/1","createTime":"2026-03-23T20:03:21.906668Z","state":"ENABLED","replicationStatus":{"automatic":{}},"etag":"\"164db686d749ec\""}
+[debug] [2026-08-23T15:22:51.728Z] Resolved secret version of OPENAI_API_KEY to 1.
+[debug] [2026-08-23T15:22:51.732Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.732Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.732Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 [none]
+[debug] [2026-08-23T15:22:51.934Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 200
+[debug] [2026-08-23T15:22:51.934Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/hiveinspector-613f8 {"projectNumber":"985102730017","projectId":"hiveinspector-613f8","lifecycleState":"ACTIVE","name":"HiveInspector","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-05-06T12:29:28.076331Z"}
+[debug] [2026-08-23T15:22:51.934Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.935Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:51.935Z] >>> [apiv2][query] GET https://compute.googleapis.com/compute/v1/projects/985102730017 [none]
+[debug] [2026-08-23T15:22:52.297Z] <<< [apiv2][status] GET https://compute.googleapis.com/compute/v1/projects/985102730017 403
+[debug] [2026-08-23T15:22:52.297Z] <<< [apiv2][body] GET https://compute.googleapis.com/compute/v1/projects/985102730017 {"error":{"code":403,"message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"service":"compute.googleapis.com","serviceTitle":"Compute Engine API","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017","consumer":"projects/985102730017","containerInfo":"985102730017"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017"}]}]}}
+[debug] [2026-08-23T15:22:52.298Z] unable to look up default compute service account. Falling back to 985102730017-compute@developer.gserviceaccount.com. Error: {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":403,"message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"service":"compute.googleapis.com","serviceTitle":"Compute Engine API","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017","consumer":"projects/985102730017","containerInfo":"985102730017"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017"}]}]}},"response":{"statusCode":403}},"exit":1,"message":"Request to https://compute.googleapis.com/compute/v1/projects/985102730017 had HTTP Error: 403, Compute Engine API has not been used in project 985102730017 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=985102730017 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","status":403}
+[debug] [2026-08-23T15:22:52.300Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:52.300Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:52.300Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/hiveinspector-613f8/billingInfo [none]
+[debug] [2026-08-23T15:22:53.136Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/hiveinspector-613f8/billingInfo 200
+[debug] [2026-08-23T15:22:53.136Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/hiveinspector-613f8/billingInfo {"name":"projects/hiveinspector-613f8/billingInfo","projectId":"hiveinspector-613f8","billingAccountName":"billingAccounts/013648-E14BC7-EB6DEA","billingEnabled":true}
+[debug] [2026-08-23T15:22:53.139Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:53.139Z] Checked if tokens are valid: true, expires at: 1787500653783
+[debug] [2026-08-23T15:22:53.139Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/us-central1/functions:generateUploadUrl [none]
+[debug] [2026-08-23T15:22:53.960Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/us-central1/functions:generateUploadUrl 200
+[debug] [2026-08-23T15:22:53.961Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hiveinspector-613f8/locations/us-central1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com/7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip?GoogleAccessId=service-985102730017@gcf-admin-robot.iam.gserviceaccount.com&Expires=1787500373&Signature=VUBn9AZCjMAzroBuRcJBi0YRkY7VmRXxpznKt9a7Fa7VPy%2F7cicJQHHvujGBONxVVuxOc5vwW6NO24FaOa1CPWJ7wHcLYRAIbQT5lnGHRWnflQo53m03aNJGMrHJRD1wDzFcze7pDmBdPpzlZOmZFhyQ6qXvUjWMge5MvvLR1Zm5XvQi9C9YQcYD9lWj5Wim4pm8VtOAyP1aGTJxf1sJ3pljY9n2sUrRDH9%2FqUv2Ci6OV6sKDyE66s1VTdVZECNHFp55x9qV8z6Rq057YMbC7ST7uApcT14Psu6fvnmg1JHOedrA5bWHwfh1u0CgUxVM8Qb75zNSJO8TTtLaLpIf5Q%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com","object":"7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip"}}
+[debug] [2026-08-23T15:22:53.963Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com/7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip GoogleAccessId=service-985102730017%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1787500373&Signature=VUBn9AZCjMAzroBuRcJBi0YRkY7VmRXxpznKt9a7Fa7VPy%2F7cicJQHHvujGBONxVVuxOc5vwW6NO24FaOa1CPWJ7wHcLYRAIbQT5lnGHRWnflQo53m03aNJGMrHJRD1wDzFcze7pDmBdPpzlZOmZFhyQ6qXvUjWMge5MvvLR1Zm5XvQi9C9YQcYD9lWj5Wim4pm8VtOAyP1aGTJxf1sJ3pljY9n2sUrRDH9%2FqUv2Ci6OV6sKDyE66s1VTdVZECNHFp55x9qV8z6Rq057YMbC7ST7uApcT14Psu6fvnmg1JHOedrA5bWHwfh1u0CgUxVM8Qb75zNSJO8TTtLaLpIf5Q%3D%3D
+[debug] [2026-08-23T15:22:53.963Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com/7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip [stream]
+[debug] [2026-08-23T15:22:54.590Z] <<< [apiv2][status] PUT https://storage.googleapis.com/gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com/7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip 200
+[debug] [2026-08-23T15:22:54.590Z] <<< [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-985102730017.us-central1.cloudfunctions.appspot.com/7cc9dba7-8e71-4fe5-a150-6e30222295e7.zip [omitted]
+[info] +  functions: functions source uploaded successfully 
+[info] 
+The following functions are found in your project but do not exist in your local source code:
+	generateTasks(us-central1)
+
+If you are renaming a function or changing its region, it is recommended that you create the new function first before deleting the old one to prevent event loss. For more info, visit https://firebase.google.com/docs/functions/manage-functions#modify
+

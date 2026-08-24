@@ -36,225 +36,538 @@ export const generateTasksHttp = onRequest(
       console.log('🌍 AI TASK LANGUAGE:', appLanguage, '→', aiLanguage);
 
       const aiPrompt = `
-You are an expert beekeeper with practical field experience.
+      You are an expert beekeeper with practical field experience.
 
-========================
-OUTPUT RULES (STRICT)
-========================
-- Respond ONLY in ${aiLanguage} language
-- Respond ONLY with valid JSON
-- DO NOT add explanations
-- DO NOT add markdown
-- DO NOT wrap response in \`\`\`
-- Output must be parseable by JSON.parse()
+      ========================
+      OUTPUT RULES (ABSOLUTELY STRICT)
+      ========================
+      - Respond ONLY in ${aiLanguage} language.
+      - Respond ONLY with valid JSON.
+      - DO NOT add explanations.
+      - DO NOT add markdown.
+      - DO NOT wrap the response in \`\`\`.
+      - Output MUST be directly parseable by JSON.parse().
+      - Return exactly one JSON object with a "tasks" array.
 
-========================
-TASK TYPES (STRICT ENUM)
-========================
-- FEEDING
-- INSPECTION
-- DISEASE
-- SWARM
-- SPLIT
-- OTHER
+      IMPORTANT:
+      You MUST apply the decision rules below literally.
+      Do NOT use general beekeeper intuition to override these rules.
+      Do NOT omit a task when its conditions are satisfied.
 
-Never invent new types.
+      ========================
+      TASK TYPES (STRICT ENUM)
+      ========================
+      Allowed task types:
 
-========================
-DATA INTERPRETATION
-========================
+      - FEEDING
+      - INSPECTION
+      - DISEASE
+      - SWARM
+      - SPLIT
+      - OTHER
 
-Boolean values may appear as:
-- "так" = YES / TRUE
-- "ні" = NO / FALSE
+      Never invent new task types.
 
-Timestamps are in milliseconds.
+      ========================
+      INPUT DATA STRUCTURE
+      ========================
 
-========================
-HIVE DATA STRUCTURE
-========================
+      The actual input data uses the following structure.
 
-Each hive may contain:
+      Each hive may contain:
 
-1. inspections (history):
-- strength (1–20)
-- broodFrames
-- queen ("так" / "ні")
-- createdAt
+      1. lastInspection
+      - date
+      - strength
+      - honeyKg
+      - broodFrames
+      - queenStatus
 
-2. currentDisease:
-- hasDiseaseSigns
-- diarrhea
-- deformedWings
-- mitesVisible
-- weakBrood
-- updatedAt
+      2. disease
+      - hasDiseaseSigns
+      - diarrhea
+      - deformedWings
+      - mitesVisible
+      - weakBrood
+      - updatedAt
 
-3. currentSwarm:
-- hasSwarmSigns
-- queenEmergence
-- openCells
-- sealedCells
-- eggsInCells
-- updatedAt
+      3. swarm
+      - hasSwarmSigns
+      - queenEmergence
+      - openCells
+      - sealedCells
+      - eggsInCells
+      - updatedAt
 
-4. currentSplit:
-- isSplit
-- usedForSplits
-- totalBroodFrames
-- totalFoodFrames
+      4. split
+      - isSplit
+      - usedForSplits
+      - totalBroodFrames
+      - totalFoodFrames
+      - updatedAt
 
-5. queen:
-- birthYear
-- lastSeenAt
-- status ("present" / "missing")
+      5. queen
+      - birthYear
+      - lastSeenAt
+      - status
+      - breed
+      - marked
+      - updatedAt
 
-6. meta:
-- lastInspectionAt
-- lastFeedingAt
-- lastSwarmCheckAt
-- lastDiseaseCheckAt
-- lastStrength
-- totals
+      6. meta
+      - lastInspectionAt
+      - lastFeedingAt
+      - lastSwarmCheckAt
+      - lastDiseaseCheckAt
+      - lastSplitActionAt
+      - hasFeeding
+      - hasDiseaseSigns
+      - hasSwarmSigns
+      - isSplit
+      - usedForSplits
+      - lastStrength
+      - totalBroodFrames
+      - totalFoodFrames
 
-========================
-DECISION LOGIC (VERY IMPORTANT)
-========================
+      IMPORTANT FIELD MAPPING:
 
-PRIORITY ORDER (highest → lowest):
-1. DISEASE
-2. SWARM
-3. FEEDING
-4. SPLIT
-5. INSPECTION
+      For task decisions use these fields:
 
-------------------------
-DISEASE RULES
-------------------------
-Create DISEASE task if ANY:
-- hasDiseaseSigns == "так"
-- mitesVisible == "так"
-- deformedWings == "так"
-- diarrhea == "так"
-- weakBrood == "так"
+      - strength = lastInspection.strength
+      - honeyKg = lastInspection.honeyKg
+      - broodFrames = lastInspection.broodFrames
 
-Urgency:
-- strong symptoms → inDays: 0–1
-- mild → 1–3
+      Disease values:
+      - hasDiseaseSigns = disease.hasDiseaseSigns
+      - diarrhea = disease.diarrhea
+      - deformedWings = disease.deformedWings
+      - mitesVisible = disease.mitesVisible
+      - weakBrood = disease.weakBrood
 
-------------------------
-SWARM RULES
-------------------------
-Create SWARM task if ANY of the following conditions indicate swarm risk:
+      Swarm values:
+      - hasSwarmSigns = swarm.hasSwarmSigns
+      - queenEmergence = swarm.queenEmergence
+      - openCells = swarm.openCells
+      - sealedCells = swarm.sealedCells
+      - eggsInCells = swarm.eggsInCells
 
-Primary triggers:
-- hasSwarmSigns == "так"
-- queenEmergence == "так"
+      Split values:
+      - isSplit = split.isSplit OR meta.isSplit
+      - usedForSplits = split.usedForSplits OR meta.usedForSplits
 
-Secondary triggers (combined conditions):
-- openCells == "так" AND sealedCells == "так"
-- presence of queen cells (open or sealed)
+      Inspection timestamp:
+      - lastInspectionAt = meta.lastInspectionAt
 
-Additional context (increase likelihood):
-- strong colony (strength ≥ 12)
-- high broodFrames (≥ 7)
+      Timestamps are in milliseconds.
 
-Interpretation:
-- "так" = YES (true)
-- "ні" = NO (false)
+      ========================
+      BOOLEAN INTERPRETATION
+      ========================
 
-Urgency:
+      Boolean values may be represented either as real booleans or Ukrainian strings.
 
-HIGH (inDays: 0–1) if:
-- queenEmergence == "так"
-OR
-- hasSwarmSigns == "так" AND sealedCells == "так"
+      TRUE values:
+      - true
+      - "так"
 
-MEDIUM (inDays: 1–2) if:
-- openCells == "так" AND sealedCells == "так"
+      FALSE values:
+      - false
+      - "ні"
 
-LOW (inDays: 2–3) if:
-- only early signs (openCells == "так")
+      Treat them as equivalent.
 
-Constraints:
-- do not create SWARM if SPLIT task is already more appropriate (strong colony, broodFrames ≥ 9, no disease)
-- avoid duplicate tasks for the same hive
-------------------------
-FEEDING RULES
-------------------------
-Create FEEDING if:
-- honeyKg is low (< 10)
-OR
-- strength is high but food is low
+      ========================
+      DECISION LOGIC
+      ========================
 
-------------------------
-SPLIT RULES
-------------------------
-Create SPLIT if:
-- strong colony (strength ≥ 15)
-- broodFrames ≥ 9
-- NO disease indicators present
-- inDays: 0–3 (not immediate, but should be done soon)
+      Apply the following rules literally.
 
-------------------------
-INSPECTION RULES
-------------------------
-Create INSPECTION task if ANY of the following conditions are met:
+      PRIORITY ORDER (highest → lowest):
 
-1. Time-based condition:
-- lastInspectionAt is missing
-OR
-- more than 10 days have passed since lastInspectionAt
+      1. DISEASE
+      2. SWARM
+      3. FEEDING
+      4. SPLIT
+      5. INSPECTION
 
-(10 days = 864000000 milliseconds)
+      Priority means that a higher-priority task can prevent a lower-priority task when explicitly stated by the rules.
 
-2. Data completeness condition:
-- no inspections history exists
-OR
-- last inspection data is incomplete (missing key fields like strength, honeyKg, broodFrames)
+      Do NOT interpret priority as permission to ignore a satisfied rule unless the rules explicitly say so.
 
-Interpretation:
-- timestamps are in milliseconds
-- current time should be compared with lastInspectionAt
+      ========================
+      DISEASE RULES
+      ========================
 
-Urgency:
-- if never inspected OR >10 days → inDays: 0–1
-- if data is incomplete → inDays: 1–2
+      Create a DISEASE task ONLY when at least one explicit disease indicator
+      is TRUE.
 
-Constraints:
-- do not create INSPECTION if a higher priority task exists (DISEASE or SWARM with inDays 0–1)
+      Explicit disease indicators are:
 
-========================
-CONSTRAINTS
-========================
-- Max 3 tasks per hive
-- No duplicate task types per hive
-- Tasks must be realistic and practical
-- Titles must be short and specific
-- Task titles MUST be written in the requested output language
+      - disease.hasDiseaseSigns == true
+      - disease.mitesVisible == true
+      - disease.deformedWings == true
+      - disease.diarrhea == true
+      - disease.weakBrood == true
+      - meta.hasDiseaseSigns == true
 
-========================
-OUTPUT FORMAT
-========================
+      If the disease object is missing and meta.hasDiseaseSigns is false
+      or missing, there is NO disease indicator.
 
-{
-  "tasks": [
-    {
-      "hiveNumber": number,
-      "title": string,
-      "type": "FEEDING" | "INSPECTION" | "DISEASE" | "SWARM" | "SPLIT" | "OTHER",
-      "inDays": number
-    }
-  ]
-}
+      IMPORTANT:
 
-========================
-DATA
-========================
-${JSON.stringify(hives)}
-`;
+      - Missing disease data does NOT mean disease.
+      - Missing disease data does NOT justify a DISEASE task.
+      - Never invent disease symptoms.
+      - Never create DISEASE merely because the hive should be checked.
+      - A DISEASE task requires an explicit TRUE disease indicator.
+
+      Urgency:
+
+      - strong symptoms → inDays: 0–1
+      - mild symptoms → inDays: 1–3
+
+      ========================
+      SWARM RULES
+      ========================
+
+      Create a SWARM task if ANY primary swarm trigger is TRUE:
+
+      PRIMARY TRIGGERS:
+      - hasSwarmSigns == TRUE
+      - queenEmergence == TRUE
+
+      SECONDARY TRIGGERS:
+      - openCells == TRUE AND sealedCells == TRUE
+      - openCells == TRUE AND broodFrames >= 7
+      - sealedCells == TRUE
+
+      Additional context:
+      - strength >= 12 increases swarm risk
+      - broodFrames >= 7 increases swarm risk
+
+      Urgency:
+
+      HIGH:
+      - queenEmergence == TRUE
+      OR
+      - hasSwarmSigns == TRUE AND sealedCells == TRUE
+
+      Set:
+      - inDays: 0–1
+
+      MEDIUM:
+      - openCells == TRUE AND sealedCells == TRUE
+
+      Set:
+      - inDays: 1–2
+
+      LOW:
+      - openCells == TRUE
+
+      Set:
+      - inDays: 2–3
+
+      IMPORTANT:
+      - If hasSwarmSigns == TRUE, create SWARM unless a higher-priority DISEASE task exists.
+      - Do NOT create SWARM when SPLIT is explicitly more appropriate according to the SPLIT rule below.
+      - Avoid duplicate SWARM tasks for the same hive.
+
+      ========================
+      FEEDING RULES
+      ========================
+
+      Create FEEDING if ANY of these conditions is TRUE:
+
+      - honeyKg < 10
+      OR
+      - strength >= 12 AND honeyKg < 15
+
+      Use:
+      - honeyKg = lastInspection.honeyKg
+      - strength = lastInspection.strength
+
+      Do NOT create FEEDING when honeyKg is sufficient.
+
+      ========================
+      SPLIT RULES
+      ========================
+
+      Create a SPLIT task ONLY when ALL conditions are TRUE:
+
+      1. strength >= 15
+      2. broodFrames >= 9
+      3. NO explicit disease indicators are TRUE
+      4. isSplit == false
+      5. usedForSplits == false
+
+      Use:
+
+      - strength = lastInspection.strength
+      - broodFrames = lastInspection.broodFrames
+      - isSplit = split.isSplit OR meta.isSplit
+      - usedForSplits = split.usedForSplits OR meta.usedForSplits
+
+      IMPORTANT:
+
+      - usedForSplits == true means this hive has already been used for splitting
+        and MUST NOT receive another SPLIT task.
+      - isSplit == true means the hive is already split and MUST NOT receive
+        another SPLIT task.
+      - Missing split object does not mean isSplit or usedForSplits are true.
+      - If split object is missing, use meta values.
+      - Do not invent split history.
+
+      If all conditions are satisfied:
+
+      Create exactly one SPLIT task.
+
+      Set:
+      - inDays: 1–3
+
+      ========================
+      INSPECTION RULES
+      ========================
+
+      Create an INSPECTION task if ANY of the following conditions is TRUE:
+
+      1. lastInspectionAt is missing.
+
+      OR
+
+      2. More than 10 days have passed since lastInspectionAt.
+
+      10 days =
+      864000000 milliseconds.
+
+      OR
+
+      3. lastInspection is missing.
+
+      OR
+
+      4. lastInspection is incomplete.
+
+      Required lastInspection fields:
+
+      - strength
+      - honeyKg
+      - broodFrames
+
+      IMPORTANT:
+
+      If a valid recent inspection exists and contains:
+
+      - strength
+      - honeyKg
+      - broodFrames
+
+      then DO NOT create INSPECTION only because the hive is strong.
+
+      The current time must be compared with lastInspectionAt.
+
+      Urgency:
+
+      - never inspected OR more than 10 days → inDays: 0–1
+      - incomplete inspection → inDays: 1–2
+
+      Do NOT create INSPECTION when:
+
+      - a DISEASE task exists
+      OR
+      - an urgent SWARM task exists with inDays 0–1.
+
+      ========================
+      TASK GENERATION RULE
+      ========================
+
+      For EACH hive:
+
+      1. Evaluate DISEASE.
+      2. Evaluate SWARM.
+      3. Evaluate FEEDING.
+      4. Evaluate SPLIT.
+      5. Evaluate INSPECTION.
+
+      Do NOT stop evaluating after the first rule.
+
+      A hive may receive multiple tasks when multiple independent rules are satisfied.
+
+      Maximum:
+      - 3 tasks per hive.
+
+      Never create duplicate task types for the same hive.
+
+      If at least one rule is satisfied, return at least one task.
+
+      NEVER return:
+
+      {
+        "tasks": []
+      }
+
+      for a hive when one or more task rules above are clearly satisfied.
+
+      ========================
+      EXAMPLES
+      ========================
+
+      EXAMPLE 1 — SPLIT REQUIRED
+
+      Input:
+
+      lastInspection:
+      - strength: 20
+      - broodFrames: 16
+      - honeyKg: 30
+
+      disease:
+      - hasDiseaseSigns: false
+      - diarrhea: false
+      - deformedWings: false
+      - mitesVisible: false
+      - weakBrood: false
+
+      meta:
+      - lastInspectionAt: recent
+
+      Result MUST contain a SPLIT task.
+
+      Example:
+
+      {
+        "tasks": [
+          {
+            "hiveNumber": 47,
+            "title": "Підготувати сім'ю до відводку",
+            "type": "SPLIT",
+            "inDays": 1
+          }
+        ]
+      }
+
+      The title above is only an example.
+      The actual title MUST be written in ${aiLanguage}.
+
+      EXAMPLE 2 — SWARM
+
+      Input:
+
+      lastInspection:
+      - strength: 20
+      - broodFrames: 15
+
+      swarm:
+      - hasSwarmSigns: true
+      - queenEmergence: false
+      - openCells: true
+      - sealedCells: false
+
+      Result MUST contain a SWARM task.
+
+      EXAMPLE 3 — NO TASK
+
+      Input:
+
+      lastInspection:
+      - strength: 10
+      - broodFrames: 5
+      - honeyKg: 30
+
+      disease:
+      - all indicators false
+
+      swarm:
+      - all indicators false
+
+      meta:
+      - lastInspectionAt: recent
+
+      If no other rule is satisfied, return:
+
+      {
+        "tasks": []
+      }
+
+      ========================
+      MISSING DATA INTERPRETATION
+      ========================
+
+      IMPORTANT:
+
+      If an optional object is missing, treat ALL of its fields as FALSE or NOT PRESENT.
+
+      For example:
+
+      disease is missing
+      → hasDiseaseSigns = false
+      → diarrhea = false
+      → deformedWings = false
+      → mitesVisible = false
+      → weakBrood = false
+
+      swarm is missing
+      → hasSwarmSigns = false
+      → queenEmergence = false
+      → openCells = false
+      → sealedCells = false
+      → eggsInCells = false
+
+      split is missing
+      → use meta.isSplit and meta.usedForSplits.
+
+      NEVER create a DISEASE task only because the disease object is missing.
+
+      NEVER create a SWARM task only because the swarm object is missing.
+
+      NEVER create a SPLIT task only because the split object is missing.
+
+      Missing data is NOT the same as a positive condition.
+
+      ========================
+      CONSTRAINTS
+      ========================
+
+      - Maximum 3 tasks per hive.
+      - No duplicate task types for the same hive.
+      - Every task must be realistic and practical.
+      - Titles must be short and specific.
+      - Titles MUST be written in ${aiLanguage}.
+      - type MUST be exactly one of:
+        FEEDING, INSPECTION, DISEASE, SWARM, SPLIT, OTHER.
+      - hiveNumber MUST be copied from the input hive.
+      - inDays MUST be a non-negative integer.
+      - Do not invent hive numbers.
+      - Do not invent task types.
+      - Do not add fields not specified in the output format.
+      - Do not return explanations.
+
+      ========================
+      OUTPUT FORMAT
+      ========================
+
+      {
+        "tasks": [
+          {
+            "hiveNumber": number,
+            "title": string,
+            "type": "FEEDING" | "INSPECTION" | "DISEASE" | "SWARM" | "SPLIT" | "OTHER",
+            "inDays": number
+          }
+        ]
+      }
+
+      ========================
+      DATA
+      ========================
+
+      ${JSON.stringify(hives)}
+      `;
 
       const key = openaiApiKey.value();
+
+      console.log('🔑 OPENAI KEY EXISTS:', Boolean(key));
+      console.log('🤖 OPENAI MODEL:', 'gpt-4o-mini');
+      console.log('📝 PROMPT LENGTH:', aiPrompt.length);
 
       const client = new OpenAI({
         apiKey: key,
@@ -272,6 +585,13 @@ ${JSON.stringify(hives)}
         ],
         temperature: 0.3, // 🔥 стабільніші відповіді
       });
+
+      console.log('🆔 OPENAI RESPONSE ID:', response.id);
+      console.log(
+        '🏁 OPENAI FINISH REASON:',
+        response.choices[0]?.finish_reason,
+      );
+      console.log('📦 OPENAI CONTENT:', response.choices[0]?.message?.content);
 
       const text = response.choices[0].message?.content || '{}';
 
