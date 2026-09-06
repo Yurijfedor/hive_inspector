@@ -23,16 +23,19 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        missingDimensionStrategy 'react-native-camera', 'general'
+
+        ndk {
+        abiFilters "armeabi-v7a", "arm64-v8a"
+        }
     }
-     signingConfigs {
-    release {
-      storeFile file('my-release-key.keystore')
-      storePassword '68911092'
-      keyAlias 'my-key-alias'
-      keyPassword '68911092'
+    signingConfigs {
+        release {
+        storeFile file('my-release-key.keystore')
+        storePassword '68911092'
+        keyAlias 'my-key-alias'
+        keyPassword '68911092'
+        }
     }
-  }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -48,9 +51,7 @@ android {
 
 dependencies {
     implementation("com.facebook.react:react-android")
-    implementation 'ai.picovoice:porcupine-android:3.0.1'
     implementation 'com.alphacephei:vosk-android:0.3.32'
-    implementation project(':react-native-camera')    
     implementation project(':react-native-firebase_database')
     implementation 'com.google.firebase:firebase-database:21.0.0'
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
